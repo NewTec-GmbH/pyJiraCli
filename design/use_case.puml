@@ -1,0 +1,40 @@
+@startuml pyJiraCLi_useCase
+left to right direction
+skinparam actorStyle awesome
+
+actor User as user
+
+package Usescases{
+usecase UC_help as "print command overview to console"
+usecase UC_login as "set login information"
+usecase UC_import as "create tickets from\n json files"
+usecase UC_export as "create .json file from ticket"
+usecase UC_search as "search Tickets with\nstring parameters/filters\ncmd:\n'search <filter_str>"
+usecase UC_details as "print Ticket details\ncmd:\n'print <issue_key>'"
+}
+
+usecase UC_import_details as "cmds:\ncreate issues from json file(s) -> 'import <file1> <file2> .. <file_n>'\ncreate issues from folder -> 'import folder <path_to_folder>" 
+usecase UC_export_details as "cmds:\ncreate single issue -> 'export issue <issue key> <destination>'\ncreate project issues -> 'export project <project key> <destination>'\ncreate by filter -> 'export filter <filter str> <destination>'"
+usecase UC_login_details as "cmds:\nsave login information ->'set_login name <Username/email> pw <password>'\ndelete user information -> 'set_login delete'"
+note ".json files will be grouped into folder by input parameters\nif no destination is provided the files will be stored in the project folder\nUser can specify a location where the folder/issue shall be saved\nevery issue is saved in a single json file" as N_export
+note "login information will be stored locally in a hidden file\nif no login information is provided with the set_login command,\nfor every action the login must be provided in the command line" as N_login
+note "its possible to import multiple issue from a single .json file\nmultiple .json files can be provided and processed in one console cmd\n a folder with json files can provided and imported" as N_import
+note "jira search parameters can be provided on the console\nall found issues will be listed on the console with issue name and key" as N_search
+note "a quick overview will be printed on the console\na single issue key must be provided" as N_details
+
+user --> UC_help : 'help'
+user --> UC_login : 'set_login'
+UC_login -.> UC_login_details : extends'
+user --> UC_import : 'import'
+UC_import -.> UC_import_details : extends
+user --> UC_search : 'search'
+user --> UC_export : 'export'
+UC_export  -.> UC_export_details : extends 
+user --> UC_details : 'print'
+
+UC_export_details -- N_export
+UC_login_details -- N_login
+UC_import_details -- N_import
+UC_search -- N_search
+UC_details -- N_details
+@enduml
