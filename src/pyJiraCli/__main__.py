@@ -33,7 +33,13 @@
 # Imports
 ################################################################################
 import sys
+import argparse
 
+import import_data
+import export_data
+import search
+import set_login
+import print_data
 ################################################################################
 # Variables
 ################################################################################
@@ -45,14 +51,36 @@ import sys
 ################################################################################
 # Functions
 ################################################################################
+def addparser():
+    """"add parser for command line arguments"""
 
+    parser = argparse.ArgumentParser(description="Program to handle JSON files.")
+    subparser = parser.add_subparsers()
+
+    import_data.register(subparser)
+    export_data.register(subparser)
+    search.register(subparser)
+    set_login.register(subparser)
+    print_data.register(subparser)
+
+    return parser.parse_args()
+
+######################################################
+
+######################################################
+######################################################
 def main():
     """The program entry point function.
 
     Returns:
         int: System exit status
     """
-    return 0
+    # get parser arguments
+    args = addparser()
+    
+    # call command function and return exit status
+    return args.func(args)
+######################################################
 
 ################################################################################
 # Main
