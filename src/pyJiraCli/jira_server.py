@@ -66,14 +66,15 @@ def login(user, pw):
     if ret_status != Ret.RET_OK:
         server_url = DEFAULT_SERVER
 
+    os.environ["SSL_CERT_FILE"] = certifi.where()
+
     try:
-        os.environ["SSL_CERT_FILE"] = certifi.where()
         jira = JIRA(server=server_url, basic_auth=(user, pw), options={"verify": False})
         jira.verify_ssl = False
 
         return jira, Ret.RET_OK
 
-    except Exception as e:
+    except jira.exceptions.JIRAError as e:
         #print error
         print(e)
         return None, Ret.RET_ERROR_JIRA_LOGIN
