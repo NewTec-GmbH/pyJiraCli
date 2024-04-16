@@ -215,7 +215,7 @@ class JiraIssue:
         for field in ISSUE_FIELDS:
             if self._issue_dictionary[field] is not None or self._issue_dictionary[field] == []:
 
-                if field == 'project_key': 
+                if field == 'project_key':
                     write_dictonary['project'] = {"key" : self._issue_dictionary['project_key']}
 
                 elif field == 'summary':
