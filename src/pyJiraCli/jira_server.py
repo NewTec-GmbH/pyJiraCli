@@ -36,8 +36,9 @@ import os
 import certifi
 
 from jira import JIRA
-import crypto_file_handler as crypto
-from retval import Ret
+
+from pyJiraCli import crypto_file_handler as crypto
+from pyJiraCli.retval import Ret
 ################################################################################
 # Variables
 ################################################################################
@@ -45,8 +46,8 @@ DEFAULT_SERVER = "https://jira.newtec.zz"
 
 ################################################################################
 # Classes
-################################################################################    
-    
+################################################################################
+
 ################################################################################
 # Functions
 ################################################################################
@@ -56,22 +57,22 @@ def login(user, pw):
     if user is None and pw is None:
         # get login information from login module
         user, pw, ret_status = crypto.decrypt_user_information()
-        
+
         if ret_status != Ret.RET_OK:
             return ret_status
-    
+
     server_url, ret_status = crypto.decrypt_server_information()
 
     if ret_status != Ret.RET_OK:
         server_url = DEFAULT_SERVER
-        
+
     try:
         os.environ["SSL_CERT_FILE"] = certifi.where()
         jira = JIRA(server=server_url, basic_auth=(user, pw), options={"verify": False})
         jira.verify_ssl = False
-    
+
         return jira, Ret.RET_OK
-        
+
     except Exception as e:
         #print error
         print(e)

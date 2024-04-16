@@ -35,14 +35,14 @@
 import sys
 import argparse
 
-import cmd_import
-import cmd_export
-import cmd_search
-import cmd_login
-import cmd_print
-from retval import Ret, prerr
+from pyJiraCli import cmd_import
+from pyJiraCli import cmd_export
+from pyJiraCli import cmd_search
+from pyJiraCli import cmd_login
+from pyJiraCli import cmd_print
+from pyJiraCli.retval import Ret, prerr
 
-from version import __version__, __author__, __email__, __repository__, __license__
+from pyJiraCli.version import __version__, __author__, __email__, __repository__, __license__
 ################################################################################
 # Variables5
 ################################################################################
@@ -62,7 +62,7 @@ def add_parser():
             "--version",
             action="version",
             version="%(prog)s " + __version__)
-    
+
     subparser = parser.add_subparsers()
 
     cmd_import.add_parser(subparser)
@@ -86,7 +86,7 @@ def main():
     """
     # get parser arguments
     args = add_parser()
-    
+
     # call command function and return exit status
     ret_status = args.func(args)
 

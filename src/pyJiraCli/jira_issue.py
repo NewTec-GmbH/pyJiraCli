@@ -42,8 +42,7 @@ import os
 import json
 import csv
 
-import jira_server as server
-from retval import Ret
+from pyJiraCli.retval import Ret
 ################################################################################
 # Variables
 ################################################################################
@@ -127,7 +126,7 @@ class JiraIssue:
         self._issue_dict['timeestimatedremaining'] = issue.fields.timeestimate
         self._issue_dict['environment'] = issue.fields.environment
         self._issue_dict['status'] = issue.fields.status.name
-        
+
         for label in issue.fields.labels:
             self._issue_dict['labels'].append(label)
         for component in issue.fields.components:
@@ -136,12 +135,12 @@ class JiraIssue:
             self._issue_dict['versions'].append(version.name)
         for solution in issue.fields.fixVersions:
             self._issue_dict['solutions'].append(solution.name)
-        
+
         return Ret.RET_OK
 
     def import_issue(self, dictonary):
         """"import issue from issue obj"""
-        
+
         # get issue information from json or csv file
         for field in ISSUE_FIELDS:
             if field in dictonary:
@@ -150,7 +149,7 @@ class JiraIssue:
                         self._issue_dict[field].append(item)
                 else:
                     self._issue_dict[field] = dictonary[field]
-            
+
     def print_issue(self):
         """"print issue information containend in class instance"""
 
@@ -163,7 +162,7 @@ class JiraIssue:
         try:
             with open(file_path, "w", encoding='utf-8') as outfile:
                 outfile.write(json_object)
-        
+
         except Exception as e:
 
             # print exception
@@ -171,17 +170,17 @@ class JiraIssue:
             return Ret.RET_ERROR_FILE_OPEN_FAILED
 
         return Ret.RET_OK
-    
+
     def create_csv(self, file_path):
         """"write issue information in class instance to csv file"""
-        
+
         try:
             with open(file_path, "w", encoding='utf-8') as outfile:
                 csv_writer = csv.DictWriter(outfile, fieldnames=ISSUE_FIELDS)
-                
+
                 csv_writer.writeheader()
                 csv_writer.writerow(self._issue_dict)
-        
+
         except Exception as e:
             # print exception
             print(e)
@@ -199,21 +198,20 @@ class JiraIssue:
                     case 'project':
                         write_dictonary['project'] = {"key" : self._issue_dict['project_key']}
 
-            
+
             # 'summary'                : self._issue_dict['summary'],
             # 'description'            : self._issue_dict['description'],
             # 'issuetype'              : {'id' : self._issue_dict['issuetype']},
             # 'priority'               : {'id' : self._issue_dict['priority']},
-            # 'assignee'               : {'displayName' : self._issue_dict['assignee']},          
-            # 'timeestimatedtotal'     : self._issue_dict['timeestimatedtotal'], 
-            # 'timeestimatedremaining' : self._issue_dict['timeestimatedremaining'],  
+            # 'assignee'               : {'displayName' : self._issue_dict['assignee']},
+            # 'timeestimatedtotal'     : self._issue_dict['timeestimatedtotal'],
+            # 'timeestimatedremaining' : self._issue_dict['timeestimatedremaining'],
             # 'environment'            : self._issue_dict['environment'],
             # 'labels'                 : self._issue_dict['labels'],
             # 'components'             : self._issue_dict['components'],
             # 'versions'               : self._issue_dict['versions'],
             # 'solutions'              : self._issue_dict['solutions']
-        
-        
+
         try:
             jira.create_issue(fields=write_dictonary)
 

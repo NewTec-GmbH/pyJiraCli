@@ -72,7 +72,8 @@ RETURN_MSG = {
     Ret.RET_ERROR_MISSING_LOGIN_INFO     : "At least one of the options must be provided: \
                                             (-user, -pw), -server or -delete",
     Ret.RET_ERROR_CREATING_TICKET_FAILED : "creating the ticket on the jira server failed",
-    Ret.RET_ERROR_LOGIN_FILE_MISSING     : "user and pw not provided via command line or loginfo file"
+    Ret.RET_ERROR_LOGIN_FILE_MISSING     : "user and pw not provided via \
+                                            command line or loginfo file"
 }
 ################################################################################
 # Classes

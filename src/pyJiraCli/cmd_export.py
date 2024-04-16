@@ -37,9 +37,9 @@
 ################################################################################
 import os
 
-import jira_issue
-import jira_server as server
-from retval import Ret
+from pyJiraCli import jira_issue
+from pyJiraCli import jira_server as server
+from pyJiraCli.retval import Ret
 
 ################################################################################
 # Variables
