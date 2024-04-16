@@ -62,17 +62,14 @@ def add_parser(subparser):
                            help="delete server information only")
     sb_login.set_defaults(func=cmd_login)
 
-######################################################
-## set_login command function                       ##
-######################################################
 def cmd_login(args):
     """"store or delete login information"""    
     if args.delete:
         return _delete_login_file(args)
 
-    else:
-        return _store_login_info(args)
-######################################################
+    return _store_login_info(args)
+
+
 def _store_login_info(args):
 
     ret_status = Ret.RET_OK
@@ -86,7 +83,7 @@ def _store_login_info(args):
 
         jira, ret_status = server.login(args.user, args.pw)
 
-        if ret_status != Ret.RET_OK:
+        if ret_status != Ret.RET_OK or jira is None:
             return ret_status
 
         ret_status = crypto.encrypt_user_information(args.user, args.pw)

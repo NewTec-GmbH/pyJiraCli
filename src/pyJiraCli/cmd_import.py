@@ -38,7 +38,7 @@ import os
 import json
 import csv
 
-# from pyJiraCli 
+# from pyJiraCli
 from pyJiraCli import jira_issue
 from pyJiraCli import jira_server as server
 from pyJiraCli.retval import Ret
@@ -75,7 +75,7 @@ def cmd_import(args):
         # check for file extension
         ext = os.path.splitext(args.file)[-1]
 
-        if ext == '.json' or ext == '.csv':
+        if ext in ('.json', '.csv'):
             file_path = args.file
 
         else:
@@ -93,7 +93,7 @@ def cmd_import(args):
 
             for row in csv_reader:
                 issue_dict = row
-    
+
     issue.import_issue(issue_dict)
 
     jira, ret_status = server.login(args.user, args.pw)
