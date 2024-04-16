@@ -1,4 +1,4 @@
-"""jira server connection module"""
+"""The main module with the program entry point."""
 
 # BSD 3-Clause License
 #
@@ -32,47 +32,55 @@
 ################################################################################
 # Imports
 ################################################################################
-import os
-import certifi
+from enum import IntEnum
 
-from jira import JIRA
-import crypto_file_handler as crypto
-from retval import Ret
+
 ################################################################################
 # Variables
 ################################################################################
-DEFAULT_SERVER = "https://jira.newtec.zz"
+CRED = '\033[91m'
+CEND = '\033[0m'
 
+class Ret(IntEnum):
+    """"exit statuses of the modules"""
+    RET_OK                           = 0,
+    RET_ERROR                        = 1
+    RET_ERROR_JIRA_LOGIN             = 2
+    RET_ERROR_FILE_NOT_FOUND         = 3
+    RET_ERROR_WORNG_FILE_FORMAT      = 4
+    RET_ERROR_ISSUE_NOT_FOUND        = 5
+    RET_ERROR_FILE_OPEN_FAILED       = 6
+    RET_ERROR_NO_USERINFORMATION     = 7
+    RET_ERROR_MISSING_UNSERINFO      = 8
+    RET_ERROR_MISSING_LOGIN_INFO     = 9
+    RET_ERROR_CREATING_TICKET_FAILED = 10
+    RET_ERROR_LOGIN_FILE_MISSING     = 11
+
+
+RETURN_MSG = {
+    Ret.RET_OK                           : "Process succesful",
+    Ret.RET_ERROR                        : "Error occured",
+    Ret.RET_ERROR_JIRA_LOGIN             : "Login to jira server was not possible",
+    Ret.RET_ERROR_FILE_NOT_FOUND         : "Folder or File doesn't exist",
+    Ret.RET_ERROR_WORNG_FILE_FORMAT      : "Wrong file format for save file provided",
+    Ret.RET_ERROR_ISSUE_NOT_FOUND        : "Jira Issue not found",
+    Ret.RET_ERROR_FILE_OPEN_FAILED       : "opening File failed",
+    Ret.RET_ERROR_NO_USERINFORMATION     : "no user information was provided via cli \
+                                            or stored information file",
+    Ret.RET_ERROR_MISSING_UNSERINFO      : "both -user and -pw option must be provided \
+                                            to store useriformation",
+    Ret.RET_ERROR_MISSING_LOGIN_INFO     : "At least one of the options must be provided: \
+                                            (-user, -pw), -server or -delete",
+    Ret.RET_ERROR_CREATING_TICKET_FAILED : "creating the ticket on the jira server failed",
+    Ret.RET_ERROR_LOGIN_FILE_MISSING     : "user and pw not provided via command line or loginfo file"
+}
 ################################################################################
 # Classes
-################################################################################    
-    
+################################################################################
+
 ################################################################################
 # Functions
 ################################################################################
-def login(user, pw):
-    """"login to jira server with user info or user info from file"""
-
-    if user is None and pw is None:
-        # get login information from login module
-        user, pw, ret_status = crypto.decrypt_user_information()
-        
-        if ret_status != Ret.RET_OK:
-            return ret_status
-    
-    server_url, ret_status = crypto.decrypt_server_information()
-
-    if ret_status != Ret.RET_OK:
-        server_url = DEFAULT_SERVER
-        
-    try:
-        os.environ["SSL_CERT_FILE"] = certifi.where()
-        jira = JIRA(server=server_url, basic_auth=(user, pw), options={"verify": False})
-        jira.verify_ssl = False
-    
-        return jira, Ret.RET_OK
-        
-    except Exception as e:
-        #print error
-        print(e)
-        return None, Ret.RET_ERROR_JIRA_LOGIN
+def prerr(error):
+    """"print exit error"""
+    print(CRED, "Error: ", RETURN_MSG[error], CEND)
