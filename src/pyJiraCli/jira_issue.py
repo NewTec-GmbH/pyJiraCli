@@ -41,11 +41,31 @@
 import os
 import json
 import csv
+import ast
 
 from pyJiraCli.retval import Ret
 ################################################################################
 # Variables
 ################################################################################
+ISSUE_TYPES = {
+    '1' : 'Bug',
+    '2' : 'Neue Funktion',
+    '3' : 'Aufgabe',
+    '4' : 'Story',
+    '5' : 'Epos',
+    '6' : 'ToDo',
+    '7' : 'Änderungsantrag (Dev)',
+    '8' : 'QMeldung'
+}
+
+ISSUE_PRIORITIES = {
+    '1' : 'Blocker',
+    '2' : 'Kritisch',
+    '3' : 'Major (Default)',
+    '4' : 'Geringfügig',
+    '5' : 'UNwesentlich'
+}
+
 # all available issue fields
 ISSUE_FIELDS = [
             'issue_key',              
@@ -90,17 +110,17 @@ class JiraIssue:
     """Class contains all jira ticket information"""
 
     def __init__(self) -> None:
-        self._issue_dict = {}
+        self._issue_dictionary = {}
 
         for field in ISSUE_FIELDS:
             if field in LIST_FIELDS:
-                self._issue_dict[field] = []
+                self._issue_dictionary[field] = []
             else:
-                self._issue_dict[field] = None
+                self._issue_dictionary[field] = None
 
     def get_key(self):
         """return the issue key of current issue"""
-        return self._issue_dict['issue_key']
+        return self._issue_dictionary['issue_key']
 
     def export_issue(self, jira, issue):
         """export issue from jira server"""
@@ -112,29 +132,29 @@ class JiraIssue:
             print(e)
             return Ret.RET_ERROR_ISSUE_NOT_FOUND
 
-        self._issue_dict['issue_key'] = issue.key
-        self._issue_dict['project_key'] = issue.fields.project.key
-        self._issue_dict['summary'] = issue.fields.summary
-        self._issue_dict['description'] = issue.fields.description
-        self._issue_dict['issuetype'] = issue.fields.issuetype.id
-        self._issue_dict['priority'] = issue.fields.priority.id
-        self._issue_dict['duedate'] = issue.fields.duedate
-        self._issue_dict['assignee'] = issue.fields.assignee.displayName
-        self._issue_dict['creator'] = issue.fields.creator.displayName
-        self._issue_dict['creation_date'] = issue.fields.creator.displayName
-        self._issue_dict['timeestimatedtotal'] = issue.fields.timeoriginalestimate
-        self._issue_dict['timeestimatedremaining'] = issue.fields.timeestimate
-        self._issue_dict['environment'] = issue.fields.environment
-        self._issue_dict['status'] = issue.fields.status.name
+        self._issue_dictionary['issue_key'] = issue.key
+        self._issue_dictionary['project_key'] = issue.fields.project.key
+        self._issue_dictionary['summary'] = issue.fields.summary
+        self._issue_dictionary['description'] = issue.fields.description
+        self._issue_dictionary['issuetype'] = issue.fields.issuetype.id
+        self._issue_dictionary['priority'] = issue.fields.priority.name
+        self._issue_dictionary['duedate'] = issue.fields.duedate
+        self._issue_dictionary['assignee'] = issue.fields.assignee.name
+        self._issue_dictionary['creator'] = issue.fields.creator.displayName
+        self._issue_dictionary['creation_date'] = issue.fields.creator.displayName
+        self._issue_dictionary['timeestimatedtotal'] = issue.fields.timeoriginalestimate
+        self._issue_dictionary['timeestimatedremaining'] = issue.fields.timeestimate
+        self._issue_dictionary['environment'] = issue.fields.environment
+        self._issue_dictionary['status'] = issue.fields.status.name
 
         for label in issue.fields.labels:
-            self._issue_dict['labels'].append(label)
+            self._issue_dictionary['labels'].append(label)
         for component in issue.fields.components:
-            self._issue_dict['components'].append(component.name)
+            self._issue_dictionary['components'].append(component.name)
         for version in issue.fields.versions:
-            self._issue_dict['versions'].append(version.name)
+            self._issue_dictionary['versions'].append(version.name)
         for solution in issue.fields.fixVersions:
-            self._issue_dict['solutions'].append(solution.name)
+            self._issue_dictionary['solutions'].append(solution.name)
 
         return Ret.RET_OK
 
@@ -142,13 +162,12 @@ class JiraIssue:
         """"import issue from issue obj"""
 
         # get issue information from json or csv file
-        for field in ISSUE_FIELDS:
-            if field in dictonary:
+        for field in dictonary:
+            if field in ISSUE_FIELDS:
                 if field in LIST_FIELDS:
-                    for item in dictonary[field]:
-                        self._issue_dict[field].append(item)
+                    self._issue_dictionary[field] = ast.literal_eval(dictonary[field])
                 else:
-                    self._issue_dict[field] = dictonary[field]
+                    self._issue_dictionary[field] = dictonary[field]
 
     def print_issue(self):
         """"print issue information containend in class instance"""
@@ -157,7 +176,7 @@ class JiraIssue:
         """"write issue information in class instance to json file"""
 
         # serialize json object
-        json_object = json.dumps(self._issue_dict, indent=4)
+        json_object = json.dumps(self._issue_dictionary, indent=4)
 
         try:
             with open(file_path, "w", encoding='utf-8') as outfile:
@@ -176,15 +195,17 @@ class JiraIssue:
 
         try:
             with open(file_path, "w", encoding='utf-8') as outfile:
-                csv_writer = csv.DictWriter(outfile, fieldnames=ISSUE_FIELDS)
+                csv_writer = csv.DictWriter(outfile,  delimiter=';', fieldnames=ISSUE_FIELDS)
 
                 csv_writer.writeheader()
-                csv_writer.writerow(self._issue_dict)
+                csv_writer.writerow(self._issue_dictionary)
 
         except Exception as e:
             # print exception
             print(e)
             return Ret.RET_ERROR_FILE_OPEN_FAILED
+
+        return Ret.RET_OK
 
 
     def create_ticket(self, jira):
@@ -193,24 +214,55 @@ class JiraIssue:
         write_dictonary = {}
 
         for field in ISSUE_FIELDS:
-            if self._issue_dict[field] is not None or self._issue_dict[field] == []:
+            if self._issue_dictionary[field] is not None or self._issue_dictionary[field] == []:
                 match field:
-                    case 'project':
-                        write_dictonary['project'] = {"key" : self._issue_dict['project_key']}
+                    case 'project_key':
+                        write_dictonary['project'] = {"key" : self._issue_dictionary['project_key']}
 
+                    case 'summary':
+                        write_dictonary["summary"] = self._issue_dictionary['summary']
 
-            # 'summary'                : self._issue_dict['summary'],
-            # 'description'            : self._issue_dict['description'],
-            # 'issuetype'              : {'id' : self._issue_dict['issuetype']},
-            # 'priority'               : {'id' : self._issue_dict['priority']},
-            # 'assignee'               : {'displayName' : self._issue_dict['assignee']},
-            # 'timeestimatedtotal'     : self._issue_dict['timeestimatedtotal'],
-            # 'timeestimatedremaining' : self._issue_dict['timeestimatedremaining'],
-            # 'environment'            : self._issue_dict['environment'],
-            # 'labels'                 : self._issue_dict['labels'],
-            # 'components'             : self._issue_dict['components'],
-            # 'versions'               : self._issue_dict['versions'],
-            # 'solutions'              : self._issue_dict['solutions']
+                    case 'description':
+                        write_dictonary["description"] = self._issue_dictionary['description']
+
+                    case 'issuetype':
+                        write_dictonary["issuetype"] = \
+                            ISSUE_TYPES[self._issue_dictionary['issuetype']]
+
+                    case 'priority':
+                        write_dictonary['priority'] = {"name" : self._issue_dictionary['priority']}
+
+                    case 'duedate':
+                        write_dictonary['duedate'] = self._issue_dictionary['duedate']
+
+                    case 'assignee':
+                        write_dictonary['assignee'] = {"name" : self._issue_dictionary['assignee']}
+
+#                    case 'timeestimatedtotal':
+#                        write_dictonary['timeestimatedtotal'] =
+#                           self._issue_dictionary['timeestimatedtotal']
+
+#                    case 'timeestimatedremaining':
+#                        write_dictonary['timeestimatedremaining'] =
+#                            self._issue_dictionary['timeestimatedremaining']
+
+#                    case 'environment':
+#                        write_dictonary['environment'] = self._issue_dictionary['environment']
+
+#                    case 'labels':
+#                        write_dictonary['labels'] = self._issue_dictionary['labels']
+
+#                    case 'components':
+#                        write_dictonary['components'] =
+#                            {"key" : self._issue_dictionary['project_key']}
+
+#                    case 'versions':
+#                        write_dictonary['versions'] =
+#                            {"key" : self._issue_dictionary['project_key']}
+
+#                    case 'solutions':
+#                        write_dictonary['solutions'] =
+#                            {"key" : self._issue_dictionary['project_key']}
 
         try:
             jira.create_issue(fields=write_dictonary)
@@ -220,6 +272,3 @@ class JiraIssue:
             return Ret.RET_ERROR_CREATING_TICKET_FAILED
 
         return Ret.RET_OK
-################################################################################
-# Functions
-################################################################################

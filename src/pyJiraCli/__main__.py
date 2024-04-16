@@ -42,6 +42,11 @@ from pyJiraCli import cmd_login
 from pyJiraCli import cmd_print
 from pyJiraCli.retval import Ret, prerr
 
+# import cmd_export
+# import cmd_search
+# import cmd_login
+# import cmd_print
+
 from pyJiraCli.version import __version__, __author__, __email__, __repository__, __license__
 ################################################################################
 # Variables5

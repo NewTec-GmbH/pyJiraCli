@@ -61,6 +61,7 @@ def add_parser(subparser):
     sb_export.add_argument('-user', type=str, help="jira usertname if not provided with set_login")
     sb_export.add_argument('-pw', type=str, help="jira password if not provided with set_login")
     sb_export.add_argument('-dest', type=str, help="Destination for the output file")
+    sb_export.add_argument('-file', type=str, help="name of the output file")
     sb_export.add_argument('-csv',  action='store_true', help="save data in csv file format")
     sb_export.set_defaults(func=export_data)
 
@@ -83,12 +84,34 @@ def export_data(args):
     if ret_status != Ret.RET_OK:
         return ret_status
 
+    if args.file is None:
+        filename = issue.get_key()
+    else:
+        filename = args.file
+
+    file_path, ret_status = _get_filepath(args, filename)
+
+    if ret_status != Ret.RET_OK:
+        return ret_status
+
+    if args.csv:
+        # export fiel to csv format
+        ret_status = issue.create_csv(file_path)
+
+    else:
+        # export file to json format
+        ret_status = issue.create_json(file_path)
+
+    return ret_status
+
+
+def _get_filepath(args, name):
     if args.dest is None:
         # save file in project folder
         if args.csv:
-            file_path = f'{issue.get_key()}.csv'
+            file_path = f'./issues/{name}.csv'
         else:
-            file_path = f'{issue.get_key()}.json'
+            file_path = f'./issues/{name}.json'
 
     else:
         # check if provided path or file is viable
@@ -105,22 +128,15 @@ def export_data(args):
                     file_path = args.dest
 
                 else:
-                    return Ret.RET_ERROR_WORNG_FILE_FORMAT
+                    return None, Ret.RET_ERROR_WORNG_FILE_FORMAT
             else:
                 # folder to save files was provided
                 if args.csv:
-                    file_path = os.path.join(args.dest, f'{issue.get_key()}.csv')
+                    file_path = os.path.join(args.dest, f'{name}.csv')
                 else:
-                    file_path = os.path.join(args.dest, f'{issue.get_key()}.json')
+                    file_path = os.path.join(args.dest, f'{name}.json')
         else:
-            return Ret.RET_ERROR_FILE_NOT_FOUND
+            return None, Ret.RET_ERROR_FILE_NOT_FOUND
 
-    if args.csv:
-        # export fiel to csv format
-        ret_status = issue.create_csv(file_path)
-
-    else:
-        # export file to json format
-        ret_status = issue.create_json(file_path)
-
-    return ret_status
+    return file_path, Ret.RET_OK
+   
