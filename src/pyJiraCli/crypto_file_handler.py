@@ -36,7 +36,7 @@
 import os
 import json
 
-from retval import Ret
+from pyJiraCli.retval import Ret
 ################################################################################
 # Variables
 ################################################################################
@@ -52,11 +52,11 @@ USER_INFO_FILE_LOCATION   = ".\\.logindata\\.user.txt"
 def encrypt_user_information(user, pw):
     """"encrypt userinformation to file"""
     json_object = json.dumps({'user' : user,'pw' : pw}, indent=4)
-   
+
     try:
         with open(USER_INFO_FILE_LOCATION, "w", encoding='utf-8') as outfile:
             outfile.write(json_object)
-        
+
     except Exception as e:
         # print exception
         print(e)
@@ -75,24 +75,24 @@ def decrypt_user_information():
                 data = json.load(file)
                 user = data['user']
                 pw = data['pw']
-    
+
         except Exception as e:
             # print exception
             print(e)
             return user, pw, Ret.RET_ERROR_FILE_OPEN_FAILED
     else:
         return user, pw, Ret.RET_ERROR_LOGIN_FILE_MISSING
-    
+
     return user, pw, Ret.RET_OK
 
 def encrypt_server_information(server_url):
     """"encrypt server information to file"""
     json_object = json.dumps({'url' : server_url}, indent=4)
-   
+
     try:
         with open(SERVER_INFO_FILE_LOCATION, "w", encoding='utf-8') as outfile:
             outfile.write(json_object)
-        
+
     except Exception as e:
         # print exception
         print(e)
@@ -102,21 +102,21 @@ def encrypt_server_information(server_url):
 
 def decrypt_server_information():
     """"decrypt and return server information from file"""
-    
+
     server = None
     if os.path.exists(SERVER_INFO_FILE_LOCATION):
         try:
             with open(SERVER_INFO_FILE_LOCATION, 'r', encoding='utf-8') as file:
                 data = json.load(file)
                 server = data['url']
-    
+
         except Exception as e:
             # print exception
             print(e)
             return server, Ret.RET_ERROR_FILE_OPEN_FAILED
     else:
         return server, Ret.RET_ERROR_LOGIN_FILE_MISSING
-    
+
     return server, Ret.RET_OK
 
 

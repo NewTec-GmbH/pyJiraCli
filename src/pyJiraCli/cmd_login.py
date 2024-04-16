@@ -33,9 +33,9 @@
 ################################################################################
 # Imports
 ################################################################################
-import crypto_file_handler as cryptoimport
-import jira_server as server
-from retval import Ret
+from pyJiraCli import crypto_file_handler as crypto
+from pyJiraCli import jira_server as server
+from pyJiraCli.retval import Ret
 ################################################################################
 # Variables
 ################################################################################
@@ -56,8 +56,10 @@ def add_parser(subparser):
     sb_login.add_argument('-pw', type=str, metavar='<password>', help="jira password for login")
     sb_login.add_argument('-url', type=str, metavar='<server url>', help="jira server for login")
     sb_login.add_argument('-delete', action='store_true', help="delete login information")
-    sb_login.add_argument('--userinfo', '-ui', action='store_true', help="delete user infomation only")
-    sb_login.add_argument('--server', '-s', action='store_true', help="delete server information only")
+    sb_login.add_argument('--userinfo', '-ui', action='store_true',
+                           help="delete user infomation only")
+    sb_login.add_argument('--server', '-s', action='store_true',
+                           help="delete server information only")
     sb_login.set_defaults(func=cmd_login)
 
 ######################################################

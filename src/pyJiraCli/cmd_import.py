@@ -38,9 +38,9 @@ import os
 import json
 import csv
 
-import jira_issue
-import jira_server as server
-from retval import Ret
+from pyJiraCli import jira_issue
+from pyJiraCli import jira_server as server
+from pyJiraCli.retval import Ret
 ################################################################################
 # Variables
 ################################################################################
@@ -69,22 +69,22 @@ def cmd_import(args):
     # check if provided file is viable
     if os.path.exists(args.file) and \
        os.path.isfile(args.file):
-        
+
         # check for file extension
         ext = os.path.splitext(args.file)[-1]
-        
+
         if ext == '.json' or ext == '.csv':
             file_path = args.file
-        
+
         else:
-                return Ret.RET_ERROR_WORNG_FILE_FORMAT
+            return Ret.RET_ERROR_WORNG_FILE_FORMAT
     else:
         return Ret.RET_ERROR_FILE_NOT_FOUND
-    
+
     if ext == '.json':
         with open(file_path, 'r', encoding='utf-8') as f:
             issue_dict = json.load(f)
-    
+
     if ext == '.csv':
         with open(file_path, 'r', encoding='utf-8') as f:
             csv_reader = csv.DictReader(f)
@@ -97,7 +97,7 @@ def cmd_import(args):
 
     if ret_status != Ret.RET_OK:
         return ret_status
-    
+
     ret_status = issue.create_ticket(jira)
 
     return ret_status
