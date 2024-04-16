@@ -215,29 +215,31 @@ class JiraIssue:
 
         for field in ISSUE_FIELDS:
             if self._issue_dictionary[field] is not None or self._issue_dictionary[field] == []:
-                match field:
-                    case 'project_key':
-                        write_dictonary['project'] = {"key" : self._issue_dictionary['project_key']}
 
-                    case 'summary':
-                        write_dictonary["summary"] = self._issue_dictionary['summary']
+                if field == 'project_key': 
+                    write_dictonary['project'] = {"key" : self._issue_dictionary['project_key']}
 
-                    case 'description':
-                        write_dictonary["description"] = self._issue_dictionary['description']
+                elif field == 'summary':
+                    write_dictonary["summary"] = self._issue_dictionary['summary']
 
-                    case 'issuetype':
-                        write_dictonary["issuetype"] = \
-                            ISSUE_TYPES[self._issue_dictionary['issuetype']]
+                elif field == 'description':
+                    write_dictonary["description"] = self._issue_dictionary['description']
 
-                    case 'priority':
-                        write_dictonary['priority'] = {"name" : self._issue_dictionary['priority']}
+                elif field == 'issuetype':
+                    write_dictonary["issuetype"] = \
+                        ISSUE_TYPES[self._issue_dictionary['issuetype']]
 
-                    case 'duedate':
-                        write_dictonary['duedate'] = self._issue_dictionary['duedate']
+                elif field == 'priority':
+                    write_dictonary['priority'] = {"name" : self._issue_dictionary['priority']}
 
-                    case 'assignee':
-                        write_dictonary['assignee'] = {"name" : self._issue_dictionary['assignee']}
+                elif field == 'duedate':
+                    write_dictonary['duedate'] = self._issue_dictionary['duedate']
 
+                elif field == 'assignee':
+                    write_dictonary['assignee'] = {"name" : self._issue_dictionary['assignee']}
+
+                else:
+                    pass
 #                    case 'timeestimatedtotal':
 #                        write_dictonary['timeestimatedtotal'] =
 #                           self._issue_dictionary['timeestimatedtotal']

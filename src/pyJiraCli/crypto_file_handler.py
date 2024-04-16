@@ -57,7 +57,7 @@ def encrypt_user_information(user, pw):
         with open(USER_INFO_FILE_LOCATION, "w", encoding='utf-8') as outfile:
             outfile.write(json_object)
 
-    except Exception as e:
+    except (OSError, IOError) as e:
         # print exception
         print(e)
         return Ret.RET_ERROR_FILE_OPEN_FAILED
@@ -76,7 +76,7 @@ def decrypt_user_information():
                 user = data['user']
                 pw = data['pw']
 
-        except Exception as e:
+        except (OSError, IOError) as e:
             # print exception
             print(e)
             return user, pw, Ret.RET_ERROR_FILE_OPEN_FAILED
@@ -93,7 +93,7 @@ def encrypt_server_information(server_url):
         with open(SERVER_INFO_FILE_LOCATION, "w", encoding='utf-8') as outfile:
             outfile.write(json_object)
 
-    except Exception as e:
+    except (OSError, IOError) as e:
         # print exception
         print(e)
         return Ret.RET_ERROR_FILE_OPEN_FAILED
@@ -110,7 +110,7 @@ def decrypt_server_information():
                 data = json.load(file)
                 server = data['url']
 
-        except Exception as e:
+        except (OSError, IOError) as e:
             # print exception
             print(e)
             return server, Ret.RET_ERROR_FILE_OPEN_FAILED
