@@ -1,5 +1,6 @@
-"""The main module with the program entry point."""
-
+"""Command for the print function.
+   prints the ticket information for a provided issue key
+   onto the console"""
 # BSD 3-Clause License
 #
 # Copyright (c) 2024, NewTec GmbH
@@ -20,7 +21,7 @@
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 # AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICU5LAR PURPOSE ARE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 # DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
 # FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 # DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
@@ -32,19 +33,9 @@
 ################################################################################
 # Imports
 ################################################################################
-import sys
-import argparse
 
-import cmd_import
-import cmd_export
-import cmd_search
-import cmd_login
-import cmd_print
-from retval import Ret, prerr
-
-from version import __version__, __author__, __email__, __repository__, __license__
 ################################################################################
-# Variables5
+# Variables
 ################################################################################
 
 ################################################################################
@@ -54,51 +45,15 @@ from version import __version__, __author__, __email__, __repository__, __licens
 ################################################################################
 # Functions
 ################################################################################
-def add_parser():
-    """"add parser for command line arguments"""
+# subparser for the 'print' command
+def add_parser(subparser):
+    """register subparser commands for the print_issue module"""
+    sb_search = subparser.add_parser('print', help="print issue details to the console")
+    sb_search.add_argument('issue', type=str, help="issue key")
+    sb_search.add_argument('-user', type=str, help="jira usertname if not provided with set_login")
+    sb_search.add_argument('-pw', type=str, help="jira password if not provided with set_login")
+    sb_search.set_defaults(func=cmd_print)
 
-    parser = argparse.ArgumentParser(description="Program to handle JSON files.")
-    parser.add_argument(
-            "--version",
-            action="version",
-            version="%(prog)s " + __version__)
-    
-    subparser = parser.add_subparsers()
-
-    cmd_import.add_parser(subparser)
-    cmd_export.add_parser(subparser)
-    cmd_search.add_parser(subparser)
-    cmd_login.add_parser(subparser)
-    cmd_print.add_parser(subparser)
-
-    return parser.parse_args()
-
-######################################################
-
-######################################################
-######################################################
-def main():
-    """The program entry point function.
-
-    
-    Returns:
-        int: System exit status
-    """
-    # get parser arguments
-    args = add_parser()
-    
-    # call command function and return exit status
-    ret_status = args.func(args)
-
-    if ret_status != Ret.RET_OK:
-        prerr(ret_status)
-
-    return ret_status
-######################################################
-
-################################################################################
-# Main
-################################################################################
-
-if __name__ == "__main__":
-    sys.exit(main())
+def cmd_print(args):
+    """print ticket information from jira issue to console"""
+    print(f'print details for issue {args.issue}')

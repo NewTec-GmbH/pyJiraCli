@@ -1,5 +1,4 @@
-"""The main module with the program entry point."""
-
+""" Tool setup """
 # BSD 3-Clause License
 #
 # Copyright (c) 2024, NewTec GmbH
@@ -20,7 +19,7 @@
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 # AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICU5LAR PURPOSE ARE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 # DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
 # FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 # DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
@@ -32,19 +31,10 @@
 ################################################################################
 # Imports
 ################################################################################
-import sys
-import argparse
+import setuptools
 
-import cmd_import
-import cmd_export
-import cmd_search
-import cmd_login
-import cmd_print
-from retval import Ret, prerr
-
-from version import __version__, __author__, __email__, __repository__, __license__
 ################################################################################
-# Variables5
+# Variables
 ################################################################################
 
 ################################################################################
@@ -54,51 +44,10 @@ from version import __version__, __author__, __email__, __repository__, __licens
 ################################################################################
 # Functions
 ################################################################################
-def add_parser():
-    """"add parser for command line arguments"""
-
-    parser = argparse.ArgumentParser(description="Program to handle JSON files.")
-    parser.add_argument(
-            "--version",
-            action="version",
-            version="%(prog)s " + __version__)
-    
-    subparser = parser.add_subparsers()
-
-    cmd_import.add_parser(subparser)
-    cmd_export.add_parser(subparser)
-    cmd_search.add_parser(subparser)
-    cmd_login.add_parser(subparser)
-    cmd_print.add_parser(subparser)
-
-    return parser.parse_args()
-
-######################################################
-
-######################################################
-######################################################
-def main():
-    """The program entry point function.
-
-    
-    Returns:
-        int: System exit status
-    """
-    # get parser arguments
-    args = add_parser()
-    
-    # call command function and return exit status
-    ret_status = args.func(args)
-
-    if ret_status != Ret.RET_OK:
-        prerr(ret_status)
-
-    return ret_status
-######################################################
 
 ################################################################################
 # Main
 ################################################################################
 
 if __name__ == "__main__":
-    sys.exit(main())
+    setuptools.setup()

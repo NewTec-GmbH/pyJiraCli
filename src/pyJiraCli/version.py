@@ -1,4 +1,4 @@
-"""The main module with the program entry point."""
+"""This module provides version and author information."""
 
 # BSD 3-Clause License
 #
@@ -20,7 +20,7 @@
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 # AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICU5LAR PURPOSE ARE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 # DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
 # FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 # DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
@@ -32,20 +32,20 @@
 ################################################################################
 # Imports
 ################################################################################
-import sys
-import argparse
+import importlib.metadata as meta
+import pathlib
 
-import cmd_import
-import cmd_export
-import cmd_search
-import cmd_login
-import cmd_print
-from retval import Ret, prerr
+import toml
 
-from version import __version__, __author__, __email__, __repository__, __license__
 ################################################################################
-# Variables5
+# Variables
 ################################################################################
+
+__version__ = "1.1.0"
+__author__ = "Timo Heitzmann"
+__email__ = "heitzmann_timo@web.de"
+__repository__ = "https://github.com/NewTec-GmbH/pyJiraCli"
+__license__ = "BSD 3-Clause"
 
 ################################################################################
 # Classes
@@ -54,51 +54,50 @@ from version import __version__, __author__, __email__, __repository__, __licens
 ################################################################################
 # Functions
 ################################################################################
-def add_parser():
-    """"add parser for command line arguments"""
 
-    parser = argparse.ArgumentParser(description="Program to handle JSON files.")
-    parser.add_argument(
-            "--version",
-            action="version",
-            version="%(prog)s " + __version__)
-    
-    subparser = parser.add_subparsers()
+def init_from_metadata():
+    """Initialize dunders from importlib.metadata
+    Requires that the package was installed.
 
-    cmd_import.add_parser(subparser)
-    cmd_export.add_parser(subparser)
-    cmd_search.add_parser(subparser)
-    cmd_login.add_parser(subparser)
-    cmd_print.add_parser(subparser)
-
-    return parser.parse_args()
-
-######################################################
-
-######################################################
-######################################################
-def main():
-    """The program entry point function.
-
-    
     Returns:
-        int: System exit status
+        list: Tool related informations
     """
-    # get parser arguments
-    args = add_parser()
-    
-    # call command function and return exit status
-    ret_status = args.func(args)
 
-    if ret_status != Ret.RET_OK:
-        prerr(ret_status)
+    my_metadata = meta.metadata('pyJiraCli')
 
-    return ret_status
-######################################################
+    return \
+        my_metadata['Version'],\
+        my_metadata['Author'],\
+        my_metadata['Author-email'],\
+        my_metadata['Project-URL'].replace("repository, ", ""),\
+        my_metadata['License']
+
+def init_from_toml():
+    """Initialize dunders from pypackage.toml file
+
+    Tried if package wasn't installed.
+
+    Returns:
+        list: Tool related informations
+    """
+
+    dist_dir = pathlib.Path(__file__).resolve().parents[2]
+    toml_file = pathlib.Path.joinpath(dist_dir, "project.toml")
+    data = toml.load(toml_file)
+
+    return \
+        data["project"]["version"],\
+        data["project"]["authors"][0]["name"],\
+        data["project"]["authors"][0]["email"],\
+        data["project"]["urls"]["repository"],\
+        data["project"]["license"]["text"]
 
 ################################################################################
 # Main
 ################################################################################
 
-if __name__ == "__main__":
-    sys.exit(main())
+try:
+    __version__, __author__, __email__, __repository__, __license__ = init_from_metadata()
+
+except meta.PackageNotFoundError:
+    __version__, __author__, __email__, __repository__, __license__ = init_from_toml()
