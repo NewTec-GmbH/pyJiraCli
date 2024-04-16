@@ -38,7 +38,6 @@
 ################################################################################
 # Imports
 ################################################################################
-import os
 import json
 import csv
 import ast
@@ -128,7 +127,7 @@ class JiraIssue:
         try:
             issue = jira.issue(issue)
 
-        except Exception as e:
+        except jira.exceptions.JIRAError as e:
             print(e)
             return Ret.RET_ERROR_ISSUE_NOT_FOUND
 
@@ -182,7 +181,7 @@ class JiraIssue:
             with open(file_path, "w", encoding='utf-8') as outfile:
                 outfile.write(json_object)
 
-        except Exception as e:
+        except (OSError, IOError) as e:
 
             # print exception
             print(e)
@@ -200,7 +199,7 @@ class JiraIssue:
                 csv_writer.writeheader()
                 csv_writer.writerow(self._issue_dictionary)
 
-        except Exception as e:
+        except (OSError, IOError) as e:
             # print exception
             print(e)
             return Ret.RET_ERROR_FILE_OPEN_FAILED
@@ -269,7 +268,7 @@ class JiraIssue:
         try:
             jira.create_issue(fields=write_dictonary)
 
-        except Exception as e:
+        except jira.exceptions.JIRAError as e:
             print(e)
             return Ret.RET_ERROR_CREATING_TICKET_FAILED
 
