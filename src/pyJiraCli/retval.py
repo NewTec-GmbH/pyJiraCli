@@ -43,7 +43,7 @@ CEND = '\033[0m'
 
 class Ret(IntEnum):
     """"exit statuses of the modules"""
-    RET_OK                           = 0,
+    RET_OK                           = 0
     RET_ERROR                        = 1
     RET_ERROR_JIRA_LOGIN             = 2
     RET_ERROR_FILE_NOT_FOUND         = 3

@@ -38,6 +38,7 @@ import os
 import json
 import csv
 
+# from pyJiraCli 
 from pyJiraCli import jira_issue
 from pyJiraCli import jira_server as server
 from pyJiraCli.retval import Ret
@@ -65,6 +66,7 @@ def cmd_import(args):
     """import jira issue from json or csv file"""
 
     issue = jira_issue.JiraIssue()
+    issue_dict = {}
 
     # check if provided file is viable
     if os.path.exists(args.file) and \
@@ -87,10 +89,11 @@ def cmd_import(args):
 
     if ext == '.csv':
         with open(file_path, 'r', encoding='utf-8') as f:
-            csv_reader = csv.DictReader(f)
+            csv_reader = csv.DictReader(f, delimiter=';')
 
             for row in csv_reader:
-                print(row)
+                issue_dict = row
+    
     issue.import_issue(issue_dict)
 
     jira, ret_status = server.login(args.user, args.pw)
