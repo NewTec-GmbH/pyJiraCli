@@ -51,11 +51,11 @@ USER_INFO_FILE_LOCATION   = ".\\.logindata\\.user.txt"
 ################################################################################
 def encrypt_user_information(user, pw):
     """"encrypt userinformation to file"""
-    json_object = json.dumps({'user' : user,'pw' : pw}, indent=4)
+    user_obj = json.dumps({'user' : user,'pw' : pw}, indent=4)
 
     try:
         with open(USER_INFO_FILE_LOCATION, "w", encoding='utf-8') as outfile:
-            outfile.write(json_object)
+            outfile.write(user_obj)
 
     except (OSError, IOError) as e:
         # print exception
@@ -87,11 +87,11 @@ def decrypt_user_information():
 
 def encrypt_server_information(server_url):
     """"encrypt server information to file"""
-    json_object = json.dumps({'url' : server_url}, indent=4)
+    user_obj = json.dumps({'url' : server_url}, indent=4)
 
     try:
         with open(SERVER_INFO_FILE_LOCATION, "w", encoding='utf-8') as outfile:
-            outfile.write(json_object)
+            outfile.write(user_obj)
 
     except (OSError, IOError) as e:
         # print exception
