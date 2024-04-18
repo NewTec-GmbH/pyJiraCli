@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyJiraCli"
-version = "1.1.0"
-description = "A CLI tool to dump data from e.g. intel hex files and is able to generate reports."
+version = "0.4.0"
+description = "A CLI tool to imoprt and export Jira Issues between server and json or csv files."
 readme = "README.md"
 requires-python = ">=3.8"
 authors = [
@@ -22,7 +22,7 @@ classifiers = [
 
 dependencies = [
     "jira>=3.8.0",
-    "Mako>=1.2.4",
+    "cryptography>=42.0.5",
     "toml>=0.10.2"
 ]
 
