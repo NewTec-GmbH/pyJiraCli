@@ -78,6 +78,8 @@ def login(user, pw):
         if ret_status == Ret.RET_OK:
             return _login_with_password(user, pw, server_url)
 
+        return None, ret_status
+
 def try_login(user, pw, token):
     """ try login with jira lib
         dont return jira obj only return OK if login succesful
@@ -98,15 +100,14 @@ def try_login(user, pw, token):
 
     elif pw is None:
         obj, ret_status = _login_with_token(token, server_url)
-    
+
     else:
         return Ret.RET_ERROR_MISSING_LOGIN_INFO
-    
+
     if obj is None:
         return Ret.RET_ERROR_JIRA_LOGIN
-    
-    else:
-        return ret_status
+
+    return ret_status
 
 def _login_with_token(token, url):
     os.environ["SSL_CERT_FILE"] = certifi.where()
@@ -142,7 +143,8 @@ def _get_server_url():
     server_url, data2_, ret_status = crypto.decrypt_information(crypto.DataType.DATATYPE_SERVER)
 
     if ret_status != Ret.RET_OK:
-        server_url, data2_, ret_status = crypto.decrypt_information(crypto.DataType.DATATYPE_SERVER_DEFAULT)
+        server_url, data2_, ret_status = \
+            crypto.decrypt_information(crypto.DataType.DATATYPE_SERVER_DEFAULT)
 
         if ret_status != Ret.RET_OK:
             server_url = DEFAULT_SERVER

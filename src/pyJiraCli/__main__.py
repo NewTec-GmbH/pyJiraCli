@@ -76,7 +76,8 @@ def add_parser():
     parser = argparse.ArgumentParser(prog='pyJiraCli',
                                      description="A CLI tool to imoprt and export Jira Issues \
                                                   between server and json or csv files.",
-                                     epilog="Copyright (c) 2022 - 2024 " + __author__ + " - " + __license__ + \
+                                     epilog="Copyright (c) 2022 - 2024 " + __author__ + " - " + \
+                                             __license__ + \
                                             " - Find the project on github: " + __repository__)
 
     parser.add_argument(

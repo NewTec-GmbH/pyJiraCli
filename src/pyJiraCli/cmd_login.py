@@ -74,7 +74,7 @@ def register(subparser):
                            type=str,
                            metavar='<password>',
                            help="jira password for login")
-    
+
     sb_login.add_argument('-token',
                            type=str,
                            metavar='<API token>',
@@ -84,21 +84,21 @@ def register(subparser):
                            type=str,
                            metavar='<server url>',
                            help="jira server for login")
-    
+
     sb_login.add_argument('-expires',
                            type=int,
                            metavar='<time>',
                            help="time after which the stored login info \
                                  will expire. default = 30 days")
-    
+
     sb_login.add_argument('--min',
                            action='store_true',
                            help="expire time in minutes")
-    
+
     sb_login.add_argument('--day',
                            action='store_true',
                            help="expire time in days")
-    
+
     sb_login.add_argument('--month',
                            action='store_true',
                            help="expire time in months")
@@ -106,7 +106,7 @@ def register(subparser):
     sb_login.add_argument('-delete',
                            action='store_true',
                            help="delete login information")
-    
+
     sb_login.add_argument('--default',
                            action='store_true',
                            help="delete or store default server url")
@@ -120,7 +120,7 @@ def register(subparser):
                           '-s',
                            action='store_true',
                            help="delete server information only")
-    
+
     sb_login.add_argument('--token',
                           '-t',
                            action='store_true',
@@ -210,7 +210,7 @@ def _store_login_info(args):
             data_type = crypto.DataType.DATATYPE_SERVER_DEFAULT
         else:
             data_type = crypto.DataType.DATATYPE_SERVER
-            
+
         ret_status = crypto.encrypt_information(url,
                                                 None,
                                                 expiration_date,
