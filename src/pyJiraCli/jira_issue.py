@@ -87,23 +87,23 @@ class JiraIssue:
 
         self._issue_dictionary['issue_key'] = issue.key
         self._issue_dictionary['project_key'] = issue.fields.project.key
-        
+
         self._issue_dictionary['summary'] = issue.fields.summary
 
         self._issue_dictionary['description'] = issue.fields.description
-        
+
         if issue.fields.issuetype is not None:
             self._issue_dictionary['issuetype'] = issue.fields.issuetype.id
-        
+
         if issue.fields.priority is not None:
             self._issue_dictionary['priority'] = issue.fields.priority.name
-        
+
         self._issue_dictionary['duedate'] = issue.fields.duedate
-        
+
         if issue.fields.assignee is not None:
             self._issue_dictionary['assignee'] = issue.fields.assignee.name
-        
-        if issue.fields.creator is not None:        
+
+        if issue.fields.creator is not None:
             self._issue_dictionary['creator'] = issue.fields.creator.displayName
 
         self._issue_dictionary['creation_date'] = issue.fields.created
