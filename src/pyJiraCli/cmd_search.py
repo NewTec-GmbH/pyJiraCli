@@ -58,16 +58,6 @@ def register(subparser):
                             help="filter string according to \
                                   which issue are to be searched")
 
-    sb_search.add_argument('-user',
-                            type=str,
-                            metavar='<username>',
-                            help="jira usertname if not provided with set_login")
-
-    sb_search.add_argument('-pw',
-                            type=str,
-                            metavar='<password>',
-                            help="jira password if not provided with set_login")
-
     return sb_search
 
 def execute(args):

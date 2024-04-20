@@ -71,16 +71,6 @@ def register(subparser):
                            type=str,
                            help="issue key")
 
-    sb_export.add_argument('-user',
-                            type=str,
-                            metavar='<username>',
-                            help="jira username if not provided with login")
-
-    sb_export.add_argument('-pw'  ,
-                            type=str,
-                            metavar='<password>',
-                            help="jira password if not provided with login")
-
     sb_export.add_argument('-path',
                             type=str,
                             metavar='<folder_path>',
@@ -181,7 +171,7 @@ def _get_filepath(issue, file, path, csv):
 
     return file_path, Ret.RET_OK
 
-def _export_ticket_to_file(issue, filepath, user, pw, csv):
+def _export_ticket_to_file(issue_key, filepath, user, pw, csv):
     """"export jira issue from server to json or csv file
         
         param:
@@ -206,7 +196,7 @@ def _export_ticket_to_file(issue, filepath, user, pw, csv):
         return ret_status
 
     # export issue from jira server
-    ret_status = issue.export_issue(jira, issue)
+    ret_status = issue.export_issue(jira, issue_key)
 
     if ret_status != Ret.RET_OK:
         return ret_status

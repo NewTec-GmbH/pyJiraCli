@@ -71,16 +71,6 @@ def register(subparser):
                             type=str,
                             help="file path to the json file")
 
-    sb_import.add_argument('-user',
-                            type=str,
-                            metavar='<username>',
-                            help="jira username if not provided with set_login")
-
-    sb_import.add_argument('-pw',
-                            type=str,
-                            metavar='<password>',
-                            help="jira password if not provided with set_login")
-
     return sb_import
 
 def execute(args):

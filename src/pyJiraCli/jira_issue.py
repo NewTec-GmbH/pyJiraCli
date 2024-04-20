@@ -87,18 +87,35 @@ class JiraIssue:
 
         self._issue_dictionary['issue_key'] = issue.key
         self._issue_dictionary['project_key'] = issue.fields.project.key
+        
         self._issue_dictionary['summary'] = issue.fields.summary
+
         self._issue_dictionary['description'] = issue.fields.description
-        self._issue_dictionary['issuetype'] = issue.fields.issuetype.id
-        self._issue_dictionary['priority'] = issue.fields.priority.name
+        
+        if issue.fields.issuetype is not None:
+            self._issue_dictionary['issuetype'] = issue.fields.issuetype.id
+        
+        if issue.fields.priority is not None:
+            self._issue_dictionary['priority'] = issue.fields.priority.name
+        
         self._issue_dictionary['duedate'] = issue.fields.duedate
-        self._issue_dictionary['assignee'] = issue.fields.assignee.name
-        self._issue_dictionary['creator'] = issue.fields.creator.displayName
-        self._issue_dictionary['creation_date'] = issue.fields.creator.displayName
+        
+        if issue.fields.assignee is not None:
+            self._issue_dictionary['assignee'] = issue.fields.assignee.name
+        
+        if issue.fields.creator is not None:        
+            self._issue_dictionary['creator'] = issue.fields.creator.displayName
+
+        self._issue_dictionary['creation_date'] = issue.fields.created
+
         self._issue_dictionary['timeestimatedtotal'] = issue.fields.timeoriginalestimate
+
         self._issue_dictionary['timeestimatedremaining'] = issue.fields.timeestimate
+
         self._issue_dictionary['environment'] = issue.fields.environment
-        self._issue_dictionary['status'] = issue.fields.status.name
+
+        if issue.fields.status is not None:
+            self._issue_dictionary['status'] = issue.fields.status.name
 
         for label in issue.fields.labels:
             self._issue_dictionary['labels'].append(label)
