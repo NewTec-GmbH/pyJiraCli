@@ -119,7 +119,7 @@ def _get_user_data_str(user, pw, expires):
 def _get_token_data_str(user, token, expires):
     data = f'{"{"}\n' + \
            f'   "user": "{user}",\n' + \
-           f'   "token": "{token}"\n' + \
+           f'   "token": "{token}",\n' + \
            f'   "expires": "{expires}"\n' + \
            f'{"}"}'    
     return data
@@ -160,6 +160,64 @@ def _get_file_paths(data_type):
 def _get_data_str(data1, data2, expires, data_type):
     return data_str_funcs[data_type](data1, data2, expires)
 
+def _read_encrypted_data(path_data, path_key, data_type):
+
+    ret_status = Ret.RET_OK
+
+    data1 = None
+    data2 = None
+    expires = None
+    f_reader_key = Fernet(_get_device_root_key())
+
+    if os.path.exists(path_data):
+        try:
+            with open(path_key, "r", encoding='utf-8') as file:
+                key_data = f_reader_key.decrypt(file.readline())
+            file.close()
+
+            f_reader_data = Fernet(key_data)
+
+            with open(path_data, 'r', encoding='utf-8') as file:
+                decrypted_data = f_reader_data.decrypt(bytes(file.readline(), encoding='utf-8'))
+            file.close()
+
+            tmp_file = _get_path_to_login_folder() + TMP_FILE
+
+            with open(tmp_file, 'w', encoding='utf-8') as file:
+                file.write(str(decrypted_data.decode('utf-8')))
+            file.close()
+
+            with open(tmp_file, 'r', encoding='utf-8') as file:
+                data = json.load(file)
+            file.close()
+
+            os.remove(tmp_file)
+
+            # read data
+            data1 = data[data_keys[data_type][0]]
+            if data_keys[data_type][1] is not None:
+                data2 = data[data_keys[data_type][1]]
+            expires = float(data["expires"])
+
+        except (OSError, IOError) as e:
+
+            # always remove the tmp file
+            if os.path.exists(tmp_file):
+                os.remove(tmp_file)
+
+            # print exception
+            print(e)
+
+            ret_status = Ret.RET_ERROR_FILE_OPEN_FAILED
+    else:
+        ret_status = Ret.RET_ERROR_NO_USERINFORMATION
+
+    if expires is not None and \
+       expires < time.time():
+        delete(data_type)
+        ret_status = Ret.RET_ERROR_INFO_FILE_EXPIRED
+
+    return data1, data2, ret_status
 
 def encrypt_information(data1, data2, expires, data_type):
     """ encrypt userinformation to file
@@ -215,70 +273,19 @@ def decrypt_information(data_type):
         the requested data or None
         exit status of the module"""
 
+    ret_status = Ret.RET_OK
+
     data1 = None
     data2 = None
 
-    file_path_data, file_path_key = _get_file_paths(data_type)
-    data1_key, data2_key = data_keys[data_type]
+    file_name_data, file_name_key = _get_file_paths(data_type)
 
-    folderpath = _get_path_to_login_folder()
-    root_key = _get_device_root_key()
+    filepath_data =  _get_path_to_login_folder() + file_name_data
+    filepath_key =  _get_path_to_login_folder() + file_name_key
 
-    f_reader_key = Fernet(root_key)
+    data1, data2, ret_status = _read_encrypted_data(filepath_data, filepath_key, data_type)
 
-    filepath_data = folderpath + file_path_data
-    filepath_key = folderpath + file_path_key
-
-    if os.path.exists(filepath_data):
-        try:
-            with open(filepath_key, "r", encoding='utf-8') as file:
-                key_data = f_reader_key.decrypt(file.readline())
-            file.close()
-
-            f_reader_data = Fernet(key_data)
-
-            with open(folderpath + file_path_data, 'r', encoding='utf-8') as file:
-                decrypted_data = f_reader_data.decrypt(bytes(file.readline(), encoding='utf-8'))
-            file.close()
-
-            with open(folderpath + TMP_FILE, 'w', encoding='utf-8') as file:
-                file.write(str(decrypted_data.decode('utf-8')))
-            file.close()
-
-            with open(folderpath + TMP_FILE, 'r', encoding='utf-8') as file:
-                data = json.load(file)
-            file.close()
-
-            os.remove(folderpath + TMP_FILE)
-
-            # read data
-            data1 = data[data1_key]
-            if data2_key is not None:
-                data2 = data[data2_key]
-            expires = float(data["expires"])
-
-        except (OSError, IOError) as e:
-
-            # always remove the tmp file
-            if os.path.exists(TMP_FILE):
-                os.remove(TMP_FILE)
-
-            # print exception
-            print(e)
-
-            if data_type is DataType.DATATYPE_SERVER or \
-               data_type is DataType.DATATYPE_SERVER_DEFAULT:
-                return None, None, Ret.RET_ERROR
-
-            return None, None, Ret.RET_ERROR_FILE_OPEN_FAILED
-    else:
-        return None, None, Ret.RET_ERROR_NO_USERINFORMATION
-
-    if expires < time.time():
-        delete(data_type)
-        return None, None, Ret.RET_ERROR_INFO_FILE_EXPIRED
-
-    return data1, data2, Ret.RET_OK
+    return data1, data2, ret_status
 
 def delete(data_type):
     """ delete login info

@@ -65,16 +65,6 @@ def register(subparser):
     sb_login = subparser.add_parser('login',
                                      help="save or delete login information")
 
-    sb_login.add_argument('-user',
-                           type=str,
-                           metavar='<username>',
-                           help="jira username for login")
-
-    sb_login.add_argument('-pw',
-                           type=str,
-                           metavar='<password>',
-                           help="jira password for login")
-
     sb_login.add_argument('-token',
                            type=str,
                            metavar='<API token>',
@@ -192,9 +182,6 @@ def _store_login_info(args):
                                                 crypto.DataType.DATATYPE_USER_INFO)
 
     if token is not None:
-        if user is None:
-            return Ret.RET_ERROR_MISSING_UNSERINFO
-
         ret_status = server.try_login(user, None, token)
 
         if ret_status != Ret.RET_OK:

@@ -54,7 +54,7 @@ DEFAULT_SERVER = "https://jira.newtec.zz"
 ################################################################################
 def login(user, pw):
     """ login to jira server with user info or user info from file
-        
+     
         param:
         user: provided username from the commandline or None
         pw: provided password from the commandline or None
@@ -65,20 +65,26 @@ def login(user, pw):
     """
 
     server_url = _get_server_url()
+    jira_obj = None
+    ret_status = Ret.RET_OK
 
     if user is None or pw is None:
         # get login information from login module
         user, token, ret_status = crypto.decrypt_information(crypto.DataType.DATATYPE_TOKEN_INFO)
 
         if ret_status == Ret.RET_OK:
-            return _login_with_token(token, server_url)
+            jira_obj, ret_status = _login_with_token(token, server_url)
 
-        user, pw, ret_status = crypto.decrypt_information(crypto.DataType.DATATYPE_USER_INFO)
+        else:
+            user, pw, ret_status = crypto.decrypt_information(crypto.DataType.DATATYPE_USER_INFO)
 
-        if ret_status == Ret.RET_OK:
-            return _login_with_password(user, pw, server_url)
+            if ret_status == Ret.RET_OK:
+                jira_obj, ret_status = _login_with_password(user, pw, server_url)
 
-        return None, ret_status
+    else:
+        jira_obj, ret_status = _login_with_password(user, pw, server_url)
+    
+    return jira_obj, ret_status
 
 def try_login(user, pw, token):
     """ try login with jira lib
@@ -148,5 +154,8 @@ def _get_server_url():
 
         if ret_status != Ret.RET_OK:
             server_url = DEFAULT_SERVER
+
+    if data2_ is not None:
+        pass
 
     return server_url

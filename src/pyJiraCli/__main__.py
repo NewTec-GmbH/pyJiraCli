@@ -79,16 +79,23 @@ def add_parser():
                                      epilog="Copyright (c) 2022 - 2024 " + __author__ + " - " + \
                                              __license__ + \
                                             " - Find the project on github: " + __repository__)
+    parser.add_argument('-user',
+                        type=str,
+                        metavar='<username>',
+                        help="jira username if not provided with login")
 
-    parser.add_argument(
-            "--version",
-            action="version",
-            version="%(prog)s " + __version__)
+    parser.add_argument('-pw'  ,
+                        type=str,
+                        metavar='<password>',
+                        help="jira password if not provided with login")
 
-    parser.add_argument(
-            "--verbose",
-            action="store_true",
-            help="print full command details before executing the command")
+    parser.add_argument("--version",
+                        action="version",
+                        version="%(prog)s " + __version__)
+
+    parser.add_argument("--verbose",
+                        action="store_true",
+                        help="print full command details before executing the command")
 
     subparser = parser.add_subparsers(required='True')
 
