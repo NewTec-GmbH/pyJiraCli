@@ -1,4 +1,4 @@
-"""The main module with the program entry point."""
+"""Contains constant values"""
 
 # BSD 3-Clause License
 #
@@ -32,48 +32,66 @@
 ################################################################################
 # Imports
 ################################################################################
-from enum import IntEnum
-
 
 ################################################################################
 # Variables
 ################################################################################
-CRED = '\033[91m'
-CEND = '\033[0m'
-
-class Ret(IntEnum):
-    """"exit statuses of the modules"""
-    RET_OK                           = 0
-    RET_ERROR                        = 1
-    RET_ERROR_JIRA_LOGIN             = 2
-    RET_ERROR_FILE_NOT_FOUND         = 3
-    RET_ERROR_WORNG_FILE_FORMAT      = 4
-    RET_ERROR_ISSUE_NOT_FOUND        = 5
-    RET_ERROR_FILE_OPEN_FAILED       = 6
-    RET_ERROR_NO_USERINFORMATION     = 7
-    RET_ERROR_MISSING_UNSERINFO      = 8
-    RET_ERROR_MISSING_LOGIN_INFO     = 9
-    RET_ERROR_CREATING_TICKET_FAILED = 10
-    RET_ERROR_INFO_FILE_EXPIRED      = 11
-
-
-RETURN_MSG = {
-    Ret.RET_OK                           : "Process succesful",
-    Ret.RET_ERROR                        : "Error occured",
-    Ret.RET_ERROR_JIRA_LOGIN             : "Login to jira server was not possible",
-    Ret.RET_ERROR_FILE_NOT_FOUND         : "Folder or File doesn't exist",
-    Ret.RET_ERROR_WORNG_FILE_FORMAT      : "Wrong file format for save file provided",
-    Ret.RET_ERROR_ISSUE_NOT_FOUND        : "Jira Issue not found",
-    Ret.RET_ERROR_FILE_OPEN_FAILED       : "opening File failed",
-    Ret.RET_ERROR_NO_USERINFORMATION     : "no user information was provided via cli " + \
-                                           "or stored information file",
-    Ret.RET_ERROR_MISSING_UNSERINFO      : "both -user and -pw option must be provided " + \
-                                           "to store useriformation",
-    Ret.RET_ERROR_MISSING_LOGIN_INFO     : "At least one of the options must be provided: " + \
-                                           "(-user, -pw), -server or -delete",
-    Ret.RET_ERROR_CREATING_TICKET_FAILED : "creating the ticket on the jira server failed",
-    Ret.RET_ERROR_INFO_FILE_EXPIRED      : "the stored information has expired"
+ISSUE_TYPES = {
+    '1' : 'Bug',
+    '2' : 'Neue Funktion',
+    '3' : 'Aufgabe',
+    '4' : 'Story',
+    '5' : 'Epos',
+    '6' : 'ToDo',
+    '7' : 'Änderungsantrag (Dev)',
+    '8' : 'QMeldung'
 }
+
+ISSUE_PRIORITIES = {
+    '1' : 'Blocker',
+    '2' : 'Kritisch',
+    '3' : 'Major (Default)',
+    '4' : 'Geringfügig',
+    '5' : 'UNwesentlich'
+}
+
+# all available issue fields
+ISSUE_FIELDS = [
+            'issue_key',              
+            'project_key',            
+            'summary',                
+            'description',            
+            'issuetype',              
+            'priority',               
+            'duedate',                
+            'assignee',               
+            'creator',
+            'creation_date',            
+            'timeestimatedtotal',     
+            'timeestimatedremaining', 
+            'environment',            
+            'status',                 
+            'labels',                 
+            'components',             
+            'versions',               
+            'solutions'
+        ]
+
+# all fields that can hold mutliple values
+LIST_FIELDS = [
+            'labels',                 
+            'components',             
+            'versions',               
+            'solutions'
+        ]
+
+# fields excluded when creating issues from files
+EXCLUDED_FIELDS = [
+            'creator',
+            'creation_date',
+            'issue_key',
+            'status'
+        ]
 ################################################################################
 # Classes
 ################################################################################
@@ -81,6 +99,3 @@ RETURN_MSG = {
 ################################################################################
 # Functions
 ################################################################################
-def prerr(error):
-    """"print exit error"""
-    print(CRED, "Error: ", RETURN_MSG[error], CEND)

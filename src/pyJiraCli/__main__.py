@@ -52,6 +52,15 @@ from pyJiraCli.version import __version__, __author__, __email__, __repository__
 # Variables5
 ################################################################################
 
+# add commando modules here
+_CMD_MODULS = [
+    cmd_export,
+    cmd_import,
+    cmd_search,
+    cmd_login,
+    cmd_print
+]
+
 ################################################################################
 # Classes
 ################################################################################
@@ -60,23 +69,34 @@ from pyJiraCli.version import __version__, __author__, __email__, __repository__
 # Functions
 ################################################################################
 def add_parser():
-    """"add parser for command line arguments"""
+    """"add parser for command line arguments
+    
+        return the parser after all the modules have been registered"""
 
-    parser = argparse.ArgumentParser(description="Program to handle JSON files.")
+    parser = argparse.ArgumentParser(prog='pyJiraCli',
+                                     description="A CLI tool to imoprt and export Jira Issues \
+                                                  between server and json or csv files.",
+                                     epilog="Copyright (c) 2022 - 2024 " + __author__ + " - " + __license__ + \
+                                            " - Find the project on github: " + __repository__)
+
     parser.add_argument(
             "--version",
             action="version",
             version="%(prog)s " + __version__)
 
-    subparser = parser.add_subparsers()
+    parser.add_argument(
+            "--verbose",
+            action="store_true",
+            help="print full command details before executing the command")
 
-    cmd_import.add_parser(subparser)
-    cmd_export.add_parser(subparser)
-    cmd_search.add_parser(subparser)
-    cmd_login.add_parser(subparser)
-    cmd_print.add_parser(subparser)
+    subparser = parser.add_subparsers(required='True')
 
-    return parser.parse_args()
+    # register command moduls und argparser arguments
+    for mod in _CMD_MODULS:
+        cmd_parser = mod.register(subparser)
+        cmd_parser.set_defaults(func=mod.execute)
+
+    return parser
 
 ######################################################
 
@@ -84,13 +104,22 @@ def add_parser():
 ######################################################
 def main():
     """The program entry point function.
-
     
     Returns:
         int: System exit status
     """
-    # get parser arguments
-    args = add_parser()
+    ret_status = Ret.RET_OK
+
+    # get parser
+    parser = add_parser()
+    args = parser.parse_args()
+
+    # In verbose mode print all program arguments
+    if args.verbose:
+        print("Program arguments: ")
+        for arg in vars(args):
+            print(f"* {arg} = {vars(args)[arg]}")
+        print("\n")
 
     # call command function and return exit status
     ret_status = args.func(args)

@@ -41,11 +41,11 @@ import toml
 # Variables
 ################################################################################
 
-__version__ = "1.1.0"
-__author__ = "Timo Heitzmann"
-__email__ = "heitzmann_timo@web.de"
-__repository__ = "https://github.com/NewTec-GmbH/pyJiraCli"
-__license__ = "BSD 3-Clause"
+__version__ = "???"
+__author__ = "???"
+__email__ = "???"
+__repository__ = "???"
+__license__ = "???"
 
 ################################################################################
 # Classes

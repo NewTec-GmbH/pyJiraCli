@@ -46,14 +46,32 @@
 # Functions
 ################################################################################
 # subparser for the 'print' command
-def add_parser(subparser):
+def register(subparser):
     """register subparser commands for the print_issue module"""
-    sb_search = subparser.add_parser('print', help="print issue details to the console")
-    sb_search.add_argument('issue', type=str, help="issue key")
-    sb_search.add_argument('-user', type=str, help="jira usertname if not provided with set_login")
-    sb_search.add_argument('-pw', type=str, help="jira password if not provided with set_login")
-    sb_search.set_defaults(func=cmd_print)
 
-def cmd_print(args):
+    sb_search = subparser.add_parser('print',
+                                      help="print issue details to the console")
+
+    sb_search.add_argument('issue',
+                            type=str,
+                            help="issue key")
+
+    sb_search.add_argument('-user',
+                            type=str,
+                            metavar='<username>',
+                            help="jira usertname if not provided with set_login")
+
+    sb_search.add_argument('-pw',
+                            type=str,
+                            metavar='<password>',
+                            help="jira password if not provided with set_login")
+
+    return sb_search
+
+def execute(args):
+    """execute command function"""
+    return _cmd_print(args.issue, args.user, args.pw)
+
+def _cmd_print(issue, user, pw):
     """print ticket information from jira issue to console"""
-    print(f'print details for issue {args.issue}')
+    print(f'print details for issue {issue}{user}{pw}')

@@ -35,13 +35,52 @@
 ################################################################################
 import os
 import json
+import subprocess as sub
+import hashlib
+import time
+import base64
+from enum import IntEnum
+
+from cryptography.fernet import Fernet
 
 from pyJiraCli.retval import Ret
 ################################################################################
 # Variables
 ################################################################################
-SERVER_INFO_FILE_LOCATION = ".\\.logindata\\.server.txt"
-USER_INFO_FILE_LOCATION   = ".\\.logindata\\.user.txt"
+PATH_TO_FOLDER   = "\\.pyJiraCli\\.logindata"
+
+USER_INFO_FILE   = "\\.user.data"
+USER_KEY_FILE    = "\\.user_key.data"
+
+TOKEN_INFO_FILE  = "\\.token.data"
+TOKEN_KEY_FILE  = "\\.token_key.data"
+
+SERVER_INFO_FILE = "\\.server.data"
+SERVER_KEY_FILE  = "\\.server_key.data"
+
+SERVER_DEFAULT_INFO_FILE = "\\.server_default.data"
+SERVER_DEFAULT_KEY_FILE  = "\\.server_default_key.data"
+
+TMP_FILE         = "\\.tmp.json"
+
+UUID_CMD_WIN  = "wmic csproduct get uuid"
+UUID_CMD_UNIX = "blkid"
+
+class DataType (IntEnum):
+    """"data_type to concern between which data information will be encrypted
+        or decrypted with the encrypt_information() and 
+        decrypt_information() function"""
+    DATATYPE_USER_INFO       = 0
+    DATATYPE_TOKEN_INFO      = 1
+    DATATYPE_SERVER          = 2
+    DATATYPE_SERVER_DEFAULT  = 3
+
+data_keys = {
+    DataType.DATATYPE_USER_INFO      : ("user", "pw"),
+    DataType.DATATYPE_TOKEN_INFO     : ("user", "token"),
+    DataType.DATATYPE_SERVER         : ("url", None),
+    DataType.DATATYPE_SERVER_DEFAULT : ("url", None)
+}
 ################################################################################
 # Classes
 ################################################################################
@@ -49,13 +88,115 @@ USER_INFO_FILE_LOCATION   = ".\\.logindata\\.user.txt"
 ################################################################################
 # Functions
 ################################################################################
-def encrypt_user_information(user, pw):
-    """"encrypt userinformation to file"""
-    user_obj = json.dumps({'user' : user,'pw' : pw}, indent=4)
+def _get_path_to_login_folder():
+
+    user_info_path = os.path.expanduser("~") + PATH_TO_FOLDER
+    if not os.path.exists(user_info_path):
+        os.makedirs(user_info_path)
+    return user_info_path
+
+def _get_device_root_key():
+    # check which os is being used
+    if "nt" in os.name:
+        _uuid = sub.check_output(UUID_CMD_WIN).split()[-1]
+    else:
+        _uuid = sub.check_output(UUID_CMD_UNIX).replace('"', '\n').split()[-1]
+
+    hasher = hashlib.sha3_512(_uuid, usedforsecurity=True)
+    hex_string = hasher.hexdigest().encode()
+
+    byte_data = bytes.fromhex(hex_string.decode())  # Decode hexadecimal string to bytes
+    return base64.urlsafe_b64encode(byte_data)[-45:-1]
+
+def _get_user_data_str(user, pw, expires):
+    data = f'{"{"}\n' + \
+           f'   "user": "{user}",\n' + \
+           f'   "pw": "{pw}"\n' + \
+           f'   "expires": "{expires}"\n' + \
+           f'{"}"}'    
+    return data
+
+def _get_token_data_str(user, token, expires):
+    data = f'{"{"}\n' + \
+           f'   "user": "{user}",\n' + \
+           f'   "token": "{token}"\n' + \
+           f'   "expires": "{expires}"\n' + \
+           f'{"}"}'    
+    return data
+
+def _get_server_data_str(url, data, expires):
+    data = f'{"{"}\n' + \
+           f'   "url": "{url}",\n' + \
+           f'   "expires": "{expires}"\n' + \
+           f'{"}"}'    
+    return data
+
+data_str_funcs = { \
+    DataType.DATATYPE_USER_INFO      : _get_user_data_str,
+    DataType.DATATYPE_TOKEN_INFO     : _get_token_data_str,
+    DataType.DATATYPE_SERVER         : _get_server_data_str,
+    DataType.DATATYPE_SERVER_DEFAULT : _get_server_data_str,
+}
+
+def _get_file_paths(data_type):
+    if data_type is DataType.DATATYPE_USER_INFO:
+        file_path_data = USER_INFO_FILE
+        file_path_key = USER_KEY_FILE
+
+    elif data_type is DataType.DATATYPE_TOKEN_INFO:
+        file_path_data = TOKEN_INFO_FILE
+        file_path_key = TOKEN_KEY_FILE
+
+    elif data_type is DataType.DATATYPE_SERVER:
+        file_path_data = SERVER_INFO_FILE
+        file_path_key = SERVER_KEY_FILE
+
+    elif data_type is DataType.DATATYPE_SERVER_DEFAULT:
+        file_path_data = SERVER_DEFAULT_INFO_FILE
+        file_path_key = SERVER_DEFAULT_KEY_FILE
+    
+    return file_path_data, file_path_key
+
+def _get_data_str(data1, data2, expires, data_type):
+    return data_str_funcs[data_type](data1, data2, expires)
+
+
+def encrypt_information(data1, data2, expires, data_type):
+    """ encrypt userinformation to file
+        
+    param:
+    data1: data field for encryption
+    data2: optional data field for encryption
+    expires: expiration date of the data
+    data_type: which data_type is to be written (user, token, server)
+
+    returns:
+    the exit status of the module
+    """
+
+    # get data structure for user data unencrypted
+    folderpath = _get_path_to_login_folder()
+    file_path_data, file_path_key =_get_file_paths(data_type)
+    data_str = _get_data_str(data1, data2, expires, data_type)
+    root_key = _get_device_root_key()
+
+    # generate new key for user data
+    file_key = Fernet.generate_key()
+
+    f_writer_key = Fernet(root_key)
+    f_writer_data = Fernet(file_key)
+
+    encrypted_key_info = f_writer_key.encrypt(file_key)
+    encrypted_data_info = f_writer_data.encrypt(data_str.encode(encoding='utf-8'))
 
     try:
-        with open(USER_INFO_FILE_LOCATION, "w", encoding='utf-8') as outfile:
-            outfile.write(user_obj)
+        with open(folderpath + file_path_key, "w", encoding='utf-8') as outfile:
+            outfile.write(f'{encrypted_key_info}'[2:-1])
+        outfile.close()
+
+        with open(folderpath + file_path_data, "w", encoding='utf-8') as outfile:           
+            outfile.write(f'{encrypted_data_info}'[2:-1])
+        outfile.close()
 
     except (OSError, IOError) as e:
         # print exception
@@ -64,68 +205,102 @@ def encrypt_user_information(user, pw):
 
     return Ret.RET_OK
 
-def decrypt_user_information():
-    """"decrypt and return userinformation from file"""
-    user = None
-    pw = None
+def decrypt_information(data_type):
+    """ decrypt and return data from file
+        
+        param: 
+        data_type: the data_type that shall be decrypted(user, token, server)
+        
+        return:
+        the requested data or None
+        exit status of the module"""
+    
+    data1 = None
+    data2 = None
 
-    if os.path.exists(USER_INFO_FILE_LOCATION):
+    file_path_data, file_path_key = _get_file_paths(data_type)
+    data1_key, data2_key = data_keys[data_type]
+
+    folderpath = _get_path_to_login_folder()
+    root_key = _get_device_root_key()
+
+    f_reader_key = Fernet(root_key)
+
+    filepath_data = folderpath + file_path_data
+    filepath_key = folderpath + file_path_key
+
+    if os.path.exists(filepath_data):
         try:
-            with open(USER_INFO_FILE_LOCATION, 'r', encoding='utf-8') as file:
+            with open(filepath_key, "r", encoding='utf-8') as file:
+                key_data = f_reader_key.decrypt(file.readline())
+            file.close()
+
+            f_reader_data = Fernet(key_data)
+
+            with open(folderpath + file_path_data, 'r', encoding='utf-8') as file:
+                decrypted_data = f_reader_data.decrypt(bytes(file.readline(), encoding='utf-8'))
+            file.close()
+
+            with open(folderpath + TMP_FILE, 'w', encoding='utf-8') as file:
+                file.write(str(decrypted_data.decode('utf-8')))
+            file.close()
+
+            with open(folderpath + TMP_FILE, 'r', encoding='utf-8') as file:
                 data = json.load(file)
-                user = data['user']
-                pw = data['pw']
+            file.close()
+
+            os.remove(folderpath + TMP_FILE)
+
+            # read data
+            data1 = data[data1_key]
+            if data2_key is not None:
+                data2 = data[data2_key]
+            expires = float(data["expires"])
 
         except (OSError, IOError) as e:
+
+            # always remove the tmp file
+            if os.path.exists(TMP_FILE):
+                os.remove(TMP_FILE)
+
             # print exception
             print(e)
-            return user, pw, Ret.RET_ERROR_FILE_OPEN_FAILED
+
+            if data_type is DataType.DATATYPE_SERVER or \
+               data_type is DataType.DATATYPE_SERVER_DEFAULT:
+                return None, None, Ret.RET_ERROR
+
+            return None, None, Ret.RET_ERROR_FILE_OPEN_FAILED
     else:
-        return user, pw, Ret.RET_ERROR_LOGIN_FILE_MISSING
+        return None, None, Ret.RET_ERROR_NO_USERINFORMATION
 
-    return user, pw, Ret.RET_OK
+    if expires < time.time():
+        delete(data_type)
+        return None, None, Ret.RET_ERROR_INFO_FILE_EXPIRED
+    
+    return data1, data2, Ret.RET_OK
 
-def encrypt_server_information(server_url):
-    """"encrypt server information to file"""
-    user_obj = json.dumps({'url' : server_url}, indent=4)
+def delete(data_type):
+    """ delete login info
+        
+        param:
+        data_type: which data shall be removed
+    """
 
-    try:
-        with open(SERVER_INFO_FILE_LOCATION, "w", encoding='utf-8') as outfile:
-            outfile.write(user_obj)
+    folderpath = _get_path_to_login_folder()
+    file_path_data, file_path_key = _get_file_paths(data_type)
+    
+    if os.path.exists(folderpath + file_path_data):
+        os.remove(folderpath + file_path_data)
 
-    except (OSError, IOError) as e:
-        # print exception
-        print(e)
-        return Ret.RET_ERROR_FILE_OPEN_FAILED
+    if os.path.exists(folderpath + file_path_key):
+        os.remove(folderpath + file_path_key)
 
-    return Ret.RET_OK
+def delete_all():
+    """"delete all info files and folder"""
 
-def decrypt_server_information():
-    """"decrypt and return server information from file"""
-
-    server = None
-    if os.path.exists(SERVER_INFO_FILE_LOCATION):
-        try:
-            with open(SERVER_INFO_FILE_LOCATION, 'r', encoding='utf-8') as file:
-                data = json.load(file)
-                server = data['url']
-
-        except (OSError, IOError) as e:
-            # print exception
-            print(e)
-            return server, Ret.RET_ERROR_FILE_OPEN_FAILED
-    else:
-        return server, Ret.RET_ERROR_LOGIN_FILE_MISSING
-
-    return server, Ret.RET_OK
-
-
-def delete_user_information():
-    """delete user information file"""
-    if os.path.exists(USER_INFO_FILE_LOCATION):
-        os.remove(USER_INFO_FILE_LOCATION)
-
-def delete_server_information():
-    """delete server information file"""
-    if os.path.exists(SERVER_INFO_FILE_LOCATION):
-        os.remove(SERVER_INFO_FILE_LOCATION)
+    delete(DataType.DATATYPE_USER_INFO)
+    delete(DataType.DATATYPE_TOKEN_INFO)
+    delete(DataType.DATATYPE_SERVER)
+    delete(DataType.DATATYPE_SERVER_DEFAULT)
+    os.removedirs(PATH_TO_FOLDER)
