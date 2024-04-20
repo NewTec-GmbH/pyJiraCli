@@ -102,7 +102,7 @@ def _get_device_root_key():
     else:
         _uuid = sub.check_output(UUID_CMD_UNIX).replace('"', '\n').split()[-1]
 
-    hasher = hashlib.sha3_512(_uuid, usedforsecurity=True)
+    hasher = hashlib.sha3_512(_uuid)
     hex_string = hasher.hexdigest().encode()
 
     byte_data = bytes.fromhex(hex_string.decode())  # Decode hexadecimal string to bytes
@@ -236,12 +236,11 @@ def encrypt_information(data1, data2, expires, data_type):
     folderpath = _get_path_to_login_folder()
     file_path_data, file_path_key =_get_file_paths(data_type)
     data_str = _get_data_str(data1, data2, expires, data_type)
-    root_key = _get_device_root_key()
 
     # generate new key for user data
     file_key = Fernet.generate_key()
 
-    f_writer_key = Fernet(root_key)
+    f_writer_key = Fernet(_get_device_root_key())
     f_writer_data = Fernet(file_key)
 
     encrypted_key_info = f_writer_key.encrypt(file_key)
