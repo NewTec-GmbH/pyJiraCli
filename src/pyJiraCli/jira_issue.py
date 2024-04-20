@@ -41,67 +41,14 @@
 import json
 import csv
 import ast
+from jira import exceptions as ex
 
 from pyJiraCli.retval import Ret
+from pyJiraCli import issue_constants as _const
 ################################################################################
 # Variables
 ################################################################################
-ISSUE_TYPES = {
-    '1' : 'Bug',
-    '2' : 'Neue Funktion',
-    '3' : 'Aufgabe',
-    '4' : 'Story',
-    '5' : 'Epos',
-    '6' : 'ToDo',
-    '7' : 'Änderungsantrag (Dev)',
-    '8' : 'QMeldung'
-}
 
-ISSUE_PRIORITIES = {
-    '1' : 'Blocker',
-    '2' : 'Kritisch',
-    '3' : 'Major (Default)',
-    '4' : 'Geringfügig',
-    '5' : 'UNwesentlich'
-}
-
-# all available issue fields
-ISSUE_FIELDS = [
-            'issue_key',              
-            'project_key',            
-            'summary',                
-            'description',            
-            'issuetype',              
-            'priority',               
-            'duedate',                
-            'assignee',               
-            'creator',
-            'creation_date',            
-            'timeestimatedtotal',     
-            'timeestimatedremaining', 
-            'environment',            
-            'status',                 
-            'labels',                 
-            'components',             
-            'versions',               
-            'solutions'
-        ]
-
-# all fields that can hold mutliple values
-LIST_FIELDS = [
-            'labels',                 
-            'components',             
-            'versions',               
-            'solutions'
-        ]
-
-# fields excluded when creating issues from files
-EXCLUDED_FIELDS = [
-            'creator',
-            'creation_date',
-            'issue_key',
-            'status'
-        ]
 ################################################################################
 # Classes
 ################################################################################
@@ -111,8 +58,8 @@ class JiraIssue:
     def __init__(self) -> None:
         self._issue_dictionary = {}
 
-        for field in ISSUE_FIELDS:
-            if field in LIST_FIELDS:
+        for field in _const.ISSUE_FIELDS:
+            if field in _const.LIST_FIELDS:
                 self._issue_dictionary[field] = []
             else:
                 self._issue_dictionary[field] = None
@@ -121,13 +68,20 @@ class JiraIssue:
         """return the issue key of current issue"""
         return self._issue_dictionary['issue_key']
 
-    def export_issue(self, jira, issue):
-        """export issue from jira server"""
+    def export_issue(self, jira, issue:str):
+        """ export issue from jira server
+            
+            param:
+            jira: jira obj for restAPi connection with server
+            issue: the issue key in string format
+            
+            return:
+            teh exit code of the process"""
 
         try:
             issue = jira.issue(issue)
 
-        except jira.exceptions.JIRAError as e:
+        except ex.JIRAError as e:
             print(e)
             return Ret.RET_ERROR_ISSUE_NOT_FOUND
 
@@ -158,12 +112,16 @@ class JiraIssue:
         return Ret.RET_OK
 
     def import_issue(self, dictonary):
-        """"import issue from issue obj"""
+        """ import issue from dictionary
+
+            param:
+            dictionary: a python dictionary conatining jira issue info
+            """
 
         # get issue information from json or csv file
         for field in dictonary:
-            if field in ISSUE_FIELDS:
-                if field in LIST_FIELDS:
+            if field in _const.ISSUE_FIELDS:
+                if field in _const.LIST_FIELDS:
                     self._issue_dictionary[field] = ast.literal_eval(dictonary[field])
                 else:
                     self._issue_dictionary[field] = dictonary[field]
@@ -172,7 +130,14 @@ class JiraIssue:
         """"print issue information containend in class instance"""
 
     def create_json(self, file_path):
-        """"write issue information in class instance to json file"""
+        """ write issue information in class instance to a json file
+            
+            param: 
+            file_path: path to the json file 
+            
+            return:
+            the exit status of the process
+        """
 
         # serialize json object
         json_object = json.dumps(self._issue_dictionary, indent=4)
@@ -190,11 +155,17 @@ class JiraIssue:
         return Ret.RET_OK
 
     def create_csv(self, file_path):
-        """"write issue information in class instance to csv file"""
-
+        """ write issue information in class instance to a csv file
+            
+            param: 
+            file_path: path to the csv file 
+            
+            return:
+            the exit status of the process
+        """
         try:
             with open(file_path, "w", encoding='utf-8') as outfile:
-                csv_writer = csv.DictWriter(outfile,  delimiter=';', fieldnames=ISSUE_FIELDS)
+                csv_writer = csv.DictWriter(outfile,  delimiter=';', fieldnames=_const.ISSUE_FIELDS)
 
                 csv_writer.writeheader()
                 csv_writer.writerow(self._issue_dictionary)
@@ -208,11 +179,32 @@ class JiraIssue:
 
 
     def create_ticket(self, jira):
-        """create jira issue with information from class instance"""
+        """ create jira issue on the server with information from class instance
+        
+            param: 
+            jira: jira obj for restAPi connection with server
+            
+            return:
+            the exit status of the process
+        """
+
+        write_dictionary = self._create_write_dictionary()
+
+        try:
+            jira.create_issue(fields=write_dictionary)
+
+        except ex.JIRAError as e:
+            print(e)
+            return Ret.RET_ERROR_CREATING_TICKET_FAILED
+
+        return Ret.RET_OK
+
+
+    def _create_write_dictionary(self):
 
         write_dictonary = {}
 
-        for field in ISSUE_FIELDS:
+        for field in _const.ISSUE_FIELDS:
             if self._issue_dictionary[field] is not None or self._issue_dictionary[field] == []:
 
                 if field == 'project_key':
@@ -226,7 +218,7 @@ class JiraIssue:
 
                 elif field == 'issuetype':
                     write_dictonary["issuetype"] = \
-                        ISSUE_TYPES[self._issue_dictionary['issuetype']]
+                        _const.ISSUE_TYPES[self._issue_dictionary['issuetype']]
 
                 elif field == 'priority':
                     write_dictonary['priority'] = {"name" : self._issue_dictionary['priority']}
@@ -239,6 +231,7 @@ class JiraIssue:
 
                 else:
                     pass
+
 #                    case 'timeestimatedtotal':
 #                        write_dictonary['timeestimatedtotal'] =
 #                           self._issue_dictionary['timeestimatedtotal']
@@ -263,13 +256,5 @@ class JiraIssue:
 
 #                    case 'solutions':
 #                        write_dictonary['solutions'] =
-#                            {"key" : self._issue_dictionary['project_key']}
-
-        try:
-            jira.create_issue(fields=write_dictonary)
-
-        except jira.exceptions.JIRAError as e:
-            print(e)
-            return Ret.RET_ERROR_CREATING_TICKET_FAILED
-
-        return Ret.RET_OK
+#                            {"key" : self._issue_dictionary['project_key']}        
+        return write_dictonary

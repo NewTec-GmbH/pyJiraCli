@@ -46,17 +46,34 @@
 ################################################################################
 # Functions
 ################################################################################
-def add_parser(subparser):
+def register(subparser):
     """add_parser subparser commands for the search module"""
     # subparser for the 'search' command
-    sb_search = subparser.add_parser('search', help="search for jira issues \
-                                                     with specified filter string")
-    sb_search.add_argument('filter', type=str, help="filter string according to \
-                                                     which issue are to be searched")
-    sb_search.add_argument('-user', type=str, help="jira usertname if not provided with set_login")
-    sb_search.add_argument('-pw', type=str, help="jira password if not provided with set_login")
-    sb_search.set_defaults(func=cmd_search)
+    sb_search = subparser.add_parser('search',
+                                      help="search for jira issues \
+                                            with specified filter string")
 
-def cmd_search(args):
+    sb_search.add_argument('filter',
+                            type=str,
+                            help="filter string according to \
+                                  which issue are to be searched")
+
+    sb_search.add_argument('-user',
+                            type=str,
+                            metavar='<username>',
+                            help="jira usertname if not provided with set_login")
+
+    sb_search.add_argument('-pw',
+                            type=str,
+                            metavar='<password>',
+                            help="jira password if not provided with set_login")
+
+    return sb_search
+
+def execute(args):
+    """execute command function"""
+    return _cmd_search(args.filter, args.user, args.pw)
+
+def _cmd_search(filter_str, user, pw):
     """search tickets with a provided filter or search string"""
-    print(f"searching for issues with filter {args.filter}")
+    print(f"searching for issues with filter {filter_str, user, pw}")
