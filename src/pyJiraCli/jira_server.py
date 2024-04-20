@@ -83,7 +83,7 @@ def login(user, pw):
 
     else:
         jira_obj, ret_status = _login_with_password(user, pw, server_url)
-    
+
     return jira_obj, ret_status
 
 def try_login(user, pw, token):
