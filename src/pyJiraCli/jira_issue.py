@@ -256,5 +256,5 @@ class JiraIssue:
 
 #                    case 'solutions':
 #                        write_dictonary['solutions'] =
-#                            {"key" : self._issue_dictionary['project_key']}        
+#                            {"key" : self._issue_dictionary['project_key']}
         return write_dictonary

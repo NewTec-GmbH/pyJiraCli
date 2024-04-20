@@ -111,7 +111,7 @@ def _cmd_export(args):
         return:
         the status of the module
     """
-    
+
     ret_val = Ret.RET_OK
 
     filepath, ret_val = _get_filepath(args.issue,
@@ -141,7 +141,7 @@ def _get_filepath(issue, file, path, csv):
        the filepath to the ticket file
        return status of the module
        """
-    
+
     if file is None:
         filename = issue
     else:

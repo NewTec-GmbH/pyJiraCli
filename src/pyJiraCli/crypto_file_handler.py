@@ -154,7 +154,7 @@ def _get_file_paths(data_type):
     elif data_type is DataType.DATATYPE_SERVER_DEFAULT:
         file_path_data = SERVER_DEFAULT_INFO_FILE
         file_path_key = SERVER_DEFAULT_KEY_FILE
-    
+
     return file_path_data, file_path_key
 
 def _get_data_str(data1, data2, expires, data_type):
@@ -194,7 +194,7 @@ def encrypt_information(data1, data2, expires, data_type):
             outfile.write(f'{encrypted_key_info}'[2:-1])
         outfile.close()
 
-        with open(folderpath + file_path_data, "w", encoding='utf-8') as outfile:           
+        with open(folderpath + file_path_data, "w", encoding='utf-8') as outfile:
             outfile.write(f'{encrypted_data_info}'[2:-1])
         outfile.close()
 
@@ -214,7 +214,7 @@ def decrypt_information(data_type):
         return:
         the requested data or None
         exit status of the module"""
-    
+
     data1 = None
     data2 = None
 
@@ -277,7 +277,7 @@ def decrypt_information(data_type):
     if expires < time.time():
         delete(data_type)
         return None, None, Ret.RET_ERROR_INFO_FILE_EXPIRED
-    
+
     return data1, data2, Ret.RET_OK
 
 def delete(data_type):
@@ -289,7 +289,7 @@ def delete(data_type):
 
     folderpath = _get_path_to_login_folder()
     file_path_data, file_path_key = _get_file_paths(data_type)
-    
+
     if os.path.exists(folderpath + file_path_data):
         os.remove(folderpath + file_path_data)
 
