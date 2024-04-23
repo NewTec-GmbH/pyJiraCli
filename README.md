@@ -1,7 +1,6 @@
 # pyJiraCli <!-- omit in toc -->
 
-pyJiraCli is a command-line tool designed for handling Jira tickets efficiently. With pyJiraCli, you can import/export tickets from/to JSON/CSV files, create tickets on the server using JSON/CSV files, and search for tickets based on a search string.
-pyJiraCli is a command-line tool designed for handling Jira tickets efficiently. With pyJiraCli, you can import/export tickets from/to JSON/CSV files, create tickets on the server using JSON/CSV files, and search for tickets based on a search string.
+pyJiraCli is a command-line tool designed for handling Jira tickets efficiently. With pyJiraCli, you can import/export tickets to JSON/CSV files, create tickets on the server using JSON/CSV files and search for tickets based on a search string.
 
 [![License](https://img.shields.io/badge/license-bsd-3.svg)](https://choosealicense.com/licenses/bsd-3-clause/)
 [![Repo Status](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
