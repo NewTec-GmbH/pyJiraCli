@@ -34,6 +34,7 @@
 ################################################################################
 import os
 import certifi
+import urllib3
 
 from jira import JIRA, exceptions
 
@@ -67,6 +68,8 @@ def login(user, pw):
     server_url = _get_server_url()
     jira_obj = None
     ret_status = Ret.RET_OK
+
+    urllib3.disable_warnings()
 
     if user is None or pw is None:
         # get login information from login module
