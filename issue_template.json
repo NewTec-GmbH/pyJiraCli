@@ -1,0 +1,61 @@
+{
+    // remove comments before using the template
+
+    // issue key will be created when importing tickets
+    "key": "",
+
+    // the project key under which the issue will be created
+    "project_key": "",
+
+    // quick summary for your issue
+    "summary": "",
+
+    // description of your issue
+    "description": "",
+    
+    // the issue type id, see issue_constants.py for more information 
+    "issuetype": "",
+    
+    // the issue priority id, see issue_constants.py for more information
+    "priority": "",
+
+    // duedate of the issue in YYYY-MM-DD format
+    "duedate": "",
+
+    // assignee of the issue
+    "assignee": "",
+
+    // creator of the issue, this field will excluded when creating an issue
+    "creator": "",
+
+    // date of creation of the issue, this field will excluded when creating an issue
+    "creation_date": "",
+
+    // time estimation original in h, enter int value
+    "originalEstimate": , 
+
+    // time estimation remaining in h, enter int value
+    "remainingEstimate": ,
+
+    // environment of the issue
+    "environment": "",
+
+    // status of the issue, will be created as "open"
+    "status": "",
+
+    // labels, only use labels available for your project
+    // bsp: ['label1', 'label2']
+    "labels": [],
+
+    // components, only use components available for your project
+    // bsp: ['component11', 'component2']
+    "components": [],
+
+    // versions, only use versions available for your project
+    // bsp: ['version1']
+    "versions": [],
+
+    // fixVersions, only use fixVersions available for your project
+    // bsp: ['fixVersions1']
+    "fixVersions": []
+}

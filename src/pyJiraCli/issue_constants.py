@@ -49,15 +49,15 @@ ISSUE_TYPES = {
 
 ISSUE_PRIORITIES = {
     '1' : 'Blocker',
-    '2' : 'Kritisch',
+    '2' : 'Critical',
     '3' : 'Major (Default)',
-    '4' : 'Geringfügig',
-    '5' : 'UNwesentlich'
+    '4' : 'Low',
+    '5' : 'Non-sentable'
 }
 
 # all available issue fields
 ISSUE_FIELDS = [
-            'issue_key',              
+            'key',              
             'project_key',            
             'summary',                
             'description',            
@@ -67,14 +67,14 @@ ISSUE_FIELDS = [
             'assignee',               
             'creator',
             'creation_date',            
-            'timeestimatedtotal',     
-            'timeestimatedremaining', 
+            'originalEstimate',     
+            'remainingEstimate', 
             'environment',            
             'status',                 
             'labels',                 
             'components',             
             'versions',               
-            'solutions'
+            'fixVersions'
         ]
 
 # all fields that can hold mutliple values
@@ -82,14 +82,14 @@ LIST_FIELDS = [
             'labels',                 
             'components',             
             'versions',               
-            'solutions'
+            'fixVersions'
         ]
 
 # fields excluded when creating issues from files
 EXCLUDED_FIELDS = [
             'creator',
             'creation_date',
-            'issue_key',
+            'key',
             'status'
         ]
 ################################################################################

@@ -38,7 +38,6 @@ import os
 import json
 import csv
 
-# from pyJiraCli
 from pyJiraCli import jira_issue
 from pyJiraCli import jira_server as server
 from pyJiraCli.retval import Ret

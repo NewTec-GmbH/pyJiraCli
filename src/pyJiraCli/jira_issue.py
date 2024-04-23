@@ -40,7 +40,6 @@
 ################################################################################
 import json
 import csv
-import ast
 from jira import exceptions as ex
 
 from pyJiraCli.retval import Ret
@@ -57,6 +56,7 @@ class JiraIssue:
 
     def __init__(self) -> None:
         self._issue_dictionary = {}
+        self._issue = None
 
         for field in _const.ISSUE_FIELDS:
             if field in _const.LIST_FIELDS:
@@ -66,7 +66,7 @@ class JiraIssue:
 
     def get_key(self):
         """return the issue key of current issue"""
-        return self._issue_dictionary['issue_key']
+        return self._issue_dictionary['key']
 
     def export_issue(self, jira, issue:str):
         """ export issue from jira server
@@ -79,69 +79,26 @@ class JiraIssue:
             teh exit code of the process"""
 
         try:
-            issue = jira.issue(issue)
+            self._issue = jira.issue(issue)
 
         except ex.JIRAError as e:
             print(e)
             return Ret.RET_ERROR_ISSUE_NOT_FOUND
 
-        self._issue_dictionary['issue_key'] = issue.key
-        self._issue_dictionary['project_key'] = issue.fields.project.key
-
-        self._issue_dictionary['summary'] = issue.fields.summary
-
-        self._issue_dictionary['description'] = issue.fields.description
-
-        if issue.fields.issuetype is not None:
-            self._issue_dictionary['issuetype'] = issue.fields.issuetype.id
-
-        if issue.fields.priority is not None:
-            self._issue_dictionary['priority'] = issue.fields.priority.name
-
-        self._issue_dictionary['duedate'] = issue.fields.duedate
-
-        if issue.fields.assignee is not None:
-            self._issue_dictionary['assignee'] = issue.fields.assignee.name
-
-        if issue.fields.creator is not None:
-            self._issue_dictionary['creator'] = issue.fields.creator.displayName
-
-        self._issue_dictionary['creation_date'] = issue.fields.created
-
-        self._issue_dictionary['timeestimatedtotal'] = issue.fields.timeoriginalestimate
-
-        self._issue_dictionary['timeestimatedremaining'] = issue.fields.timeestimate
-
-        self._issue_dictionary['environment'] = issue.fields.environment
-
-        if issue.fields.status is not None:
-            self._issue_dictionary['status'] = issue.fields.status.name
-
-        for label in issue.fields.labels:
-            self._issue_dictionary['labels'].append(label)
-        for component in issue.fields.components:
-            self._issue_dictionary['components'].append(component.name)
-        for version in issue.fields.versions:
-            self._issue_dictionary['versions'].append(version.name)
-        for solution in issue.fields.fixVersions:
-            self._issue_dictionary['solutions'].append(solution.name)
+        self._process_issue()
 
         return Ret.RET_OK
 
-    def import_issue(self, dictonary):
-        """ import issue from dictionary
-
+    def import_issue(self, dictionary):
+        """ import issue from diction
             param:
             dictionary: a python dictionary conatining jira issue info
-            """
+        """
 
         # get issue information from json or csv file
-        for field in dictonary:
+        for field in dictionary:
             if field in _const.ISSUE_FIELDS:
-                if field in _const.LIST_FIELDS:
-                    self._issue_dictionary[field] = ast.literal_eval(dictonary[field])
-                else:
-                    self._issue_dictionary[field] = dictonary[field]
+                self._issue_dictionary[field] = dictionary[field]
 
     def print_issue(self):
         """"print issue information containend in class instance"""
@@ -208,70 +165,97 @@ class JiraIssue:
         write_dictionary = self._create_write_dictionary()
 
         try:
-            jira.create_issue(fields=write_dictionary)
+            issue_key = jira.create_issue(fields=write_dictionary).key
 
         except ex.JIRAError as e:
             print(e)
             return Ret.RET_ERROR_CREATING_TICKET_FAILED
-
+        print(f"your ticket has been imported with key: \n{issue_key}")
         return Ret.RET_OK
 
+
+    def _process_issue(self):
+        self._issue_dictionary['key'] = self._issue.key
+        self._issue_dictionary['project_key'] = self._issue.fields.project.key
+
+        self._issue_dictionary['summary'] = self._issue.fields.summary
+
+        self._issue_dictionary['description'] = self._issue.fields.description
+
+        if self._issue.fields.issuetype is not None:
+            self._issue_dictionary['issuetype'] = self._issue.fields.issuetype.id
+
+        if self._issue.fields.priority is not None:
+            self._issue_dictionary['priority'] = self._issue.fields.priority.id
+
+        self._issue_dictionary['duedate'] = self._issue.fields.duedate
+
+        if self._issue.fields.assignee is not None:
+            self._issue_dictionary['assignee'] = self._issue.fields.assignee.name
+
+        if self._issue.fields.creator is not None:
+            self._issue_dictionary['creator'] = self._issue.fields.creator.displayName
+
+        self._issue_dictionary['creation_date'] = self._issue.fields.created
+
+        self._issue_dictionary['originalEstimate'] = self._issue.fields.timeoriginalestimate
+
+        self._issue_dictionary['remainingEstimate'] = self._issue.fields.timeestimate
+
+        self._issue_dictionary['environment'] = self._issue.fields.environment
+
+        if self._issue.fields.status is not None:
+            self._issue_dictionary['status'] = self._issue.fields.status.name
+
+        for label in self._issue.fields.labels:
+            self._issue_dictionary['labels'].append(label)
+        for component in self._issue.fields.components:
+            self._issue_dictionary['components'].append(component.name)
+        for version in self._issue.fields.versions:
+            self._issue_dictionary['versions'].append(version.name)
+        for solution in self._issue.fields.fixVersions:
+            self._issue_dictionary['fixVersions'].append(solution.name)
+
+        return Ret.RET_OK
 
     def _create_write_dictionary(self):
 
         write_dictonary = {}
+        time_tracking = {}
 
         for field in _const.ISSUE_FIELDS:
+
+            if field in _const.EXCLUDED_FIELDS:
+                continue
+
             if self._issue_dictionary[field] is not None or self._issue_dictionary[field] == []:
 
                 if field == 'project_key':
                     write_dictonary['project'] = {"key" : self._issue_dictionary['project_key']}
-
-                elif field == 'summary':
-                    write_dictonary["summary"] = self._issue_dictionary['summary']
-
-                elif field == 'description':
-                    write_dictonary["description"] = self._issue_dictionary['description']
 
                 elif field == 'issuetype':
                     write_dictonary["issuetype"] = \
                         _const.ISSUE_TYPES[self._issue_dictionary['issuetype']]
 
                 elif field == 'priority':
-                    write_dictonary['priority'] = {"name" : self._issue_dictionary['priority']}
-
-                elif field == 'duedate':
-                    write_dictonary['duedate'] = self._issue_dictionary['duedate']
+                    write_dictonary['priority'] = \
+                        {"id" : self._issue_dictionary['priority']}
 
                 elif field == 'assignee':
                     write_dictonary['assignee'] = {"name" : self._issue_dictionary['assignee']}
 
+                elif field in ['originalEstimate', 'remainingEstimate']:
+                    time_tracking[field] = self._issue_dictionary[field]
+
+                elif field in ['components', 'versions', 'fixVersions']:
+                    items = []
+                    for item in self._issue_dictionary[field]:
+                        items.append({ "name" : item})
+                    write_dictonary[field] = items
+
                 else:
-                    pass
+                    write_dictonary[field] = self._issue_dictionary[field]
 
-#                    case 'timeestimatedtotal':
-#                        write_dictonary['timeestimatedtotal'] =
-#                           self._issue_dictionary['timeestimatedtotal']
+        write_dictonary["timetracking"] = time_tracking
 
-#                    case 'timeestimatedremaining':
-#                        write_dictonary['timeestimatedremaining'] =
-#                            self._issue_dictionary['timeestimatedremaining']
-
-#                    case 'environment':
-#                        write_dictonary['environment'] = self._issue_dictionary['environment']
-
-#                    case 'labels':
-#                        write_dictonary['labels'] = self._issue_dictionary['labels']
-
-#                    case 'components':
-#                        write_dictonary['components'] =
-#                            {"key" : self._issue_dictionary['project_key']}
-
-#                    case 'versions':
-#                        write_dictonary['versions'] =
-#                            {"key" : self._issue_dictionary['project_key']}
-
-#                    case 'solutions':
-#                        write_dictonary['solutions'] =
-#                            {"key" : self._issue_dictionary['project_key']}
         return write_dictonary
