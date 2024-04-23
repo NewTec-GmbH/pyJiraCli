@@ -39,6 +39,7 @@ import subprocess as sub
 import hashlib
 import time
 import base64
+import ctypes
 from enum import IntEnum
 
 from cryptography.fernet import Fernet
@@ -47,6 +48,8 @@ from pyJiraCli.retval import Ret
 ################################################################################
 # Variables
 ################################################################################
+FILE_ATTRIBUTE_HIDDEN = 0x02
+
 PATH_TO_FOLDER   = "\\.pyJiraCli\\.logindata"
 
 USER_INFO_FILE   = "\\.user.data"
@@ -81,6 +84,21 @@ data_keys = {
     DataType.DATATYPE_SERVER         : ("url", None),
     DataType.DATATYPE_SERVER_DEFAULT : ("url", None)
 }
+
+file_paths = {
+    DataType.DATATYPE_USER_INFO      : (USER_INFO_FILE, USER_KEY_FILE),
+    DataType.DATATYPE_TOKEN_INFO     : (TOKEN_INFO_FILE, TOKEN_KEY_FILE),
+    DataType.DATATYPE_SERVER         : (SERVER_INFO_FILE, SERVER_KEY_FILE),
+    DataType.DATATYPE_SERVER_DEFAULT : (SERVER_DEFAULT_INFO_FILE, SERVER_DEFAULT_KEY_FILE)
+}
+
+data_str_funcs = {
+    DataType.DATATYPE_USER_INFO      : None,
+    DataType.DATATYPE_TOKEN_INFO     : None,
+    DataType.DATATYPE_SERVER         : None,
+    DataType.DATATYPE_SERVER_DEFAULT : None,
+}
+
 ################################################################################
 # Classes
 ################################################################################
@@ -88,11 +106,123 @@ data_keys = {
 ################################################################################
 # Functions
 ################################################################################
+def encrypt_information(data1, data2, expires, data_type):
+    """ encrypt userinformation to file
+        
+    param:
+    data1: data field for encryption
+    data2: optional data field for encryption
+    expires: expiration date of the data
+    data_type: which data_type is to be written (user, token, server)
+
+    returns:
+    the exit status of the module
+    """
+
+    # get file paths
+    file_path_data, file_path_key = file_paths[data_type]
+
+    file_path_data = _get_path_to_login_folder() + file_path_data
+    file_path_key  = _get_path_to_login_folder() + file_path_key
+
+    # get data structure for user data unencrypted
+    data_str = _get_data_str(data1, data2, expires, data_type)
+
+    # generate new key for user data
+    file_key = Fernet.generate_key()
+
+    f_writer_key = Fernet(_get_device_root_key())
+    f_writer_data = Fernet(file_key)
+
+    encrypted_key_info = f_writer_key.encrypt(file_key)
+    encrypted_data_info = f_writer_data.encrypt(data_str.encode(encoding='utf-8'))
+
+    if os.path.exists(file_path_data):
+        os.remove(file_path_data)
+
+    if os.path.exists(file_path_key):
+        os.remove(file_path_key)
+
+    try:
+        with open(file_path_key, "w", encoding='utf-8') as outfile:
+            outfile.write(f'{encrypted_key_info}'[2:-1])
+        outfile.close()
+
+        ctypes.windll.kernel32.SetFileAttributesW(file_path_key,
+                                                  FILE_ATTRIBUTE_HIDDEN)
+
+        with open(file_path_data, "w", encoding='utf-8') as outfile:
+            outfile.write(f'{encrypted_data_info}'[2:-1])
+        outfile.close()
+
+        ctypes.windll.kernel32.SetFileAttributesW(file_path_data,
+                                                  FILE_ATTRIBUTE_HIDDEN)
+
+    except (OSError, IOError) as e:
+        # print exception
+        print(e)
+        return Ret.RET_ERROR_FILE_OPEN_FAILED
+
+    return Ret.RET_OK
+
+def decrypt_information(data_type):
+    """ decrypt and return data from file
+        
+        param: 
+        data_type: the data_type that shall be decrypted(user, token, server)
+        
+        return:
+        the requested data or None
+        exit status of the module"""
+
+    ret_status = Ret.RET_OK
+
+    data1 = None
+    data2 = None
+
+    file_name_data, file_name_key = file_paths[data_type]
+
+    filepath_data =  _get_path_to_login_folder() + file_name_data
+    filepath_key =  _get_path_to_login_folder() + file_name_key
+
+    data1, data2, ret_status = _read_encrypted_data(filepath_data, filepath_key, data_type)
+
+    return data1, data2, ret_status
+
+def delete(data_type):
+    """ delete login info
+        
+        param:
+        data_type: which data shall be removed
+    """
+
+    folderpath = _get_path_to_login_folder()
+    file_path_data, file_path_key = file_paths[data_type]
+
+    if os.path.exists(folderpath + file_path_data):
+        os.remove(folderpath + file_path_data)
+
+    if os.path.exists(folderpath + file_path_key):
+        os.remove(folderpath + file_path_key)
+
+def delete_all():
+    """"delete all info files and folder"""
+
+    delete(DataType.DATATYPE_USER_INFO)
+    delete(DataType.DATATYPE_TOKEN_INFO)
+    delete(DataType.DATATYPE_SERVER)
+    delete(DataType.DATATYPE_SERVER_DEFAULT)
+    os.removedirs(_get_path_to_login_folder())
+
+
 def _get_path_to_login_folder():
 
     user_info_path = os.path.expanduser("~") + PATH_TO_FOLDER
+
     if not os.path.exists(user_info_path):
         os.makedirs(user_info_path)
+        ctypes.windll.kernel32.SetFileAttributesW(user_info_path,
+                                                  FILE_ATTRIBUTE_HIDDEN)
     return user_info_path
 
 def _get_device_root_key():
@@ -107,58 +237,6 @@ def _get_device_root_key():
 
     byte_data = bytes.fromhex(hex_string.decode())  # Decode hexadecimal string to bytes
     return base64.urlsafe_b64encode(byte_data)[-45:-1]
-
-def _get_user_data_str(user, pw, expires):
-    data = f'{"{"}\n' + \
-           f'   "user": "{user}",\n' + \
-           f'   "pw": "{pw}"\n' + \
-           f'   "expires": "{expires}"\n' + \
-           f'{"}"}'    
-    return data
-
-def _get_token_data_str(user, token, expires):
-    data = f'{"{"}\n' + \
-           f'   "user": "{user}",\n' + \
-           f'   "token": "{token}",\n' + \
-           f'   "expires": "{expires}"\n' + \
-           f'{"}"}'    
-    return data
-
-def _get_server_data_str(url, data, expires):
-    data = f'{"{"}\n' + \
-           f'   "url": "{url}",\n' + \
-           f'   "expires": "{expires}"\n' + \
-           f'{"}"}'    
-    return data
-
-data_str_funcs = { \
-    DataType.DATATYPE_USER_INFO      : _get_user_data_str,
-    DataType.DATATYPE_TOKEN_INFO     : _get_token_data_str,
-    DataType.DATATYPE_SERVER         : _get_server_data_str,
-    DataType.DATATYPE_SERVER_DEFAULT : _get_server_data_str,
-}
-
-def _get_file_paths(data_type):
-    if data_type is DataType.DATATYPE_USER_INFO:
-        file_path_data = USER_INFO_FILE
-        file_path_key = USER_KEY_FILE
-
-    elif data_type is DataType.DATATYPE_TOKEN_INFO:
-        file_path_data = TOKEN_INFO_FILE
-        file_path_key = TOKEN_KEY_FILE
-
-    elif data_type is DataType.DATATYPE_SERVER:
-        file_path_data = SERVER_INFO_FILE
-        file_path_key = SERVER_KEY_FILE
-
-    elif data_type is DataType.DATATYPE_SERVER_DEFAULT:
-        file_path_data = SERVER_DEFAULT_INFO_FILE
-        file_path_key = SERVER_DEFAULT_KEY_FILE
-
-    return file_path_data, file_path_key
-
-def _get_data_str(data1, data2, expires, data_type):
-    return data_str_funcs[data_type](data1, data2, expires)
 
 def _read_encrypted_data(path_data, path_key, data_type):
 
@@ -215,98 +293,39 @@ def _read_encrypted_data(path_data, path_key, data_type):
     if expires is not None and \
        expires < time.time():
         delete(data_type)
+        print(data_type, ": the stored information has expired and was deleted")
+
         ret_status = Ret.RET_ERROR_INFO_FILE_EXPIRED
 
     return data1, data2, ret_status
 
-def encrypt_information(data1, data2, expires, data_type):
-    """ encrypt userinformation to file
-        
-    param:
-    data1: data field for encryption
-    data2: optional data field for encryption
-    expires: expiration date of the data
-    data_type: which data_type is to be written (user, token, server)
+def _get_user_data_str(user, pw, expires):
+    data = f'{"{"}\n' + \
+           f'   "user": "{user}",\n' + \
+           f'   "pw": "{pw}"\n' + \
+           f'   "expires": "{expires}"\n' + \
+           f'{"}"}'    
+    return data
 
-    returns:
-    the exit status of the module
-    """
+def _get_token_data_str(user, token, expires):
+    data = f'{"{"}\n' + \
+           f'   "user": "{user}",\n' + \
+           f'   "token": "{token}",\n' + \
+           f'   "expires": "{expires}"\n' + \
+           f'{"}"}'    
+    return data
 
-    # get data structure for user data unencrypted
-    folderpath = _get_path_to_login_folder()
-    file_path_data, file_path_key =_get_file_paths(data_type)
-    data_str = _get_data_str(data1, data2, expires, data_type)
+def _get_server_data_str(url, data, expires):
+    data = f'{"{"}\n' + \
+           f'   "url": "{url}",\n' + \
+           f'   "expires": "{expires}"\n' + \
+           f'{"}"}'    
+    return data
 
-    # generate new key for user data
-    file_key = Fernet.generate_key()
+def _get_data_str(data1, data2, expires, data_type):
+    data_str_funcs[DataType.DATATYPE_USER_INFO] = _get_user_data_str
+    data_str_funcs[DataType.DATATYPE_TOKEN_INFO] = _get_token_data_str
+    data_str_funcs[DataType.DATATYPE_SERVER] = _get_server_data_str
+    data_str_funcs[DataType.DATATYPE_SERVER_DEFAULT] = _get_server_data_str
 
-    f_writer_key = Fernet(_get_device_root_key())
-    f_writer_data = Fernet(file_key)
-
-    encrypted_key_info = f_writer_key.encrypt(file_key)
-    encrypted_data_info = f_writer_data.encrypt(data_str.encode(encoding='utf-8'))
-
-    try:
-        with open(folderpath + file_path_key, "w", encoding='utf-8') as outfile:
-            outfile.write(f'{encrypted_key_info}'[2:-1])
-        outfile.close()
-
-        with open(folderpath + file_path_data, "w", encoding='utf-8') as outfile:
-            outfile.write(f'{encrypted_data_info}'[2:-1])
-        outfile.close()
-
-    except (OSError, IOError) as e:
-        # print exception
-        print(e)
-        return Ret.RET_ERROR_FILE_OPEN_FAILED
-
-    return Ret.RET_OK
-
-def decrypt_information(data_type):
-    """ decrypt and return data from file
-        
-        param: 
-        data_type: the data_type that shall be decrypted(user, token, server)
-        
-        return:
-        the requested data or None
-        exit status of the module"""
-
-    ret_status = Ret.RET_OK
-
-    data1 = None
-    data2 = None
-
-    file_name_data, file_name_key = _get_file_paths(data_type)
-
-    filepath_data =  _get_path_to_login_folder() + file_name_data
-    filepath_key =  _get_path_to_login_folder() + file_name_key
-
-    data1, data2, ret_status = _read_encrypted_data(filepath_data, filepath_key, data_type)
-
-    return data1, data2, ret_status
-
-def delete(data_type):
-    """ delete login info
-        
-        param:
-        data_type: which data shall be removed
-    """
-
-    folderpath = _get_path_to_login_folder()
-    file_path_data, file_path_key = _get_file_paths(data_type)
-
-    if os.path.exists(folderpath + file_path_data):
-        os.remove(folderpath + file_path_data)
-
-    if os.path.exists(folderpath + file_path_key):
-        os.remove(folderpath + file_path_key)
-
-def delete_all():
-    """"delete all info files and folder"""
-
-    delete(DataType.DATATYPE_USER_INFO)
-    delete(DataType.DATATYPE_TOKEN_INFO)
-    delete(DataType.DATATYPE_SERVER)
-    delete(DataType.DATATYPE_SERVER_DEFAULT)
-    os.removedirs(PATH_TO_FOLDER)
+    return data_str_funcs[data_type](data1, data2, expires)

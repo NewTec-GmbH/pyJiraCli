@@ -148,11 +148,11 @@ def _get_server_url():
 
     server_url, data2_, ret_status = crypto.decrypt_information(crypto.DataType.DATATYPE_SERVER)
 
-    if ret_status != Ret.RET_OK:
+    if ret_status not in[Ret.RET_OK, Ret.RET_ERROR_INFO_FILE_EXPIRED]:
         server_url, data2_, ret_status = \
             crypto.decrypt_information(crypto.DataType.DATATYPE_SERVER_DEFAULT)
 
-        if ret_status != Ret.RET_OK:
+        if ret_status not in[Ret.RET_OK, Ret.RET_ERROR_INFO_FILE_EXPIRED]:
             server_url = DEFAULT_SERVER
 
     if data2_ is not None:
