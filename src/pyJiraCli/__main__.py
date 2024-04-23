@@ -74,10 +74,15 @@ _CMD_MODULS = [
 # Functions
 ################################################################################
 def add_parser():
-    """"add parser for command line arguments
-    
-        return the parser after all the modules have been registered"""
-
+    """ add parser for command line arguments
+        set the execute function of each 
+        cmd module as callback for the subparser command
+        return the parser after all the modules have been registered
+        and added their subparsers
+        
+    Returns:
+        parser  the parser for commandline arguments
+    """
     parser = argparse.ArgumentParser(prog='pyJiraCli',
                                      description="A CLI tool to imoprt and export Jira Issues \
                                                   between server and json or csv files.",
@@ -117,7 +122,6 @@ def add_parser():
 ######################################################
 def main():
     """The program entry point function.
-    
 
     Returns:
         int: System exit status

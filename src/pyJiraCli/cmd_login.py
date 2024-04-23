@@ -53,13 +53,13 @@ DEFAULT_EXPIRATION_TIME = 2 * 30 * 24 * 60 * 60
 ################################################################################
 # subparser for the 'set_login' command
 def register(subparser):
-    """ register subparser commands for the set_login module
+    """ register subparser commands for the login module
         
-        param:
-        subparser: subparser
+        Args:
+        subparser   the command subparser provided via __main__.py
         
-        return:
-        the cmd parser for this module
+        Returns:
+        sb_login    the commmand parser of this module
     """
 
     sb_login = subparser.add_parser('login',
@@ -120,24 +120,33 @@ def register(subparser):
     return sb_login
 
 def execute(args):
-    """execute command function"""
+    """ execute command function
+    
+        Args: 
+        args        the command line arguments
+        
+        Returns:
+        retval.Ret  the exit status of the _cmd_login function
+    """
     return _cmd_login(args)
 
 def _cmd_login(args):
     """" store or delete login information
         
-         param:
-         args: the command line arguments
+         Args:
+         args           the command line arguments
         
-         return:
-         the status of the module
+         Returns:
+         ret_status     the return status of the module
     """
+    ret_status = Ret.RET_OK
 
     if args.delete:
-        return _delete_login_file(args.userinfo, args.token, args.server, args.default)
+        ret_status =  _delete_login_file(args.userinfo, args.token, args.server, args.default)
 
-    return _store_login_info(args)
+    ret_status = _store_login_info(args)
 
+    return ret_status
 
 def _store_login_info(args):
     """ save the login info in a encrypted file
@@ -205,7 +214,17 @@ def _store_login_info(args):
     return ret_status
 
 def _delete_login_file(delete_userinfo, delete_token, delete_server, delete_default_server):
+    """ _summary_
 
+    Args:
+        delete_userinfo (bool):         flag to delete userinfo only
+        delete_token (bool):            flag to delete token data
+        delete_server (bool):           flag to delete server data
+        delete_default_server (bool):   flag to delete default server
+
+    Returns:
+        ret_status (Ret): the return status of the module
+    """
     if delete_userinfo:
         data_type = crypto.DataType.DATATYPE_USER_INFO
         crypto.delete(data_type)
