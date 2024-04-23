@@ -107,16 +107,19 @@ data_str_funcs = {
 # Functions
 ################################################################################
 def encrypt_information(data1, data2, expires, data_type):
-    """ encrypt userinformation to file
+    """save information in a dictionary with max 2 key-value pairs.
+       The expiration date will be added in the dictionary too, when decrypting
+       information the module will check if the data is expired 
+       encrypt information and save it to a .data file
         
-    param:
-    data1: data field for encryption
-    data2: optional data field for encryption
-    expires: expiration date of the data
-    data_type: which data_type is to be written (user, token, server)
+    Args:
+        data1 (str):            data field for encryption
+        data2 (str):            optional data field for encryption
+        expires (float):        expiration date of the data
+        data_type (DataType):   which data_type is to be written (user, token, server)
 
-    returns:
-    the exit status of the module
+    Returns:
+        ret_status (Ret):   the exit status of the module
     """
 
     # get file paths
@@ -166,14 +169,19 @@ def encrypt_information(data1, data2, expires, data_type):
     return Ret.RET_OK
 
 def decrypt_information(data_type):
-    """ decrypt and return data from file
+    """decrypt and return the data pair of a login file.
+       The information which will be decrypted depends on the data_type
+       with which the function is called
         
-        param: 
-        data_type: the data_type that shall be decrypted(user, token, server)
+    Args: 
+        data_type (DataType):   the data_type that shall be decrypted
+                                (user, token, server, default servers)
         
-        return:
-        the requested data or None
-        exit status of the module"""
+    Returns:
+        data1 (str):        the decrypted first data value or None
+        data2 (str):        the decrypted second data value or None
+        ret_status (Ret):   exit status of the module
+    """
 
     ret_status = Ret.RET_OK
 
@@ -190,10 +198,10 @@ def decrypt_information(data_type):
     return data1, data2, ret_status
 
 def delete(data_type):
-    """ delete login info
+    """delete the stored login files of a DataType
         
-        param:
-        data_type: which data shall be removed
+    Args:
+        data_type (Datatype):   which data shall be removed
     """
 
     folderpath = _get_path_to_login_folder()
@@ -206,7 +214,7 @@ def delete(data_type):
         os.remove(folderpath + file_path_key)
 
 def delete_all():
-    """"delete all info files and folder"""
+    """delete all info files and folder"""
 
     delete(DataType.DATATYPE_USER_INFO)
     delete(DataType.DATATYPE_TOKEN_INFO)
@@ -216,7 +224,13 @@ def delete_all():
 
 
 def _get_path_to_login_folder():
+    """returns the path to the pyJiraCli tool data
+        all tool data (logindata/configs) is stored in the users
+        home directory
 
+    Returns:
+        user_info_path (str): the path to the data folder
+    """
     user_info_path = os.path.expanduser("~") + PATH_TO_FOLDER
 
     if not os.path.exists(user_info_path):
@@ -226,6 +240,13 @@ def _get_path_to_login_folder():
     return user_info_path
 
 def _get_device_root_key():
+    """return the device root key, 
+       to provided a safe root key this module uses the user/device unique uuid of the system
+       the uuid is first hashed and then stripped to 32 bytes
+
+    Returns:
+        root_key (bytes): the last 32 bytes of the uuid of the system hashed and encoded
+    """
     # check which os is being used
     if "nt" in os.name:
         _uuid = sub.check_output(UUID_CMD_WIN).split()[-1]
@@ -236,10 +257,23 @@ def _get_device_root_key():
     hex_string = hasher.hexdigest().encode()
 
     byte_data = bytes.fromhex(hex_string.decode())  # Decode hexadecimal string to bytes
-    return base64.urlsafe_b64encode(byte_data)[-45:-1]
+    root_key = base64.urlsafe_b64encode(byte_data)[-45:-1]
+
+    return root_key
 
 def _read_encrypted_data(path_data, path_key, data_type):
+    """_summary_
 
+    Args:
+        path_data (str):        path to the encrypted data file
+        path_key (str):         path to the encrypted key file
+        data_type (DataType):   the dataType that shall be decrypted   
+
+    Returns:
+        data1 (str):        the first data-value which was stored in the encrypted file
+        data1 (str):        the second data-value which was stored in the encrypted file
+        re_status (Ret):    the return status of the module
+    """
     ret_status = Ret.RET_OK
 
     data1 = None
@@ -285,7 +319,6 @@ def _read_encrypted_data(path_data, path_key, data_type):
 
             # print exception
             print(e)
-
             ret_status = Ret.RET_ERROR_FILE_OPEN_FAILED
     else:
         ret_status = Ret.RET_ERROR_NO_USERINFORMATION
@@ -300,6 +333,7 @@ def _read_encrypted_data(path_data, path_key, data_type):
     return data1, data2, ret_status
 
 def _get_user_data_str(user, pw, expires):
+    """prepare user data for encryption"""
     data = f'{"{"}\n' + \
            f'   "user": "{user}",\n' + \
            f'   "pw": "{pw}"\n' + \
@@ -308,6 +342,7 @@ def _get_user_data_str(user, pw, expires):
     return data
 
 def _get_token_data_str(user, token, expires):
+    """prepare token data for encryption"""
     data = f'{"{"}\n' + \
            f'   "user": "{user}",\n' + \
            f'   "token": "{token}",\n' + \
@@ -316,6 +351,7 @@ def _get_token_data_str(user, token, expires):
     return data
 
 def _get_server_data_str(url, data, expires):
+    """prepare server data for encryption"""
     data = f'{"{"}\n' + \
            f'   "url": "{url}",\n' + \
            f'   "expires": "{expires}"\n' + \
@@ -323,6 +359,8 @@ def _get_server_data_str(url, data, expires):
     return data
 
 def _get_data_str(data1, data2, expires, data_type):
+    """get the data str prepared for encryption"""
+
     data_str_funcs[DataType.DATATYPE_USER_INFO] = _get_user_data_str
     data_str_funcs[DataType.DATATYPE_TOKEN_INFO] = _get_token_data_str
     data_str_funcs[DataType.DATATYPE_SERVER] = _get_server_data_str

@@ -82,5 +82,9 @@ RETURN_MSG = {
 # Functions
 ################################################################################
 def prerr(error):
-    """"print exit error"""
+    """print exit error
+    
+    Args:
+        error (Ret):    the return code for which an error shall be printed
+    """
     print(CRED, "Error: ", RETURN_MSG[error], CEND)

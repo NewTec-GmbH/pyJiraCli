@@ -53,15 +53,16 @@ DEFAULT_SERVER = "https://jira.newtec.zz"
 # Functions
 ################################################################################
 def login(user, pw):
-    """ login to jira server with user info or user info from file
+    """login to jira server with user info or login info from 
+       stored token or user file
      
-        param:
-        user: provided username from the commandline or None
-        pw: provided password from the commandline or None
+    Args:
+        user (str):     provided username from the commandline or None
+        pw (str):       provided password from the commandline or None
         
-        return:
-        jira obj or None if no succesful login
-        the exit code of the module
+    returns:
+        jira (jira obj):    return the jira handle or None if login unsuccessful
+        ret_status (Ret):   the return status of the module
     """
 
     server_url = _get_server_url()
@@ -87,16 +88,17 @@ def login(user, pw):
     return jira_obj, ret_status
 
 def try_login(user, pw, token):
-    """ try login with jira lib
-        dont return jira obj only return OK if login succesful
+    """ try to login with jira lib
+        dont return the jira obj, only return OK if the login 
+        was succesful
         
-        param:
-        user: username or email
-        pw: password for login
-        token: API Token for authentification
+    Args:
+        user (str):     username or email
+        pw (str):       password for login
+        token (str):    API Token for authentification
         
-        return:
-        the exit status of the module
+    returns:
+        ret_status (Ret):   the exit status of the module
     """
 
     server_url = _get_server_url()
