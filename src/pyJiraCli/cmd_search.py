@@ -34,10 +34,21 @@
 ################################################################################
 # Imports
 ################################################################################
-
+from pyJiraCli import jira_server as server
+from pyJiraCli.retval import Ret
 ################################################################################
 # Variables
 ################################################################################
+
+HEADER = ['Key', 'Project', 'Summary', 'Created', 'Creator']
+
+HEADER_COL_WIDTH = {
+    'Key'     : 22,
+    'Project' : 18,
+    'Summary' : 50,
+    'Created' : 12,
+    'Creator' : 15
+}
 
 ################################################################################
 # Classes
@@ -58,12 +69,56 @@ def register(subparser):
                             help="filter string according to \
                                   which issue are to be searched")
 
+    sb_search.add_argument('-max',
+                            type=int,
+                            help="max number of entries")
+
     return sb_search
 
 def execute(args):
     """execute command function"""
-    return _cmd_search(args.filter, args.user, args.pw)
+    return _cmd_search(args.filter, args.user, args.pw, args.max)
 
-def _cmd_search(filter_str, user, pw):
-    """search tickets with a provided filter or search string"""
-    print(f"searching for issues with filter {filter_str, user, pw}")
+def _cmd_search(filter_str, user, pw, results):
+    """ search tickets with a provided filter or search string
+
+    param:
+    filer_str  the filter string by which issues are searched
+    user       username for login
+    pw         password for login
+    results    max number of results
+
+    return:
+    exit status of the module
+    """
+
+    ret_status = Ret.RET_OK
+
+    if results is None:
+        results=50
+
+    jira, ret_status = server.login(user, pw)
+
+    if ret_status != Ret.RET_OK:
+        return ret_status
+
+    found_issues = jira.search_issues(filter_str, maxResults=results)
+
+    print(f'\nSearch string: "{filter_str}"')
+    print(f"Found Issues: {len(found_issues)}\n")
+
+    _print_table(found_issues)
+
+    return ret_status
+
+def _print_table(issues):
+    for header in HEADER:
+        print(f"{header:<{HEADER_COL_WIDTH[header]}}", end="")
+    print()
+
+    for issue in issues:
+        print(f"{issue.key:<{HEADER_COL_WIDTH['Key']}}", end="")
+        print(f"{issue.fields.project.key:<{HEADER_COL_WIDTH['Project']}}", end="")
+        print(f"{issue.fields.summary[:HEADER_COL_WIDTH['Summary'] - 2]:<{HEADER_COL_WIDTH['Summary']}}", end="") # pylint: disable=line-too-long
+        print(f"{issue.fields.created[:10]:<{HEADER_COL_WIDTH['Created']}}", end="")
+        print(f"{issue.fields.creator.name:<{HEADER_COL_WIDTH['Creator']}}", end="\n")
