@@ -37,7 +37,7 @@ $ pip install .
 # Usage
 Show help information:
 ```cmd
-$ pyHexDump --help
+$ pyJiraCli --help
 ```
     positional arguments:
       {export,import,search,login,print}
@@ -59,7 +59,7 @@ All added command modules must provide a "execute()" and a "register()"
    export a ticket from a Jira Server to a json or csv file
 
 ```cmd
-$ pyHexDump export --help
+$ pyJiraCli export --help
 ```
 
     usage: pyJiraCli export [-h] [-user <username>] [-pw <password>] [-path <folder_path>] [-file <filename>] [-csv] issue
@@ -80,7 +80,7 @@ $ pyHexDump export --help
   ticket data on the server
 
 ```cmd
-$ pyHexDump import --help
+$ pyJiraCli import --help
 ```
     usage: pyJiraCli import [-h] [-user <username>] [-pw <password>] file
 
@@ -97,7 +97,7 @@ $ pyHexDump import --help
   To store the email address use option -user and option -token
 
 ```cmd
-$ pyHexDump login --help
+$ pyJiraCli login --help
 ```
 
     usage: pyJiraCli login [-h] [-user <username>] [-pw <password>] [-token <API token>] [-url <server url>] [-expires <time>] [--min] [--day] [--month] [-delete] [--default] [--userinfo] [--server] [--token]
@@ -119,11 +119,10 @@ $ pyHexDump login --help
       --token, -t         delete API token information only
 
 ## search 
-**TODO** \
-  search the jira server for issues with a filter string
+  search the jira server for issues with a filter string.
     
 ```cmd
-$ pyHexDump search --help
+$ pyJiraCli search --help
 ```
     usage: pyJiraCli search [-h] [-user <username>] [-pw <password>] filter
 
@@ -135,12 +134,23 @@ $ pyHexDump search --help
       -user <username>  jira usertname if not provided with set_login
       -pw <password>    jira password if not provided with set_login
 
+  
+  If you need help working with filters, check out https://confluence.atlassian.com/jirasoftwareserver/advanced-searching-939938733.html \
+  Also, the results can be ordered by command, just add "order by" to your cmd 
+
+  example:
+  ```cmd
+  pyJiraCli search "project=PROJ order by created desc" -max 50
+  ```
+
+  This will find the 50 latest issues in project PROJ and display them by descending creation date. 
+
 ## print 
 **TODO** \
   print ticket information to the console
 
 ```cmd
-$ pyHexDump print --help
+$ pyJiraCli print --help
 ```
     usage: pyJiraCli print [-h] [-user <username>] [-pw <password>] issue
 
@@ -316,7 +326,7 @@ Used 3rd party libraries which are not part of the standard Python package:
 &cross; implement search command  
 &cross; implement print command  
 
-If you have further ideas or you found some bugs, great! Create a [issue](https://github.com/BlueAndi/pyHexDump/issues) or if you are able and willing to fix it by yourself, clone the repository and create a pull request.
+If you have further ideas or you found some bugs, great! Create a [issue](https://github.com/NewTec-GmbH/pyJiraCli/issues) or if you are able and willing to fix it by yourself, clone the repository and create a pull request.
 
 # License
 The whole source code is published under [BSD-3-Clause](https://github.com/NewTec-GmbH/pyJiraCli/blob/main/LICENSE).
