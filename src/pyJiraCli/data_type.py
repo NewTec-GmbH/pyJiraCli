@@ -1,6 +1,4 @@
-""" Command to search for Jira tickets on the provided server.
-    Searches for tickets by filter or search str provided via the command line 
-    and prints all found tickets to command line. """
+"""The main module with the program entry point."""
 
 # BSD 3-Clause License
 #
@@ -34,7 +32,8 @@
 ################################################################################
 # Imports
 ################################################################################
-from pyJiraCli.ret import Ret
+from enum import IntEnum
+
 ################################################################################
 # Variables
 ################################################################################
@@ -42,53 +41,14 @@ from pyJiraCli.ret import Ret
 ################################################################################
 # Classes
 ################################################################################
-
+class DataType (IntEnum):
+    """"data_type to concern between which data information will be encrypted
+        or decrypted with the encrypt_information() and 
+        decrypt_information() function"""
+    DATATYPE_USER_INFO       = 0
+    DATATYPE_TOKEN_INFO      = 1
+    DATATYPE_SERVER          = 2
+    DATATYPE_SERVER_DEFAULT  = 3
 ################################################################################
 # Functions
 ################################################################################
-def register(subparser):
-    """ Register subparser commands for the login module.
-        
-    Args:
-        subparser (obj):   the command subparser provided via __main__.py
-        
-    Returns:
-        obj:    the commmand parser of this module
-    """
-    # subparser for the 'search' command
-    sb_search = subparser.add_parser('search',
-                                      help="search for jira issues \
-                                            with specified filter string")
-
-    sb_search.add_argument('filter',
-                            type=str,
-                            help="filter string according to \
-                                  which issue are to be searched")
-
-    return sb_search
-
-def execute(args):
-    """ Execute the search command function.
-    
-    Args: 
-        args (obj): the command line arguments
-        
-    Returns:
-        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
-    """
-    return _cmd_search(args.filter, args.user, args.pw)
-
-def _cmd_search(filter_str, user, pw):
-    """ Search tickets with a provided filter or search string.
-    
-    Args:
-        filter_str (str):   string containing the search parameters
-        user (str):         username for login
-        pw (str)            password for login
-    
-    Returns:
-        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
-    """
-    print(f"searching for issues with filter {filter_str, user, pw}")
-
-    return Ret.RET_OK

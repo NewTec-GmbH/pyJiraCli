@@ -310,12 +310,6 @@ Used 3rd party libraries which are not part of the standard Python package:
 * [toml](https://github.com/uiri/toml) - Parsing [TOML](https://en.wikipedia.org/wiki/TOML) - MIT License
 
 # Issues, Ideas And Bugs
-&cross; add file templates for json and csv files \
-&cross; provide jira field configuraion via a config file \
-&cross; add security to login data storage (currently logindata is encrypted and the encryption key is encrypted with a device unique key) \
-&cross; implement search command  
-&cross; implement print command  
-
 If you have further ideas or you found some bugs, great! Create a [issue](https://github.com/NewTec-GmbH/pyJiraCli/issues) or if you are able and willing to fix it by yourself, clone the repository and create a pull request.
 
 # License

@@ -1,6 +1,6 @@
-"""Command for the print function.
-   prints the ticket information for a provided issue key
-   onto the console"""
+""" Command for the print function.
+    prints the ticket information for a provided issue key
+    onto the console."""
 # BSD 3-Clause License
 #
 # Copyright (c) 2024, NewTec GmbH
@@ -33,7 +33,7 @@
 ################################################################################
 # Imports
 ################################################################################
-
+from pyJiraCli.ret import Ret
 ################################################################################
 # Variables
 ################################################################################
@@ -47,7 +47,14 @@
 ################################################################################
 # subparser for the 'print' command
 def register(subparser):
-    """register subparser commands for the print_issue module"""
+    """ Register subparser commands for the print module.
+        
+    Args:
+        subparser (obj):   the command subparser provided via __main__.py
+        
+    Returns:
+        obj:    the commmand parser of this module
+    """
 
     sb_search = subparser.add_parser('print',
                                       help="print issue details to the console")
@@ -59,9 +66,28 @@ def register(subparser):
     return sb_search
 
 def execute(args):
-    """execute command function"""
+    """ Execute the print command function.
+    
+    Args: 
+        args (obj): the command line arguments
+        
+    Returns:
+        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+    """
     return _cmd_print(args.issue, args.user, args.pw)
 
 def _cmd_print(issue, user, pw):
-    """print ticket information from jira issue to console"""
+    """ Load the data of the provided issue key and 
+        and print it to the command line.
+
+    Args:
+        issue (str): the issue key
+        user (str): username for login
+        pw (str): password for login
+    
+    Returns:
+        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+    """
     print(f'print details for issue {issue}{user}{pw}')
+
+    return Ret.RET_OK

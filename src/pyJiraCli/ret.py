@@ -1,5 +1,4 @@
-"""The main module with the program entry point."""
-
+"""The Error codes of pyJiraCli tool."""
 # BSD 3-Clause License
 #
 # Copyright (c) 2024, NewTec GmbH
@@ -33,14 +32,13 @@
 # Imports
 ################################################################################
 from enum import IntEnum
-
-
 ################################################################################
 # Variables
 ################################################################################
-CRED = '\033[91m'
-CEND = '\033[0m'
 
+################################################################################
+# Classes
+################################################################################
 class Ret(IntEnum):
     """"exit statuses of the modules"""
     RET_OK                           = 0
@@ -55,36 +53,6 @@ class Ret(IntEnum):
     RET_ERROR_MISSING_LOGIN_INFO     = 9
     RET_ERROR_CREATING_TICKET_FAILED = 10
     RET_ERROR_INFO_FILE_EXPIRED      = 11
-
-
-RETURN_MSG = {
-    Ret.RET_OK                           : "Process succesful",
-    Ret.RET_ERROR                        : "Error occured",
-    Ret.RET_ERROR_JIRA_LOGIN             : "Login to jira server was not possible",
-    Ret.RET_ERROR_FILE_NOT_FOUND         : "Folder or File doesn't exist",
-    Ret.RET_ERROR_WORNG_FILE_FORMAT      : "Wrong file format for save file provided",
-    Ret.RET_ERROR_ISSUE_NOT_FOUND        : "Jira Issue not found",
-    Ret.RET_ERROR_FILE_OPEN_FAILED       : "opening File failed",
-    Ret.RET_ERROR_NO_USERINFORMATION     : "no user information was provided via cli " + \
-                                           "or stored information file",
-    Ret.RET_ERROR_MISSING_UNSERINFO      : "both -user and -pw option must be provided " + \
-                                           "to store useriformation",
-    Ret.RET_ERROR_MISSING_LOGIN_INFO     : "At least one of the options must be provided: " + \
-                                           "(-user, -pw), -server or -delete",
-    Ret.RET_ERROR_CREATING_TICKET_FAILED : "creating the ticket on the jira server failed",
-    Ret.RET_ERROR_INFO_FILE_EXPIRED      : "the stored information has expired"
-}
-################################################################################
-# Classes
-################################################################################
-
 ################################################################################
 # Functions
 ################################################################################
-def prerr(error):
-    """print exit error
-    
-    Args:
-        error (Ret):    the return code for which an error shall be printed
-    """
-    print(CRED, "Error: ", RETURN_MSG[error], CEND)
