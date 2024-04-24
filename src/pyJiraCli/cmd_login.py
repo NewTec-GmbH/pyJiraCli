@@ -1,6 +1,7 @@
-"""Command to store login information
-   Stores User, pw and a server url in an encoded file
-   or deltes stored login informations"""
+""" Command to store login information.
+    Stores User, pw and a server url in an encoded file
+    or deltes stored login informations.
+"""
 # BSD 3-Clause License
 #
 # Copyright (c) 2024, NewTec GmbH
@@ -37,7 +38,7 @@ import time
 
 from pyJiraCli import crypto_file_handler as crypto
 from pyJiraCli import jira_server as server
-from pyJiraCli.retval import Ret
+from pyJiraCli.ret import Ret
 
 ################################################################################
 # Variables
@@ -53,13 +54,13 @@ DEFAULT_EXPIRATION_TIME = 2 * 30 * 24 * 60 * 60
 ################################################################################
 # subparser for the 'set_login' command
 def register(subparser):
-    """ register subparser commands for the login module
+    """ Register subparser commands for the login module.
         
-        Args:
-        subparser   the command subparser provided via __main__.py
+    Args:
+        subparser (obj):   the command subparser provided via __main__.py
         
-        Returns:
-        sb_login    the commmand parser of this module
+    Returns:
+        obj:    the commmand parser of this module
     """
 
     sb_login = subparser.add_parser('login',
@@ -120,24 +121,24 @@ def register(subparser):
     return sb_login
 
 def execute(args):
-    """ execute command function
+    """ Execute the login command function.
     
-        Args: 
-        args        the command line arguments
+    Args: 
+        args (obj): the command line arguments
         
-        Returns:
-        retval.Ret  the exit status of the _cmd_login function
+    Returns:
+        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
     """
     return _cmd_login(args)
 
 def _cmd_login(args):
-    """" store or delete login information
+    """ Store or delete login information.
         
-         Args:
-         args           the command line arguments
+    Args:
+        args (obj): the command line arguments
         
-         Returns:
-         ret_status     the return status of the module
+    Returns:
+        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
     """
     ret_status = Ret.RET_OK
 
@@ -149,15 +150,15 @@ def _cmd_login(args):
     return ret_status
 
 def _store_login_info(args):
-    """ save the login info in a encrypted file
+    """ Save the login info in a encrypted file.
         userinfo(user, pw), token, server and default server
-        are all a saved in seperate files
+        are all saved in seperate files.
         
-        param:
-        args: commnd line arguments
+    Args:
+        args (obj): commnd line arguments
 
-        return:
-        teh status of teh module
+    Returns:
+        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
     """
     ret_status = Ret.RET_OK
 
@@ -214,16 +215,16 @@ def _store_login_info(args):
     return ret_status
 
 def _delete_login_file(delete_userinfo, delete_token, delete_server, delete_default_server):
-    """ _summary_
+    """ Delete the login files corresponding to the set dataType flags.
 
     Args:
-        delete_userinfo (bool):         flag to delete userinfo only
+        delete_userinfo (bool):         flag to delete userinfo
         delete_token (bool):            flag to delete token data
         delete_server (bool):           flag to delete server data
         delete_default_server (bool):   flag to delete default server
 
     Returns:
-        ret_status (Ret): the return status of the module
+        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
     """
     if delete_userinfo:
         data_type = crypto.DataType.DATATYPE_USER_INFO
@@ -248,6 +249,15 @@ def _delete_login_file(delete_userinfo, delete_token, delete_server, delete_defa
     return Ret.RET_OK
 
 def _get_expiration_date_(args):
+    """ Calculate the expiration date 
+        from the commandline arguments in epoch seconds.
+
+    Args:
+        args (obj): the commandline arguments
+
+    Returns:
+        float: the time in Epoch seconds when the files will expire
+    """
 
     input_int = args.expires
 

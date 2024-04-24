@@ -1,6 +1,7 @@
-"""Command for the import function.
-   imports ticket information from a json or csv file
-   and writes the imported data to a jira ticket"""
+""" Command for the import function.
+    Imports ticket information from a json or csv file
+    and writes the imported data to a jira ticket.
+"""
 
 # BSD 3-Clause License
 #
@@ -40,7 +41,7 @@ import csv
 
 from pyJiraCli import jira_issue
 from pyJiraCli import jira_server as server
-from pyJiraCli.retval import Ret
+from pyJiraCli.ret import Ret
 ################################################################################
 # Variables
 ################################################################################
@@ -54,13 +55,13 @@ from pyJiraCli.retval import Ret
 ################################################################################
 # subparser for the 'import' command
 def register(subparser):
-    """ register subparser commands for the import module
+    """ Register subparser commands for the import module.
         
         Args:
-        subparser (subparser obj):  the command subparser provided via __main__.py
+        subparser (obj):  the command subparser provided via __main__.py
         
         Returns:
-        sb_import (parser obj):  the commmand parser of this module
+        obj:  the commmand parser of this module
     """
     sb_import = subparser.add_parser('import',
                                       help="import jira issue from json or csv file")
@@ -72,15 +73,14 @@ def register(subparser):
     return sb_import
 
 def execute(args):
-    """ execute command function
+    """ Execute the import command function.
     
     Args: 
         args:   the command line arguments
         
     Returns:
-        ret_status (Ret):  the exit status of the cmd_import function
+        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
     """
-
     ret_status = Ret.RET_OK
 
     ret_status =  _cmd_import(args.file, args.user, args.pw)
@@ -88,9 +88,9 @@ def execute(args):
     return ret_status
 
 def _cmd_import(file, user, pw):
-    """import a jira issue from a json or csv file
-       create a jira issue on the server with the data
-       read from the input file
+    """ Import a jira issue from a json or csv file.
+        Create a jira issue on the server with the data
+        read from the input file.
     
     Args:
         file (str):     the filepath to the input file
@@ -98,7 +98,7 @@ def _cmd_import(file, user, pw):
         pw (str):       password for login
         
     Returns:
-        ret_status (Ret):  the return status of the module
+        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
     """
     ret_status = Ret.RET_OK
     issue = jira_issue.JiraIssue()

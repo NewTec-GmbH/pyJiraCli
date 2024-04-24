@@ -36,9 +36,11 @@ import os
 import certifi
 
 from jira import JIRA, exceptions
+from requests import exceptions as reqex
+from urllib3 import exceptions as urlex
 
 from pyJiraCli import crypto_file_handler as crypto
-from pyJiraCli.retval import Ret
+from pyJiraCli.ret import Ret
 
 ################################################################################
 # Variables
@@ -53,16 +55,16 @@ DEFAULT_SERVER = "https://jira.newtec.zz"
 # Functions
 ################################################################################
 def login(user, pw):
-    """login to jira server with user info or login info from 
-       stored token or user file
+    """ Login to jira server with user info or login info from 
+        stored token or user file.
      
     Args:
         user (str):     provided username from the commandline or None
         pw (str):       provided password from the commandline or None
         
     returns:
-        jira (jira obj):    return the jira handle or None if login unsuccessful
-        ret_status (Ret):   the return status of the module
+        obj:   return the jira handle or None if login unsuccessful
+        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
     """
 
     server_url = _get_server_url()
@@ -88,17 +90,17 @@ def login(user, pw):
     return jira_obj, ret_status
 
 def try_login(user, pw, token):
-    """ try to login with jira lib
-        dont return the jira obj, only return OK if the login 
-        was succesful
+    """ Try to login to jira.
+        Dont return the jira obj, only return OK if the login 
+        was succesful.
         
     Args:
         user (str):     username or email
         pw (str):       password for login
         token (str):    API Token for authentification
         
-    returns:
-        ret_status (Ret):   the exit status of the module
+    Returns:
+        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
     """
 
     server_url = _get_server_url()
@@ -118,36 +120,69 @@ def try_login(user, pw, token):
     return ret_status
 
 def _login_with_token(token, url):
+    """ Login to jira with API token.
+
+    Args:
+        token (str):    the api token
+        url (str):      the server url to login to
+
+    Returns:
+        obj:   jira handle object
+        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+    """
+
+    ret_status = Ret.RET_OK
+    jira = None
     os.environ["SSL_CERT_FILE"] = certifi.where()
 
     try:
-        jira = JIRA(server=url, token_auth=token, options={"verify": False})
+        jira = JIRA(server=url, token_auth=token, options={"verify": False}, timeout=10)
         jira.verify_ssl = False
 
-        return jira, Ret.RET_OK
-
-    except exceptions.JIRAError as e:
+    except (exceptions.JIRAError, reqex.ConnectionError, urlex.MaxRetryError) as e:
         #print error
         print(e)
-        return None, Ret.RET_ERROR_JIRA_LOGIN
+        ret_status = Ret.RET_ERROR_JIRA_LOGIN
+
+    return jira, ret_status
 
 def _login_with_password(user, pw, url):
+    """ Login to jira with username and password.
+
+    Args:
+        user (str):     username for login
+        pw (str):       password for login
+        url (str):      the server url to login to
+
+    Returns:
+        obj:   jira handle object
+        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+    """
+
+    ret_status = Ret.RET_OK
+    jira = None
+
     os.environ["SSL_CERT_FILE"] = certifi.where()
 
     try:
-        jira = JIRA(server=url, basic_auth=(user, pw), options={"verify": False})
+        jira = JIRA(server=url, basic_auth=(user, pw), options={"verify": False}, timeout=10)
         jira.verify_ssl = False
 
-        return jira, Ret.RET_OK
-
-    except exceptions.JIRAError as e:
+    except (exceptions.JIRAError, reqex.ConnectionError, urlex.MaxRetryError) as e:
         #print error
         print(e)
-        return None, Ret.RET_ERROR_JIRA_LOGIN
+        ret_status = Ret.RET_ERROR_JIRA_LOGIN
 
+    return jira, ret_status
 
 def _get_server_url():
+    """ get the server url from the encrypted files.
+        If no server data is available a hardcoded default server
+        will be returned.
 
+    Returns:
+        str: the server url
+    """
     server_url, data2_, ret_status = crypto.decrypt_information(crypto.DataType.DATATYPE_SERVER)
 
     if ret_status not in[Ret.RET_OK, Ret.RET_ERROR_INFO_FILE_EXPIRED]:

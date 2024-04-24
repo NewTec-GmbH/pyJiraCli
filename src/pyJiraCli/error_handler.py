@@ -1,6 +1,6 @@
-""" Command to search for Jira tickets on the provided server.
-    Searches for tickets by filter or search str provided via the command line 
-    and prints all found tickets to command line. """
+""" Contains the print error function and 
+    the error messages corresponding to 
+    the exit codes."""
 
 # BSD 3-Clause License
 #
@@ -38,7 +38,26 @@ from pyJiraCli.ret import Ret
 ################################################################################
 # Variables
 ################################################################################
+CRED = '\033[91m'
+CEND = '\033[0m'
 
+RETURN_MSG = {
+    Ret.RET_OK                           : "Process succesful",
+    Ret.RET_ERROR                        : "Error occured",
+    Ret.RET_ERROR_JIRA_LOGIN             : "Login to jira server was not possible",
+    Ret.RET_ERROR_FILE_NOT_FOUND         : "Folder or File doesn't exist",
+    Ret.RET_ERROR_WORNG_FILE_FORMAT      : "Wrong file format for save file provided",
+    Ret.RET_ERROR_ISSUE_NOT_FOUND        : "Jira Issue not found",
+    Ret.RET_ERROR_FILE_OPEN_FAILED       : "opening File failed",
+    Ret.RET_ERROR_NO_USERINFORMATION     : "no user information was provided via cli " + \
+                                           "or stored information file",
+    Ret.RET_ERROR_MISSING_UNSERINFO      : "both -user and -pw option must be provided " + \
+                                           "to store useriformation",
+    Ret.RET_ERROR_MISSING_LOGIN_INFO     : "At least one of the options must be provided: " + \
+                                           "(-user, -pw), -server or -delete",
+    Ret.RET_ERROR_CREATING_TICKET_FAILED : "creating the ticket on the jira server failed",
+    Ret.RET_ERROR_INFO_FILE_EXPIRED      : "the stored information has expired"
+}
 ################################################################################
 # Classes
 ################################################################################
@@ -46,49 +65,10 @@ from pyJiraCli.ret import Ret
 ################################################################################
 # Functions
 ################################################################################
-def register(subparser):
-    """ Register subparser commands for the login module.
-        
-    Args:
-        subparser (obj):   the command subparser provided via __main__.py
-        
-    Returns:
-        obj:    the commmand parser of this module
-    """
-    # subparser for the 'search' command
-    sb_search = subparser.add_parser('search',
-                                      help="search for jira issues \
-                                            with specified filter string")
-
-    sb_search.add_argument('filter',
-                            type=str,
-                            help="filter string according to \
-                                  which issue are to be searched")
-
-    return sb_search
-
-def execute(args):
-    """ Execute the search command function.
-    
-    Args: 
-        args (obj): the command line arguments
-        
-    Returns:
-        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
-    """
-    return _cmd_search(args.filter, args.user, args.pw)
-
-def _cmd_search(filter_str, user, pw):
-    """ Search tickets with a provided filter or search string.
+def prerr(error):
+    """ Print the exit error.
     
     Args:
-        filter_str (str):   string containing the search parameters
-        user (str):         username for login
-        pw (str)            password for login
-    
-    Returns:
-        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+        error (Ret):    the return code for which an error shall be printed
     """
-    print(f"searching for issues with filter {filter_str, user, pw}")
-
-    return Ret.RET_OK
+    print(CRED, "Error: ", RETURN_MSG[error], CEND)

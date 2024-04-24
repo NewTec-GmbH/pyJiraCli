@@ -1,6 +1,7 @@
-"""crpyto module for information file handling.
-   provides function to encrypt and decrypt user or server information
-   to and from files"""
+""" Crpyto module for information file handling.
+    Provides function to encrypt and decrypt user or server information
+    to and from files.
+"""
 # BSD 3-Clause License
 #
 # Copyright (c) 2024, NewTec GmbH
@@ -40,11 +41,11 @@ import hashlib
 import time
 import base64
 import ctypes
-from enum import IntEnum
 
 from cryptography.fernet import Fernet
 
-from pyJiraCli.retval import Ret
+from pyJiraCli.ret import Ret
+from pyJiraCli.data_type import DataType
 ################################################################################
 # Variables
 ################################################################################
@@ -68,15 +69,6 @@ TMP_FILE         = "\\.tmp.json"
 
 UUID_CMD_WIN  = "wmic csproduct get uuid"
 UUID_CMD_UNIX = "blkid"
-
-class DataType (IntEnum):
-    """"data_type to concern between which data information will be encrypted
-        or decrypted with the encrypt_information() and 
-        decrypt_information() function"""
-    DATATYPE_USER_INFO       = 0
-    DATATYPE_TOKEN_INFO      = 1
-    DATATYPE_SERVER          = 2
-    DATATYPE_SERVER_DEFAULT  = 3
 
 data_keys = {
     DataType.DATATYPE_USER_INFO      : ("user", "pw"),
@@ -107,10 +99,10 @@ data_str_funcs = {
 # Functions
 ################################################################################
 def encrypt_information(data1, data2, expires, data_type):
-    """save information in a dictionary with max 2 key-value pairs.
-       The expiration date will be added in the dictionary too, when decrypting
-       information the module will check if the data is expired 
-       encrypt information and save it to a .data file
+    """ Save information in a dictionary with max 2 key-value pairs.
+        The expiration date will be added in the dictionary too, when decrypting
+        information, the module will check if the data is expired. 
+        Encrypted information is saved to a .data file.
         
     Args:
         data1 (str):            data field for encryption
@@ -119,7 +111,7 @@ def encrypt_information(data1, data2, expires, data_type):
         data_type (DataType):   which data_type is to be written (user, token, server)
 
     Returns:
-        ret_status (Ret):   the exit status of the module
+        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
     """
 
     # get file paths
@@ -129,7 +121,7 @@ def encrypt_information(data1, data2, expires, data_type):
     file_path_key  = _get_path_to_login_folder() + file_path_key
 
     # get data structure for user data unencrypted
-    data_str = _get_data_str(data1, data2, expires, data_type)
+    data_str = _get_data_str(data_type, data1, data2, expires)
 
     # generate new key for user data
     file_key = Fernet.generate_key()
@@ -169,18 +161,18 @@ def encrypt_information(data1, data2, expires, data_type):
     return Ret.RET_OK
 
 def decrypt_information(data_type):
-    """decrypt and return the data pair of a login file.
-       The information which will be decrypted depends on the data_type
-       with which the function is called
+    """ Decrypt and return the data pair of a login file.
+        The information which will be decrypted depends on the data_type
+        with which the function is called.
         
     Args: 
         data_type (DataType):   the data_type that shall be decrypted
                                 (user, token, server, default servers)
         
     Returns:
-        data1 (str):        the decrypted first data value or None
-        data2 (str):        the decrypted second data value or None
-        ret_status (Ret):   exit status of the module
+        str:   the decrypted first data value or None
+        str:   the decrypted second data value or None
+        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
     """
 
     ret_status = Ret.RET_OK
@@ -188,17 +180,21 @@ def decrypt_information(data_type):
     data1 = None
     data2 = None
 
-    file_name_data, file_name_key = file_paths[data_type]
+    if data_type in file_paths:
+        file_name_data, file_name_key = file_paths[data_type]
 
-    filepath_data =  _get_path_to_login_folder() + file_name_data
-    filepath_key =  _get_path_to_login_folder() + file_name_key
+        filepath_data =  _get_path_to_login_folder() + file_name_data
+        filepath_key =  _get_path_to_login_folder() + file_name_key
 
-    data1, data2, ret_status = _read_encrypted_data(filepath_data, filepath_key, data_type)
+        data1, data2, ret_status = _read_encrypted_data(filepath_data, filepath_key, data_type)
+
+    else:
+        ret_status = Ret.RET_ERROR
 
     return data1, data2, ret_status
 
 def delete(data_type):
-    """delete the stored login files of a DataType
+    """ Delete the stored login files of a DataType.
         
     Args:
         data_type (Datatype):   which data shall be removed
@@ -214,7 +210,9 @@ def delete(data_type):
         os.remove(folderpath + file_path_key)
 
 def delete_all():
-    """delete all info files and folder"""
+    """ Delete all info files and folder
+        of the login files
+    """
 
     delete(DataType.DATATYPE_USER_INFO)
     delete(DataType.DATATYPE_TOKEN_INFO)
@@ -224,9 +222,9 @@ def delete_all():
 
 
 def _get_path_to_login_folder():
-    """returns the path to the pyJiraCli tool data
-        all tool data (logindata/configs) is stored in the users
-        home directory
+    """ Returns the path to the pyJiraCli tool data.
+        All tool data (logindata/configs) is stored in the users
+        home directory.
 
     Returns:
         user_info_path (str): the path to the data folder
@@ -240,12 +238,12 @@ def _get_path_to_login_folder():
     return user_info_path
 
 def _get_device_root_key():
-    """return the device root key, 
-       to provided a safe root key this module uses the user/device unique uuid of the system
-       the uuid is first hashed and then stripped to 32 bytes
+    """ Return the device root key, 
+        to provided a safe root key this module uses the user/device unique uuid of the system
+        the uuid is first hashed and then stripped to 32 bytes
 
     Returns:
-        root_key (bytes): the last 32 bytes of the uuid of the system hashed and encoded
+        bytes: the last 32 bytes of the uuid of the system hashed and encoded
     """
     # check which os is being used
     if "nt" in os.name:
@@ -262,7 +260,9 @@ def _get_device_root_key():
     return root_key
 
 def _read_encrypted_data(path_data, path_key, data_type):
-    """_summary_
+    """ Read the encrypted data of one of the login files.
+        If the information is expired, the files will be deleted after the
+        data was retrieved.
 
     Args:
         path_data (str):        path to the encrypted data file
@@ -270,9 +270,9 @@ def _read_encrypted_data(path_data, path_key, data_type):
         data_type (DataType):   the dataType that shall be decrypted   
 
     Returns:
-        data1 (str):        the first data-value which was stored in the encrypted file
-        data1 (str):        the second data-value which was stored in the encrypted file
-        re_status (Ret):    the return status of the module
+        str:   the first data-value which was stored in the encrypted file
+        str:   the second data-value which was stored in the encrypted file
+        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
     """
     ret_status = Ret.RET_OK
 
@@ -332,38 +332,26 @@ def _read_encrypted_data(path_data, path_key, data_type):
 
     return data1, data2, ret_status
 
-def _get_user_data_str(user, pw, expires):
-    """prepare user data for encryption"""
-    data = f'{"{"}\n' + \
-           f'   "user": "{user}",\n' + \
-           f'   "pw": "{pw}"\n' + \
-           f'   "expires": "{expires}"\n' + \
-           f'{"}"}'    
+def _get_data_str(data_type, data1, data2, expires):
+    """ Prepare token data for encryption.
+    
+    Args:
+        data1 (str):         user or url, depending on datatype
+        data2 (str):         pw, token or none, depending on datatype
+        expires (float):     expiration date of the data
+    
+    Returns:
+        str:    formated json string with key-value pairs of the data
+    """
+    if data_type not in (DataType.DATATYPE_SERVER, DataType.DATATYPE_SERVER_DEFAULT):
+        data = f'{"{"}\n' + \
+               f'   {data_keys[data_type][0]}: "{data1}",\n' + \
+               f'   {data_keys[data_type][1]}: "{data2}",\n' + \
+               f'   "expires": "{expires}"\n' + \
+               f'{"}"}'    
+    else:
+        data = f'{"{"}\n' + \
+               f'   {data_keys[data_type][0]}: "{data1}",\n' + \
+               f'   "expires": "{expires}"\n' + \
+               f'{"}"}'
     return data
-
-def _get_token_data_str(user, token, expires):
-    """prepare token data for encryption"""
-    data = f'{"{"}\n' + \
-           f'   "user": "{user}",\n' + \
-           f'   "token": "{token}",\n' + \
-           f'   "expires": "{expires}"\n' + \
-           f'{"}"}'    
-    return data
-
-def _get_server_data_str(url, data, expires):
-    """prepare server data for encryption"""
-    data = f'{"{"}\n' + \
-           f'   "url": "{url}",\n' + \
-           f'   "expires": "{expires}"\n' + \
-           f'{"}"}'    
-    return data
-
-def _get_data_str(data1, data2, expires, data_type):
-    """get the data str prepared for encryption"""
-
-    data_str_funcs[DataType.DATATYPE_USER_INFO] = _get_user_data_str
-    data_str_funcs[DataType.DATATYPE_TOKEN_INFO] = _get_token_data_str
-    data_str_funcs[DataType.DATATYPE_SERVER] = _get_server_data_str
-    data_str_funcs[DataType.DATATYPE_SERVER_DEFAULT] = _get_server_data_str
-
-    return data_str_funcs[data_type](data1, data2, expires)

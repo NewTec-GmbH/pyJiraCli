@@ -42,7 +42,7 @@ import json
 import csv
 from jira import exceptions as ex
 
-from pyJiraCli.retval import Ret
+from pyJiraCli.ret import Ret
 from pyJiraCli import issue_constants as _const
 ################################################################################
 # Variables
@@ -52,8 +52,10 @@ from pyJiraCli import issue_constants as _const
 # Classes
 ################################################################################
 class JiraIssue:
-    """Class contains all jira ticket information"""
-
+    """ Class contains all jira ticket information
+        and methods to convert between json/csv files
+        and server issues.
+    """
     def __init__(self) -> None:
         self._issue_dictionary = {}
         self._issue = None
@@ -65,12 +67,11 @@ class JiraIssue:
                 self._issue_dictionary[field] = None
 
     def get_key(self):
-        """return the issue key of current issue
+        """ Return the issue key of current issue.
         
         Returns:
             key (str):  the current issue key or None
-    """
-
+        """
         key = None
 
         if 'key' in self._issue_dictionary:
@@ -79,16 +80,17 @@ class JiraIssue:
         return key
 
     def export_issue(self, jira, issue:str):
-        """load the issue from the jira server
-           and store its information in the instance
-           of the class 
+        """ Load the issue from the jira server
+            and store its information in the instance
+            of the class. 
             
         Args:
             jira (jira obj):    jira obj for restAPi connection with server
             issue (str):        the issue key in string format
             
         Returns:
-            ret_status (Ret):   the exit code of the process"""
+            Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+        """
         ret_status = Ret.RET_OK
 
         try:
@@ -104,11 +106,11 @@ class JiraIssue:
         return ret_status
 
     def import_issue(self, dictionary):
-        """import issue from dictionary
+        """ Import issue from a dictionary.
 
-           store all values which have a key 
-           in the instances issue_dict to the
-           class instance 
+            Store all values which have a key 
+            in the instances issue_dict to the
+            class instance. 
         
         Args:
             dictionary (dict): a python dictionary conatining jira issue info
@@ -120,16 +122,18 @@ class JiraIssue:
                 self._issue_dictionary[field] = dictionary[field]
 
     def print_issue(self):
-        """"print issue information containend in class instance"""
+        """" Print issue information containend
+             in class instance to the command line.
+        """
 
     def create_json(self, file_path):
-        """ write issue information in class instance to a json file
+        """ Write issue information in class instance to a json file.
             
         Args: 
             file_path (str):    path to the json file 
             
         Returns:
-            ret_status (Ret):   the exit status of the process
+            Ret:   Ret.RET_OK if succesfull, corresponding error code if not
         """
 
         # serialize json object
@@ -148,13 +152,13 @@ class JiraIssue:
         return Ret.RET_OK
 
     def create_csv(self, file_path):
-        """ write issue information in class instance to a csv filess
+        """ Write issue information in class instance to a csv file.
             
         Args: 
             file_path (str):    path to the csv file 
             
         Returns:
-            ret_status (Ret):   the exit status of the process
+            Ret:   Ret.RET_OK if succesfull, corresponding error code if not
         """
         try:
             with open(file_path, "w", encoding='utf-8') as outfile:
@@ -172,13 +176,13 @@ class JiraIssue:
 
 
     def create_ticket(self, jira):
-        """ create jira issue on the server with information from class instance
+        """ Create jira issue on the server with information from class instance.
         
         Args: 
             jira (jira obj):    jira obj for restAPi connection with server
             
         Returns:
-            ret_status (Ret):   the exit status of the process
+            Ret:   Ret.RET_OK if succesfull, corresponding error code if not
         """
         ret_status = Ret.RET_OK
 
@@ -198,8 +202,8 @@ class JiraIssue:
 
 
     def _process_issue(self):
-        """store all data in the self._issue member 
-           to the issue_dictionary of this Instance
+        """ process data in the self._issue member and
+            transfer it to the issue_dictionary of this Instance.
         """
         self._issue_dictionary['key'] = self._issue.key
         self._issue_dictionary['project_key'] = self._issue.fields.project.key
@@ -243,9 +247,9 @@ class JiraIssue:
             self._issue_dictionary['fixVersions'].append(solution.name)
 
     def _create_write_dictionary(self):
-        """prepare the issue information stored in this Instance
-           to a format which the jira REST API can convert to a jira issue
-           on the server
+        """ Prepare the issue information stored in this Instance,
+            to a format which the jira REST API can convert to a jira issue
+            on the server.
 
         Returns:
             write_dictionary (dict):    contains the issue information
