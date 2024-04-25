@@ -122,29 +122,10 @@ def _cmd_import(input_file, user, pw):
 
         ret_status = file.open_file(file_mode='r')
 
-        if ret_status == Ret.RET_OK:
-            if file.get_file_extension() == '.json':
-                issue_dict = json.load(file.get_file())
+    if ret_status == Ret.RET_OK:
+        issue_dict = _read_file(file)
 
-            else:
-                csv_reader = csv.DictReader(file.get_file(), delimiter=';')
-
-                for row in csv_reader:
-                    issue_dict = row
-
-                for field, data in issue_dict.items():
-                    if data == '':
-                        issue_dict[field] = None
-
-                    elif data == '[]':
-                        issue_dict[field] = []
-
-                    elif field in _const.LIST_FIELDS:
-                        issue_dict[field] = ast.literal_eval(data)
-
-            file.close_file()
-
-            issue.import_issue(issue_dict)
+        issue.import_issue(issue_dict)
 
     if ret_status == Ret.RET_OK:
         ret_status = server.login(user, pw)
@@ -154,3 +135,33 @@ def _cmd_import(input_file, user, pw):
             ret_status = issue.create_ticket(jira)
 
     return ret_status
+
+
+def _read_file(file):
+    """ Read in the data from a json or csv file.
+
+    Args:
+        file (FileHandler): the file handler for the input file
+    """
+    if file.get_file_extension() == '.json':
+        issue_dict = json.load(file.get_file())
+
+    else:
+        csv_reader = csv.DictReader(file.get_file(), delimiter=';')
+
+        for row in csv_reader:
+            issue_dict = row
+
+        for field, data in issue_dict.items():
+            if data == '':
+                issue_dict[field] = None
+
+            elif data == '[]':
+                issue_dict[field] = []
+
+            elif field in _const.LIST_FIELDS:
+                issue_dict[field] = ast.literal_eval(data)
+
+    file.close_file()
+
+    return issue_dict

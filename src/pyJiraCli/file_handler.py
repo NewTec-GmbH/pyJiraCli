@@ -155,7 +155,7 @@ class FileHandler:
         ret_status = Ret.RET_OK
 
         try:
-            self._file = open(self._path, mode=file_mode, encoding='utf-8')
+            self._file = open(self._path, mode=file_mode, encoding='utf-8') # pylint: disable=consider-using-with
 
         except (OSError, IOError) as e:
             # print exception

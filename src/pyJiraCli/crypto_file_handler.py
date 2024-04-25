@@ -170,11 +170,16 @@ class Crypto:
             f_writer_key = Fernet(self._root_key)
             f_writer_data = Fernet(data_key)
 
-            encrypted_key_info = f_writer_key.encrypt(data_key)
-            encrypted_data_info = f_writer_data.encrypt(data_str.encode(encoding='utf-8'))
+            try:
+                encrypted_key_info = f_writer_key.encrypt(data_key)
+                encrypted_data_info = f_writer_data.encrypt(data_str.encode(encoding='utf-8'))
 
-            ret_status = self._file_key.write_file(encrypted_key_info.decode(encoding='utf-8'))
-            ret_status = self._file_data.write_file(encrypted_data_info.decode(encoding='utf-8'))
+                ret_status = self._file_key.write_file(encrypted_key_info.decode(encoding='utf-8'))
+                ret_status = self._file_data.write_file(encrypted_data_info.decode(encoding='utf-8'))
+
+            except Exception as e: # pylint: disable=broad-except
+                print(e)
+                ret_status = Ret.RET_ERROR
 
             if ret_status != Ret.RET_OK:
                 self._file_key.delete_file()
@@ -277,16 +282,23 @@ class Crypto:
         if ret_status == Ret.RET_OK:
             f_reader = Fernet(self._root_key)
 
-            key_data = f_reader.decrypt(self._file_key.get_file_content().encode(encoding='utf-8'))
+            try:
 
-            f_reader = Fernet(key_data)
-            data =  f_reader.decrypt(self._file_data.get_file_content().encode(encoding='utf-8'))
+                key_data = f_reader.decrypt(self._file_key.get_file_content() \
+                                            .encode(encoding='utf-8'))
 
-            tmp_file = File()
-            tmp_file.set_filepath(self._homepath + TMP_FILE)
+                f_reader = Fernet(key_data)
+                data = f_reader.decrypt(self._file_data.get_file_content().encode(encoding='utf-8'))
 
-            ret_status = tmp_file.write_file(data.decode(encoding='utf-8'))
-            tmp_file.close_file()
+                tmp_file = File()
+                tmp_file.set_filepath(self._homepath + TMP_FILE)
+
+                ret_status = tmp_file.write_file(data.decode(encoding='utf-8'))
+                tmp_file.close_file()
+
+            except Exception as e: # pylint: disable=broad-except
+                print(e)
+                ret_status = Ret.RET_ERROR
 
         if ret_status == Ret.RET_OK:
             ret_status = tmp_file.open_file(file_mode='r')
