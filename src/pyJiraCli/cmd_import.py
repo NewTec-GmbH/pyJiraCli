@@ -35,12 +35,13 @@
 ################################################################################
 # Imports
 ################################################################################
-import os
 import json
 import csv
+import ast
 
-from pyJiraCli import jira_issue
-from pyJiraCli import jira_server as server
+from pyJiraCli.jira_issue import JiraIssue, _const
+from pyJiraCli.jira_server import Server
+from pyJiraCli.file_handler import FileHandler as File
 from pyJiraCli.ret import Ret
 ################################################################################
 # Variables
@@ -87,62 +88,69 @@ def execute(args):
 
     return ret_status
 
-def _cmd_import(file, user, pw):
+def _cmd_import(input_file, user, pw):
     """ Import a jira issue from a json or csv file.
         Create a jira issue on the server with the data
         read from the input file.
     
     Args:
-        file (str):     the filepath to the input file
-        user (str):     username for login
-        pw (str):       password for login
+        input_file (str):  the filepath to the input file
+        user (str):        username for login
+        pw (str):          password for login
         
     Returns:
         Ret:   Ret.RET_OK if succesfull, corresponding error code if not
     """
     ret_status = Ret.RET_OK
-    issue = jira_issue.JiraIssue()
+    issue = JiraIssue()
+    server = Server()
     issue_dict = {}
 
+    file = File()
+
     # check if provided file is viable
-    if os.path.exists(file) and \
-       os.path.isfile(file):
+    ret_status = file.set_filepath(input_file)
 
-        # check for file extension
-        ext = os.path.splitext(file)[-1]
-
-        if ext in ('.json', '.csv'):
-            file_path = file
-
-        else:
+    if ret_status == Ret.RET_OK:
+        if file.get_file_extension() not in ('.json', '.csv'):
             ret_status = Ret.RET_ERROR_WORNG_FILE_FORMAT
     else:
         ret_status = Ret.RET_ERROR_FILE_NOT_FOUND
 
+    # if file is viable
     if ret_status == Ret.RET_OK:
-        try:
-            if ext == '.json':
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    issue_dict = json.load(f)
 
-            if ext == '.csv':
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    csv_reader = csv.DictReader(f, delimiter=';')
+        ret_status = file.open_file(file_mode='r')
 
-                    for row in csv_reader:
-                        issue_dict = row
+        if ret_status == Ret.RET_OK:
+            if file.get_file_extension() == '.json':
+                issue_dict = json.load(file.get_file())
+
+            else:
+                csv_reader = csv.DictReader(file.get_file(), delimiter=';')
+
+                for row in csv_reader:
+                    issue_dict = row
+
+                for field, data in issue_dict.items():
+                    if data == '':
+                        issue_dict[field] = None
+
+                    elif data == '[]':
+                        issue_dict[field] = []
+
+                    elif field in _const.LIST_FIELDS:
+                        issue_dict[field] = ast.literal_eval(data)
+
+            file.close_file()
 
             issue.import_issue(issue_dict)
 
-        except(OSError,IOError) as e:
-            # print exception
-            print(e)
-            ret_status = Ret.RET_ERROR_FILE_OPEN_FAILED
-
     if ret_status == Ret.RET_OK:
-        jira, ret_status = server.login(user, pw)
+        ret_status = server.login(user, pw)
 
         if ret_status == Ret.RET_OK:
+            jira = server.get_handle()
             ret_status = issue.create_ticket(jira)
 
     return ret_status

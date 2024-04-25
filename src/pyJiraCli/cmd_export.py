@@ -37,8 +37,8 @@
 ################################################################################
 import os
 
-from pyJiraCli import jira_issue
-from pyJiraCli import jira_server as server
+from pyJiraCli.jira_issue import JiraIssue
+from pyJiraCli.jira_server import Server
 from pyJiraCli.ret import Ret
 ################################################################################
 # Variables
@@ -163,9 +163,9 @@ def _get_filepath(issue, file, path, csv):
     if path is None:
         # save file in project folder
         if csv:
-            file_path = f'./issues/{filename}.csv'
+            file_path = f'.\\{filename}.csv'
         else:
-            file_path = f'./issues/{filename}.json'
+            file_path = f'.\\{filename}.json'
 
     else:
         # check if provided path or file is viable
@@ -211,26 +211,24 @@ def _export_ticket_to_file(issue_key, filepath, user, pw, csv):
 
     ret_status = Ret.RET_OK
 
-    issue = jira_issue.JiraIssue()
+    issue = JiraIssue()
+    server = Server()
 
     # login to server, get jira handle obj
-    jira, ret_status = server.login(user, pw)
+    ret_status = server.login(user, pw)
 
-    if ret_status != Ret.RET_OK:
-        return ret_status
+    if ret_status == Ret.RET_OK:
+        jira = server.get_handle()
+        # export issue from jira server
+        ret_status = issue.export_issue(jira, issue_key)
 
-    # export issue from jira server
-    ret_status = issue.export_issue(jira, issue_key)
+    if ret_status == Ret.RET_OK:
+        if csv:
+            # export fiel to csv format
+            ret_status = issue.create_csv(filepath)
 
-    if ret_status != Ret.RET_OK:
-        return ret_status
-
-    if csv:
-        # export fiel to csv format
-        ret_status = issue.create_csv(filepath)
-
-    else:
-        # export file to json format
-        ret_status = issue.create_json(filepath)
+        else:
+            # export file to json format
+            ret_status = issue.create_json(filepath)
 
     return ret_status

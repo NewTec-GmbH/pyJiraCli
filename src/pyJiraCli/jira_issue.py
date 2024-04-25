@@ -43,6 +43,7 @@ import csv
 from jira import exceptions as ex
 
 from pyJiraCli.ret import Ret
+from pyJiraCli.file_handler import FileHandler as File
 from pyJiraCli import issue_constants as _const
 ################################################################################
 # Variables
@@ -57,6 +58,7 @@ class JiraIssue:
         and server issues.
     """
     def __init__(self) -> None:
+        self._file_h = File()
         self._issue_dictionary = {}
         self._issue = None
 
@@ -135,21 +137,19 @@ class JiraIssue:
         Returns:
             Ret:   Ret.RET_OK if succesfull, corresponding error code if not
         """
+        ret_status = Ret.RET_OK
 
         # serialize json object
         json_object = json.dumps(self._issue_dictionary, indent=4)
 
-        try:
-            with open(file_path, "w", encoding='utf-8') as outfile:
-                outfile.write(json_object)
+        ret_status = self._file_h.set_filepath(file_path)
 
-        except (OSError, IOError) as e:
+        if ret_status == Ret.RET_OK:
+            ret_status = self._file_h.write_file(json_object)
 
-            # print exception
-            print(e)
-            return Ret.RET_ERROR_FILE_OPEN_FAILED
+        self._file_h.close_file()
 
-        return Ret.RET_OK
+        return ret_status
 
     def create_csv(self, file_path):
         """ Write issue information in class instance to a csv file.
@@ -160,20 +160,24 @@ class JiraIssue:
         Returns:
             Ret:   Ret.RET_OK if succesfull, corresponding error code if not
         """
-        try:
-            with open(file_path, "w", encoding='utf-8') as outfile:
-                csv_writer = csv.DictWriter(outfile,  delimiter=';', fieldnames=_const.ISSUE_FIELDS)
+        ret_status = Ret.RET_OK
 
-                csv_writer.writeheader()
-                csv_writer.writerow(self._issue_dictionary)
+        ret_status = self._file_h.set_filepath(file_path)
 
-        except (OSError, IOError) as e:
-            # print exception
-            print(e)
-            return Ret.RET_ERROR_FILE_OPEN_FAILED
+        if ret_status == Ret.RET_OK:
+            ret_status = self._file_h.open_file(file_mode='w')
 
-        return Ret.RET_OK
+        if ret_status == Ret.RET_OK:
+            csv_writer = csv.DictWriter(self._file_h.get_file(),
+                                        delimiter=';',
+                                        fieldnames=_const.ISSUE_FIELDS)
 
+            csv_writer.writeheader()
+            csv_writer.writerow(self._issue_dictionary)
+
+        self._file_h.close_file()
+
+        return ret_status
 
     def create_ticket(self, jira):
         """ Create jira issue on the server with information from class instance.
@@ -228,9 +232,13 @@ class JiraIssue:
 
         self._issue_dictionary['creation_date'] = self._issue.fields.created
 
-        self._issue_dictionary['originalEstimate'] = self._issue.fields.timeoriginalestimate
+        if self._issue.fields.timeoriginalestimate is not None:
+            self._issue_dictionary['originalEstimate'] = \
+                self._issue.fields.timeoriginalestimate // 3600
 
-        self._issue_dictionary['remainingEstimate'] = self._issue.fields.timeestimate
+        if self._issue.fields.timeestimate is not None:
+            self._issue_dictionary['remainingEstimate'] = \
+                self._issue.fields.timeestimate // 3600
 
         self._issue_dictionary['environment'] = self._issue.fields.environment
 

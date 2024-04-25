@@ -36,8 +36,8 @@
 ################################################################################
 import time
 
-from pyJiraCli import crypto_file_handler as crypto
-from pyJiraCli import jira_server as server
+from pyJiraCli.crypto_file_handler import Crypto, DataType
+from pyJiraCli.jira_server import Server
 from pyJiraCli.ret import Ret
 
 ################################################################################
@@ -145,7 +145,8 @@ def _cmd_login(args):
     if args.delete:
         ret_status =  _delete_login_file(args.userinfo, args.token, args.server, args.default)
 
-    ret_status = _store_login_info(args)
+    else:
+        ret_status = _store_login_info(args)
 
     return ret_status
 
@@ -162,6 +163,9 @@ def _store_login_info(args):
     """
     ret_status = Ret.RET_OK
 
+    crypto_h = Crypto()
+    server = Server()
+
     user = args.user
     pw = args.pw
     url = args.url
@@ -169,13 +173,21 @@ def _store_login_info(args):
     expiration = args.expires
 
     if token is None and pw is None and url is None:
-        return Ret.RET_ERROR_MISSING_LOGIN_INFO
+        return Ret.RET_ERROR_MISSING_ARG_INFO
 
     if expiration is not None:
         expiration_date = _get_expiration_date_(args)
-
     else:
         expiration_date = time.time() + DEFAULT_EXPIRATION_TIME
+
+    if url is not None:
+        if args.default:
+            data_type = DataType.DATATYPE_SERVER_DEFAULT
+        else:
+            data_type = DataType.DATATYPE_SERVER
+
+        crypto_h.set_data(url)
+        ret_status = crypto_h.encrypt_information(expiration_date, data_type)
 
     if  pw is not None:
         if user is None:
@@ -186,32 +198,18 @@ def _store_login_info(args):
         if ret_status != Ret.RET_OK:
             return ret_status
 
-        ret_status = crypto.encrypt_information(user,
-                                                pw,
-                                                expiration_date,
-                                                crypto.DataType.DATATYPE_USER_INFO)
+        crypto_h.set_data(user, pw)
+        ret_status = crypto_h.encrypt_information(expiration_date, DataType.DATATYPE_USER_INFO)
 
     if token is not None:
-        ret_status = server.try_login(user, None, token)
+        ret_status = server.try_login(None, None, token)
 
         if ret_status != Ret.RET_OK:
             return ret_status
 
-        ret_status = crypto.encrypt_information(user,
-                                                token,
-                                                expiration_date,
-                                                crypto.DataType.DATATYPE_TOKEN_INFO)
+        crypto_h.set_data(token)
+        ret_status = crypto_h.encrypt_information(expiration_date, DataType.DATATYPE_TOKEN_INFO)
 
-    if url is not None:
-        if args.default:
-            data_type = crypto.DataType.DATATYPE_SERVER_DEFAULT
-        else:
-            data_type = crypto.DataType.DATATYPE_SERVER
-
-        ret_status = crypto.encrypt_information(url,
-                                                None,
-                                                expiration_date,
-                                                data_type)
     return ret_status
 
 def _delete_login_file(delete_userinfo, delete_token, delete_server, delete_default_server):
@@ -226,25 +224,23 @@ def _delete_login_file(delete_userinfo, delete_token, delete_server, delete_defa
     Returns:
         Ret:   Ret.RET_OK if succesfull, corresponding error code if not
     """
+    crypto_h = Crypto()
+
     if delete_userinfo:
-        data_type = crypto.DataType.DATATYPE_USER_INFO
-        crypto.delete(data_type)
+        crypto_h.delete(DataType.DATATYPE_USER_INFO)
 
     if delete_token:
-        data_type = crypto.DataType.DATATYPE_TOKEN_INFO
-        crypto.delete(data_type)
+        crypto_h.delete(DataType.DATATYPE_TOKEN_INFO)
 
     if delete_server:
-        data_type = crypto.DataType.DATATYPE_SERVER
-        crypto.delete(data_type)
+        crypto_h.delete(DataType.DATATYPE_SERVER)
 
     if delete_default_server:
-        data_type = crypto.DataType.DATATYPE_SERVER_DEFAULT
-        crypto.delete(data_type)
+        crypto_h.delete(DataType.DATATYPE_SERVER_DEFAULT)
 
     elif not delete_userinfo and not delete_token and \
        not delete_server and not delete_default_server:
-        crypto.delete_all()
+        crypto_h.delete_all()
 
     return Ret.RET_OK
 

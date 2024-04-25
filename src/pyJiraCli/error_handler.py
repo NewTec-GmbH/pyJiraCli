@@ -53,7 +53,7 @@ RETURN_MSG = {
                                            "or stored information file",
     Ret.RET_ERROR_MISSING_UNSERINFO      : "both -user and -pw option must be provided " + \
                                            "to store useriformation",
-    Ret.RET_ERROR_MISSING_LOGIN_INFO     : "At least one of the options must be provided: " + \
+    Ret.RET_ERROR_MISSING_ARG_INFO       : "At least one of the options must be provided: " + \
                                            "(-user, -pw), -server or -delete",
     Ret.RET_ERROR_CREATING_TICKET_FAILED : "creating the ticket on the jira server failed",
     Ret.RET_ERROR_INFO_FILE_EXPIRED      : "the stored information has expired"
