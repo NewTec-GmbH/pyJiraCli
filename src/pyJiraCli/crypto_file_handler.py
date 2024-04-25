@@ -174,8 +174,10 @@ class Crypto:
                 encrypted_key_info = f_writer_key.encrypt(data_key)
                 encrypted_data_info = f_writer_data.encrypt(data_str.encode(encoding='utf-8'))
 
-                ret_status = self._file_key.write_file(encrypted_key_info.decode(encoding='utf-8'))
-                ret_status = self._file_data.write_file(encrypted_data_info.decode(encoding='utf-8'))
+                ret_status = self._file_key.write_file(encrypted_key_info \
+                                                       .decode(encoding='utf-8'))
+                ret_status = self._file_data.write_file(encrypted_data_info \
+                                                        .decode(encoding='utf-8'))
 
             except Exception as e: # pylint: disable=broad-except
                 print(e)
