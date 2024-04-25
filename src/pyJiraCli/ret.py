@@ -50,7 +50,7 @@ class Ret(IntEnum):
     RET_ERROR_FILE_OPEN_FAILED       = 6
     RET_ERROR_NO_USERINFORMATION     = 7
     RET_ERROR_MISSING_UNSERINFO      = 8
-    RET_ERROR_MISSING_LOGIN_INFO     = 9
+    RET_ERROR_MISSING_ARG_INFO     = 9
     RET_ERROR_CREATING_TICKET_FAILED = 10
     RET_ERROR_INFO_FILE_EXPIRED      = 11
 ################################################################################

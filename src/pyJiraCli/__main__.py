@@ -35,11 +35,11 @@
 import sys
 import argparse
 
-# import cmd_import
-# import cmd_export
-# import cmd_search
-# import cmd_login
-# import cmd_print
+#import cmd_import
+#import cmd_export
+#import cmd_search
+#import cmd_login
+#import cmd_print
 
 # import command modules
 from pyJiraCli import cmd_import
