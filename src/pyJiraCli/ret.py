@@ -1,6 +1,4 @@
-""" Command for the print function.
-    prints the ticket information for a provided issue key
-    onto the console."""
+"""The Error codes of pyJiraCli tool."""
 # BSD 3-Clause License
 #
 # Copyright (c) 2024, NewTec GmbH
@@ -33,7 +31,7 @@
 ################################################################################
 # Imports
 ################################################################################
-from pyJiraCli.ret import Ret
+from enum import IntEnum
 ################################################################################
 # Variables
 ################################################################################
@@ -41,53 +39,20 @@ from pyJiraCli.ret import Ret
 ################################################################################
 # Classes
 ################################################################################
-
+class Ret(IntEnum):
+    """"exit statuses of the modules"""
+    RET_OK                           = 0
+    RET_ERROR                        = 1
+    RET_ERROR_JIRA_LOGIN             = 2
+    RET_ERROR_FILE_NOT_FOUND         = 3
+    RET_ERROR_WORNG_FILE_FORMAT      = 4
+    RET_ERROR_ISSUE_NOT_FOUND        = 5
+    RET_ERROR_FILE_OPEN_FAILED       = 6
+    RET_ERROR_NO_USERINFORMATION     = 7
+    RET_ERROR_MISSING_UNSERINFO      = 8
+    RET_ERROR_MISSING_ARG_INFO     = 9
+    RET_ERROR_CREATING_TICKET_FAILED = 10
+    RET_ERROR_INFO_FILE_EXPIRED      = 11
 ################################################################################
 # Functions
 ################################################################################
-# subparser for the 'print' command
-def register(subparser):
-    """ Register subparser commands for the print module.
-        
-    Args:
-        subparser (obj):   the command subparser provided via __main__.py
-        
-    Returns:
-        obj:    the commmand parser of this module
-    """
-
-    sb_search = subparser.add_parser('print',
-                                      help="print issue details to the console")
-
-    sb_search.add_argument('issue',
-                            type=str,
-                            help="issue key")
-
-    return sb_search
-
-def execute(args) -> Ret:
-    """ Execute the print command function.
-    
-    Args: 
-        args (obj): the command line arguments
-        
-    Returns:
-        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
-    """
-    return _cmd_print(args.issue, args.user, args.pw)
-
-def _cmd_print(issue:str, user:str, pw:str) -> Ret:
-    """ Load the data of the provided issue key and 
-        and print it to the command line.
-
-    Args:
-        issue (str): the issue key
-        user (str): username for login
-        pw (str): password for login
-    
-    Returns:
-        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
-    """
-    print(f'print details for issue {issue}{user}{pw}')
-
-    return Ret.RET_OK
