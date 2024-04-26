@@ -42,7 +42,7 @@ import time
 import base64
 import ctypes
 
-from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet, InvalidToken
 
 from pyJiraCli.ret import Ret
 from pyJiraCli.file_handler import FileHandler as File
@@ -168,7 +168,7 @@ class Crypto:
             data_str = _get_data_str(self._data1, self._data2, expires, data_type)
 
             # generate new key for user data
-            data_key = Fernet.generate_key()
+            data_key = Fernet.generate_key().decode()
 
             f_writer_key = Fernet(self._root_key)
             f_writer_data = Fernet(data_key)
@@ -182,8 +182,8 @@ class Crypto:
                 ret_status = self._file_data.write_file(encrypted_data_info \
                                                         .decode(encoding='utf-8'))
 
-            except Exception as e: # pylint: disable=broad-except
-                print(e)
+            except (TypeError, ValueError, InvalidToken) as e:
+                print(str(e))
                 ret_status = Ret.RET_ERROR
 
             if ret_status != Ret.RET_OK:
@@ -298,7 +298,7 @@ class Crypto:
                 tmp_file.close_file()
 
             except Exception as e: # pylint: disable=broad-except
-                print(e)
+                print(str(e))
                 ret_status = Ret.RET_ERROR
 
         if ret_status == Ret.RET_OK:

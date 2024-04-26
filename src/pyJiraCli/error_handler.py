@@ -56,7 +56,8 @@ RETURN_MSG = {
     Ret.RET_ERROR_MISSING_ARG_INFO       : "At least one of the options must be provided: " + \
                                            "(-user, -pw), -server or -delete",
     Ret.RET_ERROR_CREATING_TICKET_FAILED : "creating the ticket on the jira server failed",
-    Ret.RET_ERROR_INFO_FILE_EXPIRED      : "the stored information has expired"
+    Ret.RET_ERROR_INFO_FILE_EXPIRED      : "the stored information has expired",
+    Ret.RET_ERROR_INVALID_SEARCH         : "search string returned a jira error"
 }
 ################################################################################
 # Classes

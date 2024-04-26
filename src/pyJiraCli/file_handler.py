@@ -162,7 +162,7 @@ class FileHandler:
 
         except (OSError, IOError) as e:
             # print exception
-            print(e)
+            print(str(e))
             ret_status = Ret.RET_ERROR_FILE_OPEN_FAILED
 
         return  ret_status
