@@ -33,7 +33,7 @@
 ################################################################################
 # Imports
 ################################################################################
-import pyJiraCli.jira_server import Server
+from pyJiraCli.jira_server import Server
 from pyJiraCli.jira_issue import JiraIssue
 from pyJiraCli.ret import Ret
 ################################################################################
@@ -78,7 +78,7 @@ def execute(args) -> Ret:
     """
     return _cmd_print(args.issue, args.user, args.pw)
 
-def _cmd_print(issue_key, user, pw):
+def _cmd_print(issue_key:str, user:str, pw:str) -> Ret:
     """Load the data of the provided issue key and 
         and print it to the command line.
 
@@ -92,18 +92,16 @@ def _cmd_print(issue_key, user, pw):
     """
 
     ret_status = Ret.RET_OK
-
     issue = JiraIssue()
-    jira, ret_status = server.login(user, pw)
+    server = Server()
 
-    if ret_status != Ret.RET_OK:
-        return ret_status
+    ret_status = server.login(user, pw)
 
-    ret_status = issue.export_issue(jira, issue_key)
+    if ret_status == Ret.RET_OK:
+        jira = server.get_handle()
+        ret_status = issue.export_issue(jira, issue_key)
 
-    if ret_status != Ret.RET_OK:
-        return ret_status
-
-    issue.print_issue()
+    if ret_status == Ret.RET_OK:
+        issue.print_issue()
 
     return ret_status
