@@ -124,7 +124,12 @@ def _cmd_search(filter_str:str, user:str, pw:str, results:int) -> Ret:
 
     return ret_status
 
-def _print_table(issues):
+def _print_table(issues:list):
+    """ Print a quick overview vor all issues in the list.
+
+    Args:
+        issues (list): list with all found issues
+    """
     for header in HEADER:
         print(f"{header:<{HEADER_COL_WIDTH[header]}}", end="")
     print()
