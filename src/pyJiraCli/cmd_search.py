@@ -1,6 +1,6 @@
-"""Command to search for Jira tickets on the provided server.
-   searches for tickets by filter or search str provided via the command line
-   prints all found ticket keys to command line"""
+""" Command to search for Jira tickets on the provided server.
+    Searches for tickets by filter or search str provided via the command line 
+    and prints all found tickets to command line. """
 
 # BSD 3-Clause License
 #
@@ -58,7 +58,14 @@ HEADER_COL_WIDTH = {
 # Functions
 ################################################################################
 def register(subparser):
-    """add_parser subparser commands for the search module"""
+    """ Register subparser commands for the login module.
+        
+    Args:
+        subparser (obj):   the command subparser provided via __main__.py
+        
+    Returns:
+        obj:    the commmand parser of this module
+    """
     # subparser for the 'search' command
     sb_search = subparser.add_parser('search',
                                       help="search for jira issues \
@@ -75,23 +82,28 @@ def register(subparser):
 
     return sb_search
 
-def execute(args):
-    """execute command function"""
+def execute(args) -> Ret:
+    """ Execute the search command function.
+    
+    Args: 
+        args (obj): the command line arguments
+        
+    Returns:
+        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+    """
     return _cmd_search(args.filter, args.user, args.pw, args.max)
 
-def _cmd_search(filter_str, user, pw, results):
-    """ search tickets with a provided filter or search string
-
-    param:
-    filer_str  the filter string by which issues are searched
-    user       username for login
-    pw         password for login
-    results    max number of results
-
-    return:
-    exit status of the module
+def _cmd_search(filter_str:str, user:str, pw:str, results:int) -> Ret:
+    """ Search tickets with a provided filter or search string.
+    
+    Args:
+        filter_str (str):   string containing the search parameters
+        user (str):         username for login
+        pw (str)            password for login
+    
+    Returns:
+        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
     """
-
     ret_status = Ret.RET_OK
 
     if results is None:
