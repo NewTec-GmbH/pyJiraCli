@@ -208,9 +208,8 @@ def _export_ticket_to_file(issue_key:str, filepath:str, user:str, pw:str, csv:bo
     Returns:
         Ret:   Ret.RET_OK if succesfull, corresponding error code if not
     """
-
+# pylint: disable=R0801
     ret_status = Ret.RET_OK
-
     issue = JiraIssue()
     server = Server()
 
@@ -221,6 +220,7 @@ def _export_ticket_to_file(issue_key:str, filepath:str, user:str, pw:str, csv:bo
         jira = server.get_handle()
         # export issue from jira server
         ret_status = issue.export_issue(jira, issue_key)
+# pylint: enable=R0801
 
     if ret_status == Ret.RET_OK:
         if csv:
