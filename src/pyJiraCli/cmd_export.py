@@ -135,7 +135,7 @@ def _cmd_export(args) -> Ret:
     return ret_status
 
 
-def _get_filepath(issue:str, file:str, path:str, csv:bool) -> tuple[str, Ret]:
+def _get_filepath(issue:str, file:str, path:str, csv:bool):
     """ Put together the output file path.
         If no filename was provided with file option, 
         the issue key will be used as filename.
