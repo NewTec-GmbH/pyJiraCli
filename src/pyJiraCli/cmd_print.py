@@ -65,7 +65,7 @@ def register(subparser):
 
     return sb_search
 
-def execute(args):
+def execute(args) -> Ret:
     """ Execute the print command function.
     
     Args: 
@@ -76,7 +76,7 @@ def execute(args):
     """
     return _cmd_print(args.issue, args.user, args.pw)
 
-def _cmd_print(issue, user, pw):
+def _cmd_print(issue:str, user:str, pw:str) -> Ret:
     """ Load the data of the provided issue key and 
         and print it to the command line.
 

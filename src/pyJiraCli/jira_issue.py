@@ -68,7 +68,7 @@ class JiraIssue:
             else:
                 self._issue_dictionary[field] = None
 
-    def get_key(self):
+    def get_key(self) -> str:
         """ Return the issue key of current issue.
         
         Returns:
@@ -81,7 +81,7 @@ class JiraIssue:
 
         return key
 
-    def export_issue(self, jira, issue:str):
+    def export_issue(self, jira, issue:str) -> Ret:
         """ Load the issue from the jira server
             and store its information in the instance
             of the class. 
@@ -128,7 +128,7 @@ class JiraIssue:
              in class instance to the command line.
         """
 
-    def create_json(self, file_path):
+    def create_json(self, file_path) -> Ret:
         """ Write issue information in class instance to a json file.
             
         Args: 
@@ -151,7 +151,7 @@ class JiraIssue:
 
         return ret_status
 
-    def create_csv(self, file_path):
+    def create_csv(self, file_path) -> Ret:
         """ Write issue information in class instance to a csv file.
             
         Args: 
@@ -179,7 +179,7 @@ class JiraIssue:
 
         return ret_status
 
-    def create_ticket(self, jira):
+    def create_ticket(self, jira) -> Ret:
         """ Create jira issue on the server with information from class instance.
         
         Args: 
@@ -254,7 +254,7 @@ class JiraIssue:
         for solution in self._issue.fields.fixVersions:
             self._issue_dictionary['fixVersions'].append(solution.name)
 
-    def _create_write_dictionary(self):
+    def _create_write_dictionary(self) -> dict:
         """ Prepare the issue information stored in this Instance,
             to a format which the jira REST API can convert to a jira issue
             on the server.

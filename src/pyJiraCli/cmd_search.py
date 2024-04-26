@@ -67,7 +67,7 @@ def register(subparser):
 
     return sb_search
 
-def execute(args):
+def execute(args) -> Ret:
     """ Execute the search command function.
     
     Args: 
@@ -78,7 +78,7 @@ def execute(args):
     """
     return _cmd_search(args.filter, args.user, args.pw)
 
-def _cmd_search(filter_str, user, pw):
+def _cmd_search(filter_str:str, user:str, pw:str) -> Ret:
     """ Search tickets with a provided filter or search string.
     
     Args:

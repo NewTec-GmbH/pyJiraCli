@@ -61,7 +61,7 @@ class Server:
 
         urllib3.disable_warnings()
 
-    def login(self, user, pw):
+    def login(self, user:str, pw:str):
         """ Login to jira server with user info or login info from 
             stored token or user file.
 
@@ -98,7 +98,7 @@ class Server:
 
         return ret_status
 
-    def try_login(self, user, pw, token):
+    def try_login(self, user:str, pw:str, token:str) -> Ret:
         """ Try to login to jira.
             Dont return the jira obj, only return OK if the login 
             was succesful.
@@ -133,7 +133,7 @@ class Server:
         """
         return self._jira_obj
 
-    def _login_with_token(self, token):
+    def _login_with_token(self, token:str) -> Ret:
         """ Login to jira with API token.
 
         Args:
@@ -161,7 +161,7 @@ class Server:
 
         return ret_status
 
-    def _login_with_password(self, user, pw):
+    def _login_with_password(self, user:str, pw:str) -> Ret:
         """ Login to jira with username and password.
 
         Args:
@@ -191,7 +191,7 @@ class Server:
 
         return ret_status
 
-    def _get_server_url(self):
+    def _get_server_url(self) -> str:
         """ get the server url from the encrypted files.
             If no server data is available a hardcoded default server
             will be returned.
