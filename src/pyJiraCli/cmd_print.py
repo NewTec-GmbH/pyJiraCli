@@ -33,6 +33,8 @@
 ################################################################################
 # Imports
 ################################################################################
+import pyJiraCli.jira_server import Server
+from pyJiraCli.jira_issue import JiraIssue
 from pyJiraCli.ret import Ret
 ################################################################################
 # Variables
@@ -76,18 +78,32 @@ def execute(args) -> Ret:
     """
     return _cmd_print(args.issue, args.user, args.pw)
 
-def _cmd_print(issue:str, user:str, pw:str) -> Ret:
-    """ Load the data of the provided issue key and 
+def _cmd_print(issue_key, user, pw):
+    """Load the data of the provided issue key and 
         and print it to the command line.
 
     Args:
-        issue (str): the issue key
+        issue_key (str): the unique issue key in string format
         user (str): username for login
         pw (str): password for login
-    
-    Returns:
-        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
-    """
-    print(f'print details for issue {issue}{user}{pw}')
 
-    return Ret.RET_OK
+    Returns:
+        retval.Ret: return status of the module
+    """
+
+    ret_status = Ret.RET_OK
+
+    issue = JiraIssue()
+    jira, ret_status = server.login(user, pw)
+
+    if ret_status != Ret.RET_OK:
+        return ret_status
+
+    ret_status = issue.export_issue(jira, issue_key)
+
+    if ret_status != Ret.RET_OK:
+        return ret_status
+
+    issue.print_issue()
+
+    return ret_status

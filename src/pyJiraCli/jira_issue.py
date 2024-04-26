@@ -48,7 +48,8 @@ from pyJiraCli import issue_constants as _const
 ################################################################################
 # Variables
 ################################################################################
-
+KEY_FIELD_COL_WIDTH = 25
+DATA_FIELD_COL_WIDTH = 100
 ################################################################################
 # Classes
 ################################################################################
@@ -128,8 +129,12 @@ class JiraIssue:
              in class instance to the command line.
         """
 
-    def create_json(self, file_path) -> Ret:
-        """ Write issue information in class instance to a json file.
+        for field_name, field_data in self._issue_dictionary.items():
+            print(f"{field_name:<{KEY_FIELD_COL_WIDTH}}", end="")
+            print(f"{str(field_data):<{DATA_FIELD_COL_WIDTH}}", end="\n")
+
+    def create_json(self, file_path):
+        """ write issue information in class instance to a json file
             
         Args: 
             file_path (str):    path to the json file 
