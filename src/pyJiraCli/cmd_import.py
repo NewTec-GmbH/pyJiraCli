@@ -73,7 +73,7 @@ def register(subparser):
 
     return sb_import
 
-def execute(args):
+def execute(args) -> Ret:
     """ Execute the import command function.
     
     Args: 
@@ -88,7 +88,7 @@ def execute(args):
 
     return ret_status
 
-def _cmd_import(input_file, user, pw):
+def _cmd_import(input_file:str, user:str, pw:str) -> Ret:
     """ Import a jira issue from a json or csv file.
         Create a jira issue on the server with the data
         read from the input file.
@@ -137,11 +137,14 @@ def _cmd_import(input_file, user, pw):
     return ret_status
 
 
-def _read_file(file):
+def _read_file(file:File) -> dict:
     """ Read in the data from a json or csv file.
 
     Args:
         file (FileHandler): the file handler for the input file
+    
+    Returns:
+        dict:  the dictionary with file informations   
     """
     if file.get_file_extension() == '.json':
         issue_dict = json.load(file.get_file())

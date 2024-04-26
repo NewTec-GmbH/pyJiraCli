@@ -212,7 +212,7 @@ def _store_login_info(args):
 
     return ret_status
 
-def _delete_login_file(delete_userinfo, delete_token, delete_server, delete_default_server):
+def _delete_login_file(delete_userinfo:bool, delete_token:bool, delete_server:bool, delete_default_server:bool) -> Ret:
     """ Delete the login files corresponding to the set dataType flags.
 
     Args:

@@ -85,7 +85,7 @@ def register(subparser):
 
     return sb_export
 
-def execute(args):
+def execute(args) -> Ret:
     """ Execute the export command function.
     
     Args: 
@@ -97,7 +97,7 @@ def execute(args):
     return _cmd_export(args)
 
 # export command function
-def _cmd_export(args):
+def _cmd_export(args) -> Ret:
     """ Export a jira ticket to a json or csv file.
 
         The function takes the commandline arguments and extracts the
@@ -135,7 +135,7 @@ def _cmd_export(args):
     return ret_status
 
 
-def _get_filepath(issue, file, path, csv):
+def _get_filepath(issue:str, file:str, path:str, csv:bool) -> tuple[str, Ret]:
     """ Put together the output file path.
         If no filename was provided with file option, 
         the issue key will be used as filename.
@@ -194,7 +194,7 @@ def _get_filepath(issue, file, path, csv):
 
     return file_path, ret_status
 
-def _export_ticket_to_file(issue_key, filepath, user, pw, csv):
+def _export_ticket_to_file(issue_key:str, filepath:str, user:str, pw:str, csv:bool) -> Ret:
     """ Export a jira issue from the server
         and write the issue data to a csv or json file.
         

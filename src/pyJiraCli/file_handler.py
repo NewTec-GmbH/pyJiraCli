@@ -53,7 +53,7 @@ class FileHandler:
         self._path = None
         self._content = None
 
-    def set_filepath(self, path:str):
+    def set_filepath(self, path:str) -> Ret:
         """ Set the path for the file contained in this Instance.
 
         Args:
@@ -78,7 +78,7 @@ class FileHandler:
 
         return  ret_status
 
-    def read_file(self):
+    def read_file(self) -> Ret:
         """ Open the file in read mode and read its content
             to the file instance.
 
@@ -105,7 +105,7 @@ class FileHandler:
         """
         return self._file
 
-    def get_file_extension(self):
+    def get_file_extension(self) -> str:
         """ Return the file extension 
             of the file as a string.
 
@@ -114,7 +114,7 @@ class FileHandler:
         """
         return self._ext
 
-    def get_file_content(self):
+    def get_file_content(self) -> str:
         """ Return the file content
             of the file as string.
 
@@ -123,7 +123,7 @@ class FileHandler:
         """
         return self._content
 
-    def write_file(self, file_input):
+    def write_file(self, file_input) -> Ret:
         """ Open the file in write mode
             and write the function argument
             to the file.
@@ -145,8 +145,8 @@ class FileHandler:
 
         return  ret_status
 
-    def open_file(self, file_mode:str):
-        """ OPen the filepath in this instance
+    def open_file(self, file_mode:str) -> Ret:
+        """ Open the filepath in this instance
             and save the file obj.
 
         Returns:
