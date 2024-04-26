@@ -121,6 +121,9 @@ class Crypto:
     def get_data(self, data_type:DataType):
         """ Return the data after decryption.
 
+        Args:
+            data_type (DataType): the datatype of the data 
+
         Returns:
            str: first decrypted data
            str: second decrypted data

@@ -58,10 +58,10 @@ from pyJiraCli.ret import Ret
 def register(subparser):
     """ Register subparser commands for the import module.
         
-        Args:
+    Args:
         subparser (obj):  the command subparser provided via __main__.py
         
-        Returns:
+    Returns:
         obj:  the commmand parser of this module
     """
     sb_import = subparser.add_parser('import',

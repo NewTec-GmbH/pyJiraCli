@@ -149,6 +149,9 @@ class FileHandler:
         """ Open the filepath in this instance
             and save the file obj.
 
+        Args:
+            file_mode (str): 'r' -> read filemode, 'w' -> write filemore    
+
         Returns:
             Ret:   Ret.RET_OK if succesfull, corresponding error code if not
         """
