@@ -198,14 +198,14 @@ def _export_ticket_to_file(issue_key:str, filepath:str, user:str, pw:str, csv:bo
     """ Export a jira issue from the server
         and write the issue data to a csv or json file.
         
-        Args:
+    Args:
         issue_key (str):  issue key
         filepath (str):   path to the output file
         user (str):       user name for login (if provided)
         pw (str):         password (if provided)  
         csv (bool):       flag, if true save the file in csv format
 
-        Returns:
+    Returns:
         Ret:   Ret.RET_OK if succesfull, corresponding error code if not
     """
 
