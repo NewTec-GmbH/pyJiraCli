@@ -58,6 +58,7 @@ class Server:
         self._crypto_h = Crypto()
         self._server_url = DEFAULT_SERVER
         self._jira_obj = None
+        self._search_result = None
 
         urllib3.disable_warnings()
 
@@ -133,6 +134,41 @@ class Server:
         """
         return self._jira_obj
 
+    def search(self, search_str:str, max_results:int) -> Ret:
+        """_summary_
+
+        Args:
+            search_str (str): _description_
+            max_results (int): _description_
+
+        Returns:
+            Ret: _description_
+        """
+
+        ret_status = Ret.RET_OK
+
+        if self._jira_obj is None:
+            ret_status = Ret.RET_ERROR
+
+        else:
+            try:
+                self._search_result = self._jira_obj.search_issues(search_str,
+                                                                   maxResults=max_results)
+
+            except exceptions.JIRAError as e:
+                print(e.text)
+                ret_status = Ret.RET_ERROR_INVALID_SEARCH
+
+        return ret_status
+
+    def get_search_result(self) -> list:
+        """_summary_
+
+        Returns:
+            list: _description_
+        """
+        return self._search_result
+
     def _login_with_token(self, token:str) -> Ret:
         """ Login to jira with API token.
 
@@ -156,7 +192,11 @@ class Server:
 
         except (exceptions.JIRAError, reqex.ConnectionError, urlex.MaxRetryError) as e:
             #print error
-            print(e)
+            if e is exceptions.JIRAError:
+                print(e.text)
+            else:
+                print(str(e))
+
             ret_status = Ret.RET_ERROR_JIRA_LOGIN
 
         return ret_status
@@ -186,7 +226,7 @@ class Server:
 
         except (exceptions.JIRAError, reqex.ConnectionError, urlex.MaxRetryError) as e:
             #print error
-            print(e)
+            print(str(e))
             ret_status = Ret.RET_ERROR_JIRA_LOGIN
 
         return ret_status
