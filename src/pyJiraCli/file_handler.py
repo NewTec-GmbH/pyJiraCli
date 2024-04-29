@@ -160,7 +160,7 @@ class FileHandler:
         try:
             self._file = open(self._path, mode=file_mode, encoding='utf-8') # pylint: disable=consider-using-with
 
-        except (OSError, IOError) as e:
+        except (OSError, FileNotFoundError, IOError) as e:
             # print exception
             print(str(e))
             ret_status = Ret.RET_ERROR_FILE_OPEN_FAILED
@@ -168,7 +168,7 @@ class FileHandler:
         return  ret_status
 
     def hide_file(self):
-        """_summary_
+        """ Set the file attribute "file hidden".
         """
         if self._path is not None:
             if os.path.exists(self._path):

@@ -53,7 +53,7 @@ from pyJiraCli.ret import Ret
 ################################################################################
 # subparser for the 'export'command
 def register(subparser):
-    """ Register subparser commands for the export module.
+    """ Register the subparser commands for the export module.
         
     Args:
         subparser (obj):   the command subparser provided via __main__.py
@@ -86,10 +86,11 @@ def register(subparser):
     return sb_export
 
 def execute(args) -> Ret:
-    """ Execute the export command function.
+    """ This function servers as entry point for the command 'export'.
+        It will be stored as callback for this moduls subparser command.
     
     Args: 
-        args        the command line arguments
+        args (obj): the command line arguments
         
     Returns:
         Ret:   Ret.RET_OK if succesfull, corresponding error code if not
@@ -148,8 +149,8 @@ def _get_filepath(issue:str, file:str, path:str, csv:bool):
         csv (bool):  flag, if true save the file in csv format
 
     Returns:
-        str:   path where the ticket file will be stored or None
-        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+        tuple[str,Ret]:   str: path where the ticket file will be stored or None
+                          Ret: Ret.RET_OK if succesfull, corresponding error code if not
     """
 
     ret_status = Ret.RET_OK
