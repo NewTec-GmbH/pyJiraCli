@@ -68,7 +68,8 @@ def register(subparser):
     return sb_search
 
 def execute(args) -> Ret:
-    """ Execute the search command function.
+    """ This function servers as entry point for the command 'search'.
+        It will be stored as callback for this moduls subparser command.
     
     Args: 
         args (obj): the command line arguments
