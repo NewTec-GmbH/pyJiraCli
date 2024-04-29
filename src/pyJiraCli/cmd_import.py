@@ -74,10 +74,11 @@ def register(subparser):
     return sb_import
 
 def execute(args) -> Ret:
-    """ Execute the import command function.
+    """ This function servers as entry point for the command 'import'.
+        It will be stored as callback for this moduls subparser command.
     
     Args: 
-        args:   the command line arguments
+        args (obj):   the command line arguments
         
     Returns:
         Ret:   Ret.RET_OK if succesfull, corresponding error code if not

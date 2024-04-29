@@ -156,6 +156,8 @@ cython_debug/
 # dont include pngs of diagrams
 design/*.png 
 
+# ignore documentation
+docs/
 
 # imported issues
 issues/
