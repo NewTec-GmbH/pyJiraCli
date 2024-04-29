@@ -1,5 +1,7 @@
-"""The main module with the program entry point."""
-
+""" This Enum is for data type distinction.
+    The crypto module uses these data types,
+    to select which type of information to store.
+"""
 # BSD 3-Clause License
 #
 # Copyright (c) 2024, NewTec GmbH
