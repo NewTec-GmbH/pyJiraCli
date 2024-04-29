@@ -37,6 +37,10 @@
 # Variables
 ################################################################################
 ISSUE_TYPES = {
+    """ This Dictionbary contains information,
+        about which ID corrsponds to which issuetype of
+        a jira issue.
+    """
     '1' : 'Bug',
     '2' : 'Neue Funktion',
     '3' : 'Aufgabe',
@@ -48,6 +52,10 @@ ISSUE_TYPES = {
 }
 
 ISSUE_PRIORITIES = {
+    """ This Dictionbary contains information,
+        about which ID corrsponds to which priority of
+        a jira issue.
+    """
     '1' : 'Blocker',
     '2' : 'Critical',
     '3' : 'Major (Default)',
@@ -57,6 +65,10 @@ ISSUE_PRIORITIES = {
 
 # all available issue fields
 ISSUE_FIELDS = [
+    """ This Dictionbary contains all fields,
+        which can be read or written from jira 
+        tickets. 
+    """
             'key',              
             'project_key',            
             'summary',                
@@ -79,6 +91,9 @@ ISSUE_FIELDS = [
 
 # all fields that can hold mutliple values
 LIST_FIELDS = [
+    """ This Dictionbary contains jira fields,
+        which should be handled as lists.
+    """
             'labels',                 
             'components',             
             'versions',               
@@ -87,6 +102,12 @@ LIST_FIELDS = [
 
 # fields excluded when creating issues from files
 EXCLUDED_FIELDS = [
+        """ This Dictionbary contains field,
+            which will not be written when creating
+            new jira tickets.
+            The Information will be created automatically
+            while creating the ticket.
+        """
             'creator',
             'creation_date',
             'key',
