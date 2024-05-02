@@ -35,11 +35,11 @@
 import sys
 import argparse
 
-# import cmd_import
-# import cmd_export
-# import cmd_search
-# import cmd_login
-# import cmd_print
+#import cmd_import
+#import cmd_export
+#import cmd_search
+#import cmd_login
+#import cmd_print
 
 # import command modules
 from pyJiraCli import cmd_import
@@ -48,15 +48,13 @@ from pyJiraCli import cmd_search
 from pyJiraCli import cmd_login
 from pyJiraCli import cmd_print
 
-from pyJiraCli.retval import Ret, prerr
+from pyJiraCli.error_handler import prerr
+from pyJiraCli.ret import Ret
 from pyJiraCli.version import __version__, __author__, __email__, __repository__, __license__
 
-
-
 ################################################################################
-# Variables5
+# Variables
 ################################################################################
-
 # add commando modules here
 _CMD_MODULS = [
     cmd_export,
@@ -73,11 +71,16 @@ _CMD_MODULS = [
 ################################################################################
 # Functions
 ################################################################################
-def add_parser():
-    """"add parser for command line arguments
-    
-        return the parser after all the modules have been registered"""
-
+def add_parser() -> object:
+    """ Add parser for command line arguments and
+        set the execute function of each 
+        cmd module as callback for the subparser command.
+        Return the parser after all the modules have been registered
+        and added their subparsers.
+        
+    Returns:
+        obj:  The parser object for commandline arguments.
+    """
     parser = argparse.ArgumentParser(prog='pyJiraCli',
                                      description="A CLI tool to imoprt and export Jira Issues \
                                                   between server and json or csv files.",
@@ -111,16 +114,11 @@ def add_parser():
 
     return parser
 
-######################################################
-
-######################################################
-######################################################
-def main():
-    """The program entry point function.
-    
+def main() -> Ret:
+    """ The program entry point function.
 
     Returns:
-        int: System exit status
+        int: System exit status.
     """
     ret_status = Ret.RET_OK
 
@@ -142,7 +140,6 @@ def main():
         prerr(ret_status)
 
     return ret_status
-######################################################
 
 ################################################################################
 # Main

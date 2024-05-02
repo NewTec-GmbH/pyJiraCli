@@ -1,8 +1,8 @@
-"""Command to export tickets from jira.
-   issues will be loaded from the server
-   and written to a json or csv file
-   the file location or file can be provided"""
-
+""" Command to export tickets from jira.
+    Issues will be loaded from the server
+    and written to a json or csv file.
+    The file location or file can be provided.
+"""
 # BSD 3-Clause License
 #
 # Copyright (c) 2024, NewTec GmbH
@@ -37,10 +37,9 @@
 ################################################################################
 import os
 
-from pyJiraCli import jira_issue
-from pyJiraCli import jira_server as server
-from pyJiraCli.retval import Ret
-
+from pyJiraCli.jira_issue import JiraIssue
+from pyJiraCli.jira_server import Server
+from pyJiraCli.ret import Ret
 ################################################################################
 # Variables
 ################################################################################
@@ -52,16 +51,15 @@ from pyJiraCli.retval import Ret
 ################################################################################
 # Functions
 ################################################################################
-
 # subparser for the 'export'command
-def register(subparser):
-    """ register subparser commands for the export module
+def register(subparser) -> object:
+    """ Register the subparser commands for the export module.
         
-        param:
-        subparser: subparser
+    Args:
+        subparser (obj):   The command subparser object provided via __main__.py.
         
-        return:
-        commmand parser of this module
+    Returns:
+        obj:    The commmand parser obj of this module.
     """
 
     sb_export = subparser.add_parser('export',
@@ -87,50 +85,76 @@ def register(subparser):
 
     return sb_export
 
-def execute(args):
-    """execute command function"""
+def execute(args) -> Ret:
+    """ This function servers as entry point for the command 'export'.
+        It will be stored as callback for this moduls subparser command.
+    
+    Args: 
+        args (obj): The command line arguments.
+        
+    Returns:
+        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+    """
     return _cmd_export(args)
 
 # export command function
-def _cmd_export(args):
-    """ export jira ticket to json or csv file
+def _cmd_export(args) -> Ret:
+    """ Export a jira ticket to a json or csv file.
+
+        The function takes the commandline arguments and extracts the
+        provided filepath from -path -file and -csv option.
+
+        If the option -file (filename) is not provided, the function will 
+        take the issue key as filename.
+
+        If the issue is valid, the issue data will be read from the server and stored
+        in an instance of the JiraIssue class.
+
+        Lastly the data will be written and stored in a json or csv file 
+        depending on if the -csv option was set or not.
     
-        param:
-        args: command line arguments from parser
+    Args:
+        args (obj): The command line arguments.
         
-        return:
-        the status of the module
+    Returns:
+        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
     """
 
-    ret_val = Ret.RET_OK
+    ret_status = Ret.RET_OK
 
-    filepath, ret_val = _get_filepath(args.issue,
-                                      args.file,
-                                      args.path,
-                                      args.csv)
-    if ret_val != Ret.RET_OK:
-        return ret_val
+    filepath = _get_filepath(args.issue,
+                                         args.file,
+                                         args.path,
+                                         args.csv)
+    if filepath is None:
+        ret_status = Ret.RET_ERROR_FILEPATH_INVALID
 
-    return _export_ticket_to_file(args.issue,
-                                  filepath,
-                                  args.user,
-                                  args.pw,
-                                  args.csv)
+    else:
+        ret_status = _export_ticket_to_file(args.issue,
+                                            filepath,
+                                            args.user,
+                                            args.pw,
+                                            args.csv)
+
+    return ret_status
 
 
-def _get_filepath(issue, file, path, csv):
-    """put together the output file path 
+def _get_filepath(issue:str, file:str, path:str, csv:bool) -> str:
+    """ Put together the output file path.
+        If no filename was provided with file option, 
+        the issue key will be used as filename.
+        The file extension (json/csv) will be set according to csv option.
        
-       param:
-       issue: issue key (used as filename if no name or file provided)
-       file:  the filename for the file which will be created
-       path:  path to the folder where the file shall be stored
-       csv:   flag, if true save the file in csv format
+    Args:
+        issue (str): The issue key (used as filename if no name or file provided).
+        file (str):  The filename for the file which will be created.
+        path (str):  Path to the folder where the file shall be stored.
+        csv (bool):  Flag, if true save the file in csv format.
 
-       return:
-       the filepath to the ticket file
-       return status of the module
-       """
+    Returns:
+        str:   Path where the ticket file will be stored or None.
+    """
+    file_path = None
 
     if file is None:
         filename = issue
@@ -140,9 +164,9 @@ def _get_filepath(issue, file, path, csv):
     if path is None:
         # save file in project folder
         if csv:
-            file_path = f'./issues/{filename}.csv'
+            file_path = f'.\\{filename}.csv'
         else:
-            file_path = f'./issues/{filename}.json'
+            file_path = f'.\\{filename}.json'
 
     else:
         # check if provided path or file is viable
@@ -159,7 +183,7 @@ def _get_filepath(issue, file, path, csv):
                     file_path = path
 
                 else:
-                    return None, Ret.RET_ERROR_WORNG_FILE_FORMAT
+                    file_path = None
             else:
                 # folder to save files was provided
                 if csv:
@@ -167,46 +191,46 @@ def _get_filepath(issue, file, path, csv):
                 else:
                     file_path = os.path.join(path, f'{filename}.json')
         else:
-            return None, Ret.RET_ERROR_FILE_NOT_FOUND
+            file_path = None
 
-    return file_path, Ret.RET_OK
+    return file_path
 
-def _export_ticket_to_file(issue_key, filepath, user, pw, csv):
-    """"export jira issue from server to json or csv file
+def _export_ticket_to_file(issue_key:str, filepath:str, user:str, pw:str, csv:bool) -> Ret:
+    """ Export a jira issue from the server
+        and write the issue data to a csv or json file.
         
-        param:
-        issue:     issue key
-        filepath:  path to the output file
-        user:      user name for login (if provided)
-        pw:        password (if provided)  
-        csv:       flag, if true save the file in csv format
+    Args:
+        issue_key (str):  The issue key as a string.
+        filepath (str):   The path to the output file.
+        user (str):       User name for login (if provided).
+        pw (str):         Password for login (if provided).  
+        csv (bool):       A flag, if true save the file in csv format \
+                          else as a json file (default).
 
-        return:
-        return status of the module
+    Returns:
+        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
     """
 
     ret_status = Ret.RET_OK
 
-    issue = jira_issue.JiraIssue()
+    issue = JiraIssue()
+    server = Server()
 
     # login to server, get jira handle obj
-    jira, ret_status = server.login(user, pw)
+    ret_status = server.login(user, pw)
 
-    if ret_status != Ret.RET_OK:
-        return ret_status
+    if ret_status == Ret.RET_OK:
+        jira = server.get_handle()
+        # export issue from jira server
+        ret_status = issue.export_issue(jira, issue_key)
 
-    # export issue from jira server
-    ret_status = issue.export_issue(jira, issue_key)
+    if ret_status == Ret.RET_OK:
+        if csv:
+            # export fiel to csv format
+            ret_status = issue.create_csv(filepath)
 
-    if ret_status != Ret.RET_OK:
-        return ret_status
-
-    if csv:
-        # export fiel to csv format
-        ret_status = issue.create_csv(filepath)
-
-    else:
-        # export file to json format
-        ret_status = issue.create_json(filepath)
+        else:
+            # export file to json format
+            ret_status = issue.create_json(filepath)
 
     return ret_status

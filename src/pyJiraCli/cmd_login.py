@@ -1,6 +1,7 @@
-"""Command to store login information
-   Stores User, pw and a server url in an encoded file
-   or deltes stored login informations"""
+""" Command to store login information.
+    Stores User, pw and a server url in an encoded file
+    or deltes stored login informations.
+"""
 # BSD 3-Clause License
 #
 # Copyright (c) 2024, NewTec GmbH
@@ -35,9 +36,9 @@
 ################################################################################
 import time
 
-from pyJiraCli import crypto_file_handler as crypto
-from pyJiraCli import jira_server as server
-from pyJiraCli.retval import Ret
+from pyJiraCli.crypto_file_handler import Crypto, DataType
+from pyJiraCli.jira_server import Server
+from pyJiraCli.ret import Ret
 
 ################################################################################
 # Variables
@@ -52,14 +53,14 @@ DEFAULT_EXPIRATION_TIME = 2 * 30 * 24 * 60 * 60
 # Functions
 ################################################################################
 # subparser for the 'set_login' command
-def register(subparser):
-    """ register subparser commands for the set_login module
+def register(subparser) -> object:
+    """ Register subparser commands for the login module.
         
-        param:
-        subparser: subparser
+    Args:
+        subparser (obj):   The command subparser object provided via __main__.py.
         
-        return:
-        the cmd parser for this module
+    Returns:
+        obj:    The commmand parser object of this module.
     """
 
     sb_login = subparser.add_parser('login',
@@ -119,38 +120,52 @@ def register(subparser):
 
     return sb_login
 
-def execute(args):
-    """execute command function"""
+def execute(args) -> Ret:
+    """ This function servers as entry point for the command 'login'.
+        It will be stored as callback for this moduls subparser command.
+    
+    Args: 
+        args (obj): The command line arguments.
+        
+    Returns:
+        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+    """
     return _cmd_login(args)
 
-def _cmd_login(args):
-    """" store or delete login information
+def _cmd_login(args) -> Ret:
+    """ Store or delete login information.
         
-         param:
-         args: the command line arguments
+    Args:
+        args (obj): The command line arguments.
         
-         return:
-         the status of the module
-    """
-
-    if args.delete:
-        return _delete_login_file(args.userinfo, args.token, args.server, args.default)
-
-    return _store_login_info(args)
-
-
-def _store_login_info(args):
-    """ save the login info in a encrypted file
-        userinfo(user, pw), token, server and default server
-        are all a saved in seperate files
-        
-        param:
-        args: commnd line arguments
-
-        return:
-        teh status of teh module
+    Returns:
+        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
     """
     ret_status = Ret.RET_OK
+
+    if args.delete:
+        ret_status =  _delete_login_file(args.userinfo, args.token, args.server, args.default)
+
+    else:
+        ret_status = _store_login_info(args)
+
+    return ret_status
+
+def _store_login_info(args) -> Ret:
+    """ Save the login info in a encrypted file.
+        userinfo(user, pw), token, server and default server
+        are all saved in seperate files.
+        
+    Args:
+        args (obj): The commnd line arguments.
+
+    Returns:
+        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+    """
+    ret_status = Ret.RET_OK
+
+    crypto_h = Crypto()
+    server = Server()
 
     user = args.user
     pw = args.pw
@@ -159,13 +174,21 @@ def _store_login_info(args):
     expiration = args.expires
 
     if token is None and pw is None and url is None:
-        return Ret.RET_ERROR_MISSING_LOGIN_INFO
+        return Ret.RET_ERROR_MISSING_ARG_INFO
 
     if expiration is not None:
         expiration_date = _get_expiration_date_(args)
-
     else:
         expiration_date = time.time() + DEFAULT_EXPIRATION_TIME
+
+    if url is not None:
+        if args.default:
+            data_type = DataType.DATATYPE_SERVER_DEFAULT
+        else:
+            data_type = DataType.DATATYPE_SERVER
+
+        crypto_h.set_data(url)
+        ret_status = crypto_h.encrypt_information(expiration_date, data_type)
 
     if  pw is not None:
         if user is None:
@@ -176,59 +199,65 @@ def _store_login_info(args):
         if ret_status != Ret.RET_OK:
             return ret_status
 
-        ret_status = crypto.encrypt_information(user,
-                                                pw,
-                                                expiration_date,
-                                                crypto.DataType.DATATYPE_USER_INFO)
+        crypto_h.set_data(user, pw)
+        ret_status = crypto_h.encrypt_information(expiration_date, DataType.DATATYPE_USER_INFO)
 
     if token is not None:
-        ret_status = server.try_login(user, None, token)
+        ret_status = server.try_login(None, None, token)
 
         if ret_status != Ret.RET_OK:
             return ret_status
 
-        ret_status = crypto.encrypt_information(user,
-                                                token,
-                                                expiration_date,
-                                                crypto.DataType.DATATYPE_TOKEN_INFO)
+        crypto_h.set_data(token)
+        ret_status = crypto_h.encrypt_information(expiration_date, DataType.DATATYPE_TOKEN_INFO)
 
-    if url is not None:
-        if args.default:
-            data_type = crypto.DataType.DATATYPE_SERVER_DEFAULT
-        else:
-            data_type = crypto.DataType.DATATYPE_SERVER
-
-        ret_status = crypto.encrypt_information(url,
-                                                None,
-                                                expiration_date,
-                                                data_type)
     return ret_status
 
-def _delete_login_file(delete_userinfo, delete_token, delete_server, delete_default_server):
+def _delete_login_file(delete_userinfo:bool,
+                       delete_token:bool,
+                       delete_server:bool,
+                       delete_default_server:bool) -> Ret:
+    """ Delete the login files corresponding to the set dataType flags.
+
+    Args:
+        delete_userinfo (bool):         Flag to delete userinfo data.
+        delete_token (bool):            Flag to delete token data.
+        delete_server (bool):           Flag to delete server data.
+        delete_default_server (bool):   Flag to delete default server.
+
+    Returns:
+        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+    """
+    crypto_h = Crypto()
 
     if delete_userinfo:
-        data_type = crypto.DataType.DATATYPE_USER_INFO
-        crypto.delete(data_type)
+        crypto_h.delete(DataType.DATATYPE_USER_INFO)
 
     if delete_token:
-        data_type = crypto.DataType.DATATYPE_TOKEN_INFO
-        crypto.delete(data_type)
+        crypto_h.delete(DataType.DATATYPE_TOKEN_INFO)
 
     if delete_server:
-        data_type = crypto.DataType.DATATYPE_SERVER
-        crypto.delete(data_type)
+        crypto_h.delete(DataType.DATATYPE_SERVER)
 
     if delete_default_server:
-        data_type = crypto.DataType.DATATYPE_SERVER_DEFAULT
-        crypto.delete(data_type)
+        crypto_h.delete(DataType.DATATYPE_SERVER_DEFAULT)
 
     elif not delete_userinfo and not delete_token and \
        not delete_server and not delete_default_server:
-        crypto.delete_all()
+        crypto_h.delete_all()
 
     return Ret.RET_OK
 
-def _get_expiration_date_(args):
+def _get_expiration_date_(args) -> float:
+    """ Calculate the expiration date 
+        from the commandline arguments in epoch seconds.
+
+    Args:
+        args (obj): The commandline arguments.
+
+    Returns:
+        float: The time in Epoch seconds when the files will expire.
+    """
 
     input_int = args.expires
 

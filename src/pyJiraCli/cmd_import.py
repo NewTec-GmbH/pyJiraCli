@@ -1,6 +1,7 @@
-"""Command for the import function.
-   imports ticket information from a json or csv file
-   and writes the imported data to a jira ticket"""
+""" Command for the import function.
+    Imports ticket information from a json or csv file
+    and writes the imported data to a jira ticket.
+"""
 
 # BSD 3-Clause License
 #
@@ -34,13 +35,14 @@
 ################################################################################
 # Imports
 ################################################################################
-import os
 import json
 import csv
+import ast
 
-from pyJiraCli import jira_issue
-from pyJiraCli import jira_server as server
-from pyJiraCli.retval import Ret
+from pyJiraCli.jira_issue import JiraIssue, _const
+from pyJiraCli.jira_server import Server
+from pyJiraCli.file_handler import FileHandler as File
+from pyJiraCli.ret import Ret
 ################################################################################
 # Variables
 ################################################################################
@@ -53,16 +55,15 @@ from pyJiraCli.retval import Ret
 # Functions
 ################################################################################
 # subparser for the 'import' command
-def register(subparser):
-    """register subparser commands for the import module
-    
-        param:
-        subparser: subparser
+def register(subparser) -> object:
+    """ Register subparser commands for the import module.
         
-        return:
-        commmand parser of this module
+    Args:
+        subparser (obj):  The command subparser object provided via __main__.py.
+        
+    Returns:
+        obj:  The commmand parser object of this module.
     """
-
     sb_import = subparser.add_parser('import',
                                       help="import jira issue from json or csv file")
 
@@ -72,60 +73,99 @@ def register(subparser):
 
     return sb_import
 
-def execute(args):
-    """execute command function"""
-    return _cmd_import(args)
-
-def _cmd_import(args):
-    """import jira issue from json or csv file
+def execute(args) -> Ret:
+    """ This function servers as entry point for the command 'import'.
+        It will be stored as callback for this moduls subparser command.
     
-        param:
-        args: the commandline arguments
+    Args: 
+        args (obj):   The command line arguments.
         
-        return:
-        the status of the module
+    Returns:
+        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
     """
+    ret_status = Ret.RET_OK
 
-    file = args.file
-    user = args.user
-    pw   = args.pw
-
-    issue = jira_issue.JiraIssue()
-    issue_dict = {}
-
-    # check if provided file is viable
-    if os.path.exists(file) and \
-       os.path.isfile(file):
-
-        # check for file extension
-        ext = os.path.splitext(file)[-1]
-
-        if ext in ('.json', '.csv'):
-            file_path = file
-
-        else:
-            return Ret.RET_ERROR_WORNG_FILE_FORMAT
-    else:
-        return Ret.RET_ERROR_FILE_NOT_FOUND
-
-    if ext == '.json':
-        with open(file_path, 'r', encoding='utf-8') as f:
-            issue_dict = json.load(f)
-
-    if ext == '.csv':
-        with open(file_path, 'r', encoding='utf-8') as f:
-            csv_reader = csv.DictReader(f, delimiter=';')
-
-            for row in csv_reader:
-                issue_dict = row
-
-    issue.import_issue(issue_dict)
-
-    jira, ret_status = server.login(user, pw)
-
-    if ret_status != Ret.RET_OK:
-        return ret_status
-
-    ret_status = issue.create_ticket(jira)
+    ret_status =  _cmd_import(args.file, args.user, args.pw)
 
     return ret_status
+
+def _cmd_import(input_file:str, user:str, pw:str) -> Ret:
+    """ Import a jira issue from a json or csv file.
+        Create a jira issue on the server with the data
+        read from the input file.
+    
+    Args:
+        input_file (str):  The filepath to the input file.
+        user (str):        The Username for login.
+        pw (str):          The Password for login.
+        
+    Returns:
+        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+    """
+    ret_status = Ret.RET_OK
+    issue = JiraIssue()
+    server = Server()
+    issue_dict = {}
+
+    file = File()
+
+    # check if provided file is viable
+    ret_status = file.set_filepath(input_file)
+
+    if ret_status == Ret.RET_OK:
+        if file.get_file_extension() not in ('.json', '.csv'):
+            ret_status = Ret.RET_ERROR_WORNG_FILE_FORMAT
+    else:
+        ret_status = Ret.RET_ERROR_FILEPATH_INVALID
+
+    # if file is viable
+    if ret_status == Ret.RET_OK:
+
+        ret_status = file.open_file(file_mode='r')
+
+    if ret_status == Ret.RET_OK:
+        issue_dict = _read_file(file)
+
+        issue.import_issue(issue_dict)
+
+    if ret_status == Ret.RET_OK:
+        ret_status = server.login(user, pw)
+
+        if ret_status == Ret.RET_OK:
+            jira = server.get_handle()
+            ret_status = issue.create_ticket(jira)
+
+    return ret_status
+
+
+def _read_file(file:File) -> dict:
+    """ Read in the data from a json or csv file.
+
+    Args:
+        file (FileHandler): The file handler obj for the input file.
+    
+    Returns:
+        dict:  The dictionary with file informations.   
+    """
+    if file.get_file_extension() == '.json':
+        issue_dict = json.load(file.get_file())
+
+    else:
+        csv_reader = csv.DictReader(file.get_file(), delimiter=';')
+
+        for row in csv_reader:
+            issue_dict = row
+
+        for field, data in issue_dict.items():
+            if data == '':
+                issue_dict[field] = None
+
+            elif data == '[]':
+                issue_dict[field] = []
+
+            elif field in _const.LIST_FIELDS:
+                issue_dict[field] = ast.literal_eval(data)
+
+    file.close_file()
+
+    return issue_dict

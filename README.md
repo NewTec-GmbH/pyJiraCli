@@ -240,7 +240,7 @@ to add a cmd module:
         RET_ERROR_FILE_OPEN_FAILED       = 6
         RET_ERROR_NO_USERINFORMATION     = 7
         RET_ERROR_MISSING_UNSERINFO      = 8
-        RET_ERROR_MISSING_LOGIN_INFO     = 9
+        RET_ERROR_MISSING_ARG_INFO     = 9
         RET_ERROR_CREATING_TICKET_FAILED = 10
         RET_ERROR_INFO_FILE_EXPIRED      = 11
         RET_ERROR_CUSTOM_ERR             = 12 # custom error
@@ -258,7 +258,7 @@ to add a cmd module:
                                                "or stored information file",
         Ret.RET_ERROR_MISSING_UNSERINFO      : "both -user and -pw option must be provided " + 
                                                "to store useriformation",
-        Ret.RET_ERROR_MISSING_LOGIN_INFO     : "At least one of the options must be" + 
+        Ret.RET_ERROR_MISSING_ARG_INFO     : "At least one of the options must be" + 
                                                "provided:" +                               
                                                "(-user, -pw), -server or -delete",
         Ret.RET_ERROR_CREATING_TICKET_FAILED : "creating the ticket on the jira server" +
@@ -309,13 +309,8 @@ Used 3rd party libraries which are not part of the standard Python package:
 * [cryptography](https://pypi.org/project/cryptography/) - cryptography is a package which provides cryptographic recipes and primitives to Python developers. - Apache Software License, BSD License (Apache-2.0 OR BSD-3-Clause)
 * [toml](https://github.com/uiri/toml) - Parsing [TOML](https://en.wikipedia.org/wiki/TOML) - MIT License
 
-# Issues, Ideas And Bugs
-&cross; add file templates for json and csv files \
-&cross; provide jira field configuraion via a config file \
-&cross; add security to login data storage (currently logindata is encrypted and the encryption key is encrypted with a device unique key) \
-&cross; implement search command  
-&cross; implement print command  
 
+# Issues, Ideas And Bugs
 If you have further ideas or you found some bugs, great! Create a [issue](https://github.com/NewTec-GmbH/pyJiraCli/issues) or if you are able and willing to fix it by yourself, clone the repository and create a pull request.
 
 # License

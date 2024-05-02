@@ -1,6 +1,6 @@
-"""Command to search for Jira tickets on the provided server.
-   searches for tickets by filter or search str provided via the command line
-   prints all found ticket keys to command line"""
+""" Command to search for Jira tickets on the provided server.
+    Searches for tickets by filter or search str provided via the command line 
+    and prints all found tickets to command line. """
 
 # BSD 3-Clause License
 #
@@ -34,7 +34,7 @@
 ################################################################################
 # Imports
 ################################################################################
-
+from pyJiraCli.ret import Ret
 ################################################################################
 # Variables
 ################################################################################
@@ -46,8 +46,15 @@
 ################################################################################
 # Functions
 ################################################################################
-def register(subparser):
-    """add_parser subparser commands for the search module"""
+def register(subparser) -> object:
+    """ Register subparser commands for the login module.
+        
+    Args:
+        subparser (obj):   the command subparser provided via __main__.py
+        
+    Returns:
+        obj:    the commmand parser of this module
+    """
     # subparser for the 'search' command
     sb_search = subparser.add_parser('search',
                                       help="search for jira issues \
@@ -60,10 +67,29 @@ def register(subparser):
 
     return sb_search
 
-def execute(args):
-    """execute command function"""
+def execute(args) -> Ret:
+    """ This function servers as entry point for the command 'search'.
+        It will be stored as callback for this moduls subparser command.
+    
+    Args: 
+        args (obj): The command line arguments.
+        
+    Returns:
+        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+    """
     return _cmd_search(args.filter, args.user, args.pw)
 
-def _cmd_search(filter_str, user, pw):
-    """search tickets with a provided filter or search string"""
+def _cmd_search(filter_str:str, user:str, pw:str) -> Ret:
+    """ Search tickets with a provided filter or search string.
+    
+    Args:
+        filter_str (str):   String containing the search parameters.
+        user (str):         Username for login.
+        pw (str)            Password for login.
+    
+    Returns:
+        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+    """
     print(f"searching for issues with filter {filter_str, user, pw}")
+
+    return Ret.RET_OK

@@ -34,11 +34,14 @@
 ################################################################################
 import os
 import certifi
+import urllib3
 
 from jira import JIRA, exceptions
+from requests import exceptions as reqex
+from urllib3 import exceptions as urlex
 
-from pyJiraCli import crypto_file_handler as crypto
-from pyJiraCli.retval import Ret
+from pyJiraCli.crypto_file_handler import Crypto, DataType, DataMembers
+from pyJiraCli.ret import Ret
 
 ################################################################################
 # Variables
@@ -48,114 +51,169 @@ DEFAULT_SERVER = "https://jira.newtec.zz"
 ################################################################################
 # Classes
 ################################################################################
+class Server:
+    """This class handles connection to the jira server.
+    """
+    def __init__(self):
+        self._crypto_h = Crypto()
+        self._server_url = DEFAULT_SERVER
+        self._jira_obj = None
+
+        urllib3.disable_warnings()
+
+    def login(self, user:str, pw:str) -> Ret:
+        """ Login to jira server with user info or login info from 
+            stored token or user file.
+
+        Args:
+            user (str):     Provided username from the commandline or None.
+            pw (str):       Provided password from the commandline or None.
+
+        returns:
+            Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+        """
+        ret_status = Ret.RET_OK
+
+        self._get_server_url()
+
+        if user is None or pw is None:
+            # get login information from login module
+            ret_status = self._crypto_h.decrypt_information(DataType.DATATYPE_TOKEN_INFO)
+
+            if ret_status == Ret.RET_OK:
+                token = self._crypto_h.get_data(DataMembers.DATA_MEM_1)
+
+                ret_status = self._login_with_token(token)
+
+            else:
+                ret_status = self._crypto_h.decrypt_information(DataType.DATATYPE_USER_INFO)
+
+                if ret_status == Ret.RET_OK:
+                    user = self._crypto_h.get_data(DataMembers.DATA_MEM_1)
+                    pw = self._crypto_h.get_data(DataMembers.DATA_MEM_2)
+                    ret_status = self._login_with_password(user, pw)
+
+        else:
+            ret_status = self._login_with_password(user, pw)
+
+        return ret_status
+
+    def try_login(self, user:str=None, pw:str=None, token:str=None) -> Ret:
+        """ Try to login to jira.
+            Dont return the jira obj, only return OK if the login 
+            was succesful.
+
+        Args:
+            user (str):     Username or email for login or None.
+            pw (str):       Password for login or None.
+            token (str):    API Token for authentification or None.
+
+        Returns:
+            Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+        """
+
+        self._get_server_url()
+
+        if token is None:
+            ret_status = self._login_with_password(user, pw)
+
+        elif pw is None:
+            ret_status = self._login_with_token(token)
+
+        else:
+            return Ret.RET_ERROR_MISSING_ARG_INFO
+
+        return ret_status
+
+    def get_handle(self) -> object:
+        """ Return the handle to the jira rest api.
+
+        Returns:
+           obj: The jira object.
+        """
+        return self._jira_obj
+
+    def _login_with_token(self, token:str) -> Ret:
+        """ Login to jira with API token.
+
+        Args:
+            token (str):    The API token for login.
+
+        Returns:
+            Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+        """
+
+        ret_status = Ret.RET_OK
+        os.environ["SSL_CERT_FILE"] = certifi.where()
+
+        try:
+            self._jira_obj = JIRA(server=self._server_url,
+                                  token_auth=token,
+                                  options={"verify": False},
+                                  timeout=10)
+
+            self._jira_obj.verify_ssl = False
+
+        except (exceptions.JIRAError, reqex.ConnectionError, urlex.MaxRetryError) as e:
+            #print error
+            print(e)
+            ret_status = Ret.RET_ERROR_JIRA_LOGIN
+
+        return ret_status
+
+    def _login_with_password(self, user:str, pw:str) -> Ret:
+        """ Login to jira with username and password.
+
+        Args:
+            user (str):     Username for login.
+            pw (str):       Password for login.
+
+        Returns:
+            Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+        """
+
+        ret_status = Ret.RET_OK
+
+        os.environ["SSL_CERT_FILE"] = certifi.where()
+
+        try:
+            self._jira_obj = JIRA(server=self._server_url,
+                                  basic_auth=(user, pw),
+                                  options={"verify": False},
+                                  timeout=10)
+
+            self._jira_obj.verify_ssl = False
+
+        except (exceptions.JIRAError, reqex.ConnectionError, urlex.MaxRetryError) as e:
+            #print error
+            print(e)
+            ret_status = Ret.RET_ERROR_JIRA_LOGIN
+
+        return ret_status
+
+    def _get_server_url(self) -> str:
+        """ Get the server url from the encrypted files.
+            If no server data is available a hardcoded default server
+            will be returned.
+
+        Returns:
+            str: The server url.
+        """
+        data_type = DataType.DATATYPE_SERVER
+        ret_status = self._crypto_h.decrypt_information(data_type)
+
+        if ret_status is not Ret.RET_OK:
+            data_type = DataType.DATATYPE_SERVER_DEFAULT
+            ret_status = self._crypto_h.decrypt_information(data_type)
+
+            if ret_status is not Ret.RET_OK:
+                server_url = DEFAULT_SERVER
+
+        if ret_status is Ret.RET_OK:
+            server_url = self._crypto_h.get_data(DataMembers.DATA_MEM_1)
+
+        self._server_url = server_url
 
 ################################################################################
 # Functions
 ################################################################################
-def login(user, pw):
-    """ login to jira server with user info or user info from file
-     
-        param:
-        user: provided username from the commandline or None
-        pw: provided password from the commandline or None
-        
-        return:
-        jira obj or None if no succesful login
-        the exit code of the module
-    """
-
-    server_url = _get_server_url()
-    jira_obj = None
-    ret_status = Ret.RET_OK
-
-    if user is None or pw is None:
-        # get login information from login module
-        user, token, ret_status = crypto.decrypt_information(crypto.DataType.DATATYPE_TOKEN_INFO)
-
-        if ret_status == Ret.RET_OK:
-            jira_obj, ret_status = _login_with_token(token, server_url)
-
-        else:
-            user, pw, ret_status = crypto.decrypt_information(crypto.DataType.DATATYPE_USER_INFO)
-
-            if ret_status == Ret.RET_OK:
-                jira_obj, ret_status = _login_with_password(user, pw, server_url)
-
-    else:
-        jira_obj, ret_status = _login_with_password(user, pw, server_url)
-
-    return jira_obj, ret_status
-
-def try_login(user, pw, token):
-    """ try login with jira lib
-        dont return jira obj only return OK if login succesful
-        
-        param:
-        user: username or email
-        pw: password for login
-        token: API Token for authentification
-        
-        return:
-        the exit status of the module
-    """
-
-    server_url = _get_server_url()
-
-    if token is None:
-        obj, ret_status = _login_with_password(user, pw, server_url)
-
-    elif pw is None:
-        obj, ret_status = _login_with_token(token, server_url)
-
-    else:
-        return Ret.RET_ERROR_MISSING_LOGIN_INFO
-
-    if obj is None:
-        return Ret.RET_ERROR_JIRA_LOGIN
-
-    return ret_status
-
-def _login_with_token(token, url):
-    os.environ["SSL_CERT_FILE"] = certifi.where()
-
-    try:
-        jira = JIRA(server=url, token_auth=token, options={"verify": False})
-        jira.verify_ssl = False
-
-        return jira, Ret.RET_OK
-
-    except exceptions.JIRAError as e:
-        #print error
-        print(e)
-        return None, Ret.RET_ERROR_JIRA_LOGIN
-
-def _login_with_password(user, pw, url):
-    os.environ["SSL_CERT_FILE"] = certifi.where()
-
-    try:
-        jira = JIRA(server=url, basic_auth=(user, pw), options={"verify": False})
-        jira.verify_ssl = False
-
-        return jira, Ret.RET_OK
-
-    except exceptions.JIRAError as e:
-        #print error
-        print(e)
-        return None, Ret.RET_ERROR_JIRA_LOGIN
-
-
-def _get_server_url():
-
-    server_url, data2_, ret_status = crypto.decrypt_information(crypto.DataType.DATATYPE_SERVER)
-
-    if ret_status not in[Ret.RET_OK, Ret.RET_ERROR_INFO_FILE_EXPIRED]:
-        server_url, data2_, ret_status = \
-            crypto.decrypt_information(crypto.DataType.DATATYPE_SERVER_DEFAULT)
-
-        if ret_status not in[Ret.RET_OK, Ret.RET_ERROR_INFO_FILE_EXPIRED]:
-            server_url = DEFAULT_SERVER
-
-    if data2_ is not None:
-        pass
-
-    return server_url

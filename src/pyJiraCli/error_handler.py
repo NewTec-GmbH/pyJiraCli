@@ -1,4 +1,6 @@
-"""The main module with the program entry point."""
+""" Contains the print error function and 
+    the error messages corresponding to 
+    the exit codes."""
 
 # BSD 3-Clause License
 #
@@ -32,36 +34,19 @@
 ################################################################################
 # Imports
 ################################################################################
-from enum import IntEnum
-
-
+from pyJiraCli.ret import Ret
 ################################################################################
 # Variables
 ################################################################################
 CRED = '\033[91m'
 CEND = '\033[0m'
 
-class Ret(IntEnum):
-    """"exit statuses of the modules"""
-    RET_OK                           = 0
-    RET_ERROR                        = 1
-    RET_ERROR_JIRA_LOGIN             = 2
-    RET_ERROR_FILE_NOT_FOUND         = 3
-    RET_ERROR_WORNG_FILE_FORMAT      = 4
-    RET_ERROR_ISSUE_NOT_FOUND        = 5
-    RET_ERROR_FILE_OPEN_FAILED       = 6
-    RET_ERROR_NO_USERINFORMATION     = 7
-    RET_ERROR_MISSING_UNSERINFO      = 8
-    RET_ERROR_MISSING_LOGIN_INFO     = 9
-    RET_ERROR_CREATING_TICKET_FAILED = 10
-    RET_ERROR_INFO_FILE_EXPIRED      = 11
-
-
 RETURN_MSG = {
     Ret.RET_OK                           : "Process succesful",
     Ret.RET_ERROR                        : "Error occured",
     Ret.RET_ERROR_JIRA_LOGIN             : "Login to jira server was not possible",
-    Ret.RET_ERROR_FILE_NOT_FOUND         : "Folder or File doesn't exist",
+    Ret.RET_ERROR_FILEPATH_INVALID       : "Folder or File doesn't exist or" + \
+                                           "the file has the wrong format (only json or csv).",
     Ret.RET_ERROR_WORNG_FILE_FORMAT      : "Wrong file format for save file provided",
     Ret.RET_ERROR_ISSUE_NOT_FOUND        : "Jira Issue not found",
     Ret.RET_ERROR_FILE_OPEN_FAILED       : "opening File failed",
@@ -69,7 +54,7 @@ RETURN_MSG = {
                                            "or stored information file",
     Ret.RET_ERROR_MISSING_UNSERINFO      : "both -user and -pw option must be provided " + \
                                            "to store useriformation",
-    Ret.RET_ERROR_MISSING_LOGIN_INFO     : "At least one of the options must be provided: " + \
+    Ret.RET_ERROR_MISSING_ARG_INFO       : "At least one of the options must be provided: " + \
                                            "(-user, -pw), -server or -delete",
     Ret.RET_ERROR_CREATING_TICKET_FAILED : "creating the ticket on the jira server failed",
     Ret.RET_ERROR_INFO_FILE_EXPIRED      : "the stored information has expired"
@@ -81,6 +66,10 @@ RETURN_MSG = {
 ################################################################################
 # Functions
 ################################################################################
-def prerr(error):
-    """"print exit error"""
+def prerr(error:Ret) -> None:
+    """ Print the exit error.
+    
+    Args:
+        error (Ret):    The return code for which an error shall be printed.
+    """
     print(CRED, "Error: ", RETURN_MSG[error], CEND)
