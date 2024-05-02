@@ -55,14 +55,14 @@ from pyJiraCli.ret import Ret
 # Functions
 ################################################################################
 # subparser for the 'import' command
-def register(subparser):
+def register(subparser) -> object:
     """ Register subparser commands for the import module.
         
     Args:
-        subparser (obj):  the command subparser provided via __main__.py
+        subparser (obj):  The command subparser object provided via __main__.py.
         
     Returns:
-        obj:  the commmand parser of this module
+        obj:  The commmand parser object of this module.
     """
     sb_import = subparser.add_parser('import',
                                       help="import jira issue from json or csv file")
@@ -78,7 +78,7 @@ def execute(args) -> Ret:
         It will be stored as callback for this moduls subparser command.
     
     Args: 
-        args (obj):   the command line arguments
+        args (obj):   The command line arguments.
         
     Returns:
         Ret:   Ret.RET_OK if succesfull, corresponding error code if not
@@ -95,12 +95,12 @@ def _cmd_import(input_file:str, user:str, pw:str) -> Ret:
         read from the input file.
     
     Args:
-        input_file (str):  the filepath to the input file
-        user (str):        username for login
-        pw (str):          password for login
+        input_file (str):  The filepath to the input file.
+        user (str):        The Username for login.
+        pw (str):          The Password for login.
         
     Returns:
-        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
     """
     ret_status = Ret.RET_OK
     issue = JiraIssue()
@@ -116,7 +116,7 @@ def _cmd_import(input_file:str, user:str, pw:str) -> Ret:
         if file.get_file_extension() not in ('.json', '.csv'):
             ret_status = Ret.RET_ERROR_WORNG_FILE_FORMAT
     else:
-        ret_status = Ret.RET_ERROR_FILE_NOT_FOUND
+        ret_status = Ret.RET_ERROR_FILEPATH_INVALID
 
     # if file is viable
     if ret_status == Ret.RET_OK:
@@ -142,10 +142,10 @@ def _read_file(file:File) -> dict:
     """ Read in the data from a json or csv file.
 
     Args:
-        file (FileHandler): the file handler for the input file
+        file (FileHandler): The file handler obj for the input file.
     
     Returns:
-        dict:  the dictionary with file informations   
+        dict:  The dictionary with file informations.   
     """
     if file.get_file_extension() == '.json':
         issue_dict = json.load(file.get_file())

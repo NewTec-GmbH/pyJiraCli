@@ -57,7 +57,7 @@ HEADER_COL_WIDTH = {
 ################################################################################
 # Functions
 ################################################################################
-def register(subparser):
+def register(subparser) -> object:
     """ Register subparser commands for the login module.
         
     Args:
@@ -87,10 +87,10 @@ def execute(args) -> Ret:
         It will be stored as callback for this moduls subparser command.
     
     Args: 
-        args (obj): the command line arguments
+        args (obj): The command line arguments.
         
     Returns:
-        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
     """
     return _cmd_search(args.filter, args.user, args.pw, args.max)
 
@@ -98,12 +98,12 @@ def _cmd_search(filter_str:str, user:str, pw:str, results:int) -> Ret:
     """ Search tickets with a provided filter or search string.
     
     Args:
-        filter_str (str):   string containing the search parameters
-        user (str):         username for login
-        pw (str)            password for login
+        filter_str (str):   String containing the search parameters.
+        user (str):         Username for login.
+        pw (str)            Password for login.
     
     Returns:
-        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
     """
     ret_status = Ret.RET_OK
     server = Server()

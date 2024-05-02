@@ -48,14 +48,14 @@ from pyJiraCli.ret import Ret
 # Functions
 ################################################################################
 # subparser for the 'print' command
-def register(subparser):
+def register(subparser) -> object:
     """ Register subparser commands for the print module.
         
     Args:
-        subparser (obj):   the command subparser provided via __main__.py
+        subparser (obj):   The command subparser object provided via __main__.py.
         
     Returns:
-        obj:    the commmand parser of this module
+        obj:    The commmand parser object of this module.
     """
 
     sb_search = subparser.add_parser('print',
@@ -72,10 +72,10 @@ def execute(args) -> Ret:
         It will be stored as callback for this moduls subparser command.
     
     Args: 
-        args (obj): the command line arguments
+        args (obj): The command line arguments.
         
     Returns:
-        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
     """
     return _cmd_print(args.issue, args.user, args.pw)
 
