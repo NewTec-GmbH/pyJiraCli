@@ -153,6 +153,9 @@ dmypy.json
 cython_debug/
 
 # user defined ignores
+#vscode workspace
+.vscode/
+
 # dont include pngs of diagrams
 design/*.png 
 
