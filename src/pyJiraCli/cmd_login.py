@@ -53,14 +53,14 @@ DEFAULT_EXPIRATION_TIME = 2 * 30 * 24 * 60 * 60
 # Functions
 ################################################################################
 # subparser for the 'set_login' command
-def register(subparser):
+def register(subparser) -> object:
     """ Register subparser commands for the login module.
         
     Args:
-        subparser (obj):   the command subparser provided via __main__.py
+        subparser (obj):   The command subparser object provided via __main__.py.
         
     Returns:
-        obj:    the commmand parser of this module
+        obj:    The commmand parser object of this module.
     """
 
     sb_login = subparser.add_parser('login',
@@ -120,23 +120,23 @@ def register(subparser):
 
     return sb_login
 
-def execute(args):
+def execute(args) -> Ret:
     """ This function servers as entry point for the command 'login'.
         It will be stored as callback for this moduls subparser command.
     
     Args: 
-        args (obj): the command line arguments
+        args (obj): The command line arguments.
         
     Returns:
-        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
     """
     return _cmd_login(args)
 
-def _cmd_login(args):
+def _cmd_login(args) -> Ret:
     """ Store or delete login information.
         
     Args:
-        args (obj): the command line arguments
+        args (obj): The command line arguments.
         
     Returns:
         Ret:   Ret.RET_OK if succesfull, corresponding error code if not
@@ -151,16 +151,16 @@ def _cmd_login(args):
 
     return ret_status
 
-def _store_login_info(args):
+def _store_login_info(args) -> Ret:
     """ Save the login info in a encrypted file.
         userinfo(user, pw), token, server and default server
         are all saved in seperate files.
         
     Args:
-        args (obj): commnd line arguments
+        args (obj): The commnd line arguments.
 
     Returns:
-        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
     """
     ret_status = Ret.RET_OK
 
@@ -220,13 +220,13 @@ def _delete_login_file(delete_userinfo:bool,
     """ Delete the login files corresponding to the set dataType flags.
 
     Args:
-        delete_userinfo (bool):         flag to delete userinfo
-        delete_token (bool):            flag to delete token data
-        delete_server (bool):           flag to delete server data
-        delete_default_server (bool):   flag to delete default server
+        delete_userinfo (bool):         Flag to delete userinfo data.
+        delete_token (bool):            Flag to delete token data.
+        delete_server (bool):           Flag to delete server data.
+        delete_default_server (bool):   Flag to delete default server.
 
     Returns:
-        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
     """
     crypto_h = Crypto()
 
@@ -248,15 +248,15 @@ def _delete_login_file(delete_userinfo:bool,
 
     return Ret.RET_OK
 
-def _get_expiration_date_(args):
+def _get_expiration_date_(args) -> float:
     """ Calculate the expiration date 
         from the commandline arguments in epoch seconds.
 
     Args:
-        args (obj): the commandline arguments
+        args (obj): The commandline arguments.
 
     Returns:
-        float: the time in Epoch seconds when the files will expire
+        float: The time in Epoch seconds when the files will expire.
     """
 
     input_int = args.expires

@@ -57,10 +57,10 @@ class FileHandler:
         """ Set the path for the file contained in this Instance.
 
         Args:
-            path (str): path to the file
+            path (str): Path to the file.
         
         Returns:
-            Ret:   Ret.RET_OK if succesfull, corresponding error code if not     
+        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
         """
         ret_status = Ret.RET_OK
         folder_path = path.split(os.path.sep)[:-1]
@@ -74,7 +74,7 @@ class FileHandler:
                 self._ext = os.path.splitext(path)[-1]
 
         else:
-            ret_status = Ret.RET_ERROR_FILE_NOT_FOUND
+            ret_status = Ret.RET_ERROR_FILEPATH_INVALID
 
         return  ret_status
 
@@ -83,7 +83,7 @@ class FileHandler:
             to the file instance.
 
         Returns:
-            Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+            Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
         """
         ret_status = Ret.RET_OK
 
@@ -96,12 +96,12 @@ class FileHandler:
 
         return ret_status
 
-    def get_file(self):
+    def get_file(self) -> object:
         """ Return the file object in 
             this instance.
 
         Returns:
-            obj: file object
+            obj: The file object.
         """
         return self._file
 
@@ -110,7 +110,7 @@ class FileHandler:
             of the file as a string.
 
         Returns:
-            str: file extension
+            str: The file extension.
         """
         return self._ext
 
@@ -119,7 +119,7 @@ class FileHandler:
             of the file as string.
 
         Returns:
-            str: file content
+            str: The file content.
         """
         return self._content
 
@@ -129,10 +129,10 @@ class FileHandler:
             to the file.
 
         Args:
-            file_input (str): string that'll be written to the file
+            file_input (str): A string that'll be written to the file.
 
         Returns:
-            Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+            Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
         """
         ret_status = Ret.RET_OK
 
@@ -150,10 +150,10 @@ class FileHandler:
             and save the file obj.
 
         Args:
-            file_mode (str): 'r' -> read filemode, 'w' -> write filemore    
+            file_mode (str): For reading files 'r' or for writing files 'w'.    
 
         Returns:
-            Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+            Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
         """
         ret_status = Ret.RET_OK
 
@@ -167,7 +167,7 @@ class FileHandler:
 
         return  ret_status
 
-    def hide_file(self):
+    def hide_file(self) -> None:
         """ Set the file attribute "file hidden".
         """
         if self._path is not None:
@@ -175,7 +175,7 @@ class FileHandler:
                 ctypes.windll.kernel32.SetFileAttributesW(self._path,
                                                       FILE_ATTRIBUTE_HIDDEN)
 
-    def close_file(self):
+    def close_file(self) -> None:
         """ Close the file in the class instance.        
         """
         if self._file is not None:
@@ -184,7 +184,7 @@ class FileHandler:
 
             self._file = None
 
-    def delete_file(self):
+    def delete_file(self) -> None:
         """ Delete the file stored in the
             class instance.
         """

@@ -45,7 +45,8 @@ RETURN_MSG = {
     Ret.RET_OK                           : "Process succesful",
     Ret.RET_ERROR                        : "Error occured",
     Ret.RET_ERROR_JIRA_LOGIN             : "Login to jira server was not possible",
-    Ret.RET_ERROR_FILE_NOT_FOUND         : "Folder or File doesn't exist",
+    Ret.RET_ERROR_FILEPATH_INVALID       : "Folder or File doesn't exist or" + \
+                                           "the file has the wrong format (only json or csv).",
     Ret.RET_ERROR_WORNG_FILE_FORMAT      : "Wrong file format for save file provided",
     Ret.RET_ERROR_ISSUE_NOT_FOUND        : "Jira Issue not found",
     Ret.RET_ERROR_FILE_OPEN_FAILED       : "opening File failed",
@@ -66,10 +67,10 @@ RETURN_MSG = {
 ################################################################################
 # Functions
 ################################################################################
-def prerr(error:Ret):
+def prerr(error:Ret) -> None:
     """ Print the exit error.
     
     Args:
-        error (Ret):    the return code for which an error shall be printed
+        error (Ret):    The return code for which an error shall be printed.
     """
     print(CRED, "Error: ", RETURN_MSG[error], CEND)

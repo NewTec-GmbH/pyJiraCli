@@ -44,13 +44,20 @@ from enum import IntEnum
 # Classes
 ################################################################################
 class DataType (IntEnum):
-    """"data_type to concern between which data information will be encrypted
-        or decrypted with the encrypt_information() and 
-        decrypt_information() function"""
+    """" Data_type to concern between which data information will be encrypted
+         or decrypted with the encrypt_information() and 
+         decrypt_information() functions."""
     DATATYPE_USER_INFO       = 0
     DATATYPE_TOKEN_INFO      = 1
     DATATYPE_SERVER          = 2
     DATATYPE_SERVER_DEFAULT  = 3
+
+class DataMembers(IntEnum):
+    """ Enum to decide which data member of the crypto class to get with the
+        get_data() function.
+    """
+    DATA_MEM_1 = 0
+    DATA_MEM_2 = 1
 ################################################################################
 # Functions
 ################################################################################
