@@ -46,7 +46,7 @@ from cryptography.fernet import Fernet
 
 from pyJiraCli.ret import Ret
 from pyJiraCli.file_handler import FileHandler as File
-from pyJiraCli.data_type import DataType
+from pyJiraCli.data_type import DataType, DataMembers
 ################################################################################
 # Variables
 ################################################################################
@@ -101,35 +101,34 @@ class Crypto:
     def __init__(self):
         self._data1 = None
         self._data2 = None
-        self._expired:bool = None
+        self._expired:bool = False
 
         self._file_data = File()
         self._file_key = File()
         self._root_key = _get_device_root_key()
         self._homepath = _get_path_to_login_folder()
 
-    def set_data(self, data1:str, data2:str = None):
+    def set_data(self, data1:str, data2:str = None) -> None:
         """ Set the data which shall be encrypted.
 
         Args:
-            data1 (str): first data of pair
-            data2 (str): second data of pair (default is None for server data) 
+            data1 (str): First data of the pair.
+            data2 (str): Second data of pair (default is None for server or token data). 
         """
         self._data1 = data1
         self._data2 = data2
 
-    def get_data(self, data_type:DataType):
+    def get_data(self, data_mem:DataMembers = DataMembers.DATA_MEM_1) -> str:
         """ Return the data after decryption.
 
         Args:
-            data_type (DataType): the datatype of the data 
+            data_nr (DataMembers): Decides if data1 or data2 is returned. 
 
         Returns:
-           str: first decrypted data
-           str: second decrypted data
+           str: The stored data in class member data1 or data2.
         """
-        if data_type is DataType.DATATYPE_USER_INFO:
-            ret_data = self._data1, self._data2
+        if data_mem is DataMembers.DATA_MEM_2:
+            ret_data = self._data2
         else:
             ret_data = self._data1
 
@@ -140,7 +139,7 @@ class Crypto:
             or not. 
 
         Returns:
-            bool: return True if data is expired or None when no data was decrypted
+            bool: Return True if data is expired or False otherwise or when no data was decrypted.
         """
         return self._expired
 
@@ -151,11 +150,11 @@ class Crypto:
             Encrypted information is saved to a .data file.
 
         Args:
-            expires (float):        expiration date of the data
-            data_type (DataType):   which data_type is to be written (user, token, server)
+            expires (float):        Expiration date of the data in epoch seconds.
+            data_type (DataType):   Which data_type is to be written (userinfo, token, server).
 
         Returns:
-            Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
         """
         # get file paths
         file_path_data, file_path_key = file_paths[data_type]
@@ -204,11 +203,11 @@ class Crypto:
             with which the function is called.
 
         Args: 
-            data_type (DataType):   the data_type that shall be decrypted
-                                    (user, token, server, default servers)
+            data_type (DataType):   TRhe data_type that shall be decrypted
+                                    (user, token, server, default servers).
 
         Returns:
-            Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
         """
 
         ret_status = Ret.RET_OK
@@ -228,11 +227,11 @@ class Crypto:
 
         return ret_status
 
-    def delete(self, data_type):
+    def delete(self, data_type) -> None:
         """ Delete the stored login files of a DataType.
 
         Args:
-            data_type (Datatype):   which data shall be removed
+            data_type (Datatype):   Which data shall be removed.
         """
 
         folderpath = _get_path_to_login_folder()
@@ -244,7 +243,7 @@ class Crypto:
         if os.path.exists(folderpath + file_path_key):
             os.remove(folderpath + file_path_key)
 
-    def delete_all(self):
+    def delete_all(self) -> None:
         """ Delete all info files and folder
             of the login files
         """
@@ -261,12 +260,12 @@ class Crypto:
             data was retrieved.
 
         Args:
-            path_data (str):        path to the encrypted data file
-            path_key (str):         path to the encrypted key file
-            data_type (DataType):   the dataType that shall be decrypted   
+            path_data (str):        Path to the encrypted data file.
+            path_key (str):         Path to the encrypted key file.
+            data_type (DataType):   The dataType that shall be decrypted.   
 
         Returns:
-            Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
         """
         ret_status = Ret.RET_OK
         expires = None
@@ -337,8 +336,9 @@ def _get_device_root_key() -> bytes:
     """ Return the device root key, 
         to provided a safe root key this module uses the user/device unique uuid of the system
         the uuid is first hashed and then stripped to 32 bytes
+    
     Returns:
-        bytes: the last 32 bytes of the uuid of the system hashed and encoded
+        bytes: The last 32 bytes of the uuid of the system hashed and encoded.
     """
     # check which os is being used
     if "nt" in os.name:
@@ -359,7 +359,7 @@ def _get_path_to_login_folder() -> str:
         home directory.
     
     Returns:
-        str: the path to the data folder
+        str: The path to the login data folder.
     """
 
     user_info_path = os.path.expanduser("~") + PATH_TO_FOLDER
@@ -374,13 +374,13 @@ def _get_data_str(data1:str, data2:str, expires:float, data_type:DataType) -> st
     """ Prepare token data for encryption.
 
     Args:
-        data1 (str):         user or url, depending on datatype
-        data2 (str):         pw, token or none, depending on datatype
-        expires (float):     expiration date of the data
-        data_type (DataType) which DataType to prepare
+        data1 (str):         User, token or url, depending on datatype.
+        data2 (str):         Password or none, depending on datatype.
+        expires (float):     Expiration date of the data.
+        data_type (DataType) Which DataType to prepare.
     
     Returns:
-        str:    formated json string with key-value pairs of the data
+        str:    Formated json string with key-value pairs of the data.
     """
 
     if data_type is DataType.DATATYPE_USER_INFO:

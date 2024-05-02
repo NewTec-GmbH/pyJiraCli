@@ -40,7 +40,7 @@ from jira import JIRA, exceptions
 from requests import exceptions as reqex
 from urllib3 import exceptions as urlex
 
-from pyJiraCli.crypto_file_handler import Crypto, DataType
+from pyJiraCli.crypto_file_handler import Crypto, DataType, DataMembers
 from pyJiraCli.ret import Ret
 
 ################################################################################
@@ -61,17 +61,16 @@ class Server:
 
         urllib3.disable_warnings()
 
-    def login(self, user:str, pw:str):
+    def login(self, user:str, pw:str) -> Ret:
         """ Login to jira server with user info or login info from 
             stored token or user file.
 
         Args:
-            user (str):     provided username from the commandline or None
-            pw (str):       provided password from the commandline or None
+            user (str):     Provided username from the commandline or None.
+            pw (str):       Provided password from the commandline or None.
 
         returns:
-            obj:   return the jira handle or None if login unsuccessful
-            Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+            Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
         """
         ret_status = Ret.RET_OK
 
@@ -82,7 +81,7 @@ class Server:
             ret_status = self._crypto_h.decrypt_information(DataType.DATATYPE_TOKEN_INFO)
 
             if ret_status == Ret.RET_OK:
-                token = self._crypto_h.get_data(DataType.DATATYPE_TOKEN_INFO)
+                token = self._crypto_h.get_data(DataMembers.DATA_MEM_1)
 
                 ret_status = self._login_with_token(token)
 
@@ -90,7 +89,8 @@ class Server:
                 ret_status = self._crypto_h.decrypt_information(DataType.DATATYPE_USER_INFO)
 
                 if ret_status == Ret.RET_OK:
-                    user, pw = self._crypto_h.get_data(DataType.DATATYPE_USER_INFO)
+                    user = self._crypto_h.get_data(DataMembers.DATA_MEM_1)
+                    pw = self._crypto_h.get_data(DataMembers.DATA_MEM_2)
                     ret_status = self._login_with_password(user, pw)
 
         else:
@@ -98,18 +98,18 @@ class Server:
 
         return ret_status
 
-    def try_login(self, user:str, pw:str, token:str) -> Ret:
+    def try_login(self, user:str=None, pw:str=None, token:str=None) -> Ret:
         """ Try to login to jira.
             Dont return the jira obj, only return OK if the login 
             was succesful.
 
         Args:
-            user (str):     username or email
-            pw (str):       password for login
-            token (str):    API Token for authentification
+            user (str):     Username or email for login or None.
+            pw (str):       Password for login or None.
+            token (str):    API Token for authentification or None.
 
         Returns:
-            Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+            Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
         """
 
         self._get_server_url()
@@ -125,11 +125,11 @@ class Server:
 
         return ret_status
 
-    def get_handle(self):
+    def get_handle(self) -> object:
         """ Return the handle to the jira rest api.
 
         Returns:
-           obj: the jira handle obj
+           obj: The jira object.
         """
         return self._jira_obj
 
@@ -137,10 +137,10 @@ class Server:
         """ Login to jira with API token.
 
         Args:
-            token (str):    the api token
+            token (str):    The API token for login.
 
         Returns:
-            Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+            Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
         """
 
         ret_status = Ret.RET_OK
@@ -165,11 +165,11 @@ class Server:
         """ Login to jira with username and password.
 
         Args:
-            user (str):     username for login
-            pw (str):       password for login
+            user (str):     Username for login.
+            pw (str):       Password for login.
 
         Returns:
-            Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+            Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
         """
 
         ret_status = Ret.RET_OK
@@ -192,12 +192,12 @@ class Server:
         return ret_status
 
     def _get_server_url(self) -> str:
-        """ get the server url from the encrypted files.
+        """ Get the server url from the encrypted files.
             If no server data is available a hardcoded default server
             will be returned.
 
         Returns:
-            str: the server url
+            str: The server url.
         """
         data_type = DataType.DATATYPE_SERVER
         ret_status = self._crypto_h.decrypt_information(data_type)
@@ -210,7 +210,7 @@ class Server:
                 server_url = DEFAULT_SERVER
 
         if ret_status is Ret.RET_OK:
-            server_url = self._crypto_h.get_data(data_type)
+            server_url = self._crypto_h.get_data(DataMembers.DATA_MEM_1)
 
         self._server_url = server_url
 

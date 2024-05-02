@@ -72,7 +72,7 @@ class JiraIssue:
         """ Return the issue key of current issue.
         
         Returns:
-            key (str):  the current issue key or None
+            key (str):  The current issue key or None.
         """
         key = None
 
@@ -87,11 +87,11 @@ class JiraIssue:
             of the class. 
             
         Args:
-            jira (jira obj):    jira obj for restAPi connection with server
-            issue (str):        the issue key in string format
+            jira (obj):    The jira obj for restAPi connection with the server.
+            issue (str):   The issue key in string format.
             
         Returns:
-            Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+            Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
         """
         ret_status = Ret.RET_OK
 
@@ -107,7 +107,7 @@ class JiraIssue:
 
         return ret_status
 
-    def import_issue(self, dictionary):
+    def import_issue(self, dictionary) -> None:
         """ Import issue from a dictionary.
 
             Store all values which have a key 
@@ -115,7 +115,7 @@ class JiraIssue:
             class instance. 
         
         Args:
-            dictionary (dict): a python dictionary conatining jira issue info
+            dictionary (dict): A python dictionary conatining jira issue info.
         """
 
         # get issue information from json or csv file
@@ -123,7 +123,7 @@ class JiraIssue:
             if field in _const.ISSUE_FIELDS:
                 self._issue_dictionary[field] = dictionary[field]
 
-    def print_issue(self):
+    def print_issue(self) -> None:
         """" Print issue information containend
              in class instance to the command line.
         """
@@ -132,10 +132,10 @@ class JiraIssue:
         """ Write issue information in class instance to a json file.
             
         Args: 
-            file_path (str):    path to the json file 
+            file_path (str):    The path to the json file. 
             
         Returns:
-            Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+            Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
         """
         ret_status = Ret.RET_OK
 
@@ -155,10 +155,10 @@ class JiraIssue:
         """ Write issue information in class instance to a csv file.
             
         Args: 
-            file_path (str):    path to the csv file 
+            file_path (str):    The path to the csv file. 
             
         Returns:
-            Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+            Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
         """
         ret_status = Ret.RET_OK
 
@@ -183,10 +183,10 @@ class JiraIssue:
         """ Create jira issue on the server with information from class instance.
         
         Args: 
-            jira (jira obj):    jira obj for restAPi connection with server
+            jira (obj):    The jira obj for restAPi connection with server.
             
         Returns:
-            Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+            Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
         """
         ret_status = Ret.RET_OK
 
@@ -205,7 +205,7 @@ class JiraIssue:
         return ret_status
 
 
-    def _process_issue(self):
+    def _process_issue(self) -> None:
         """ process data in the self._issue member and
             transfer it to the issue_dictionary of this Instance.
         """
@@ -260,7 +260,8 @@ class JiraIssue:
             on the server.
 
         Returns:
-            write_dictionary (dict):    contains the issue information
+            write_dictionary (dict):    A dictionary containng the issue information in a
+                                        format which can be written to the jira server.
         """
 
         write_dictonary = {}
@@ -271,7 +272,8 @@ class JiraIssue:
             if field in _const.EXCLUDED_FIELDS:
                 continue
 
-            if self._issue_dictionary[field] is not None or self._issue_dictionary[field] == []:
+            if self._issue_dictionary[field] is not None or \
+               self._issue_dictionary[field] == []:
 
                 if field == 'project_key':
                     write_dictonary['project'] = {"key" : self._issue_dictionary['project_key']}

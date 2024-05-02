@@ -44,13 +44,13 @@ class Ret(IntEnum):
     RET_OK                           = 0
     RET_ERROR                        = 1
     RET_ERROR_JIRA_LOGIN             = 2
-    RET_ERROR_FILE_NOT_FOUND         = 3
+    RET_ERROR_FILEPATH_INVALID       = 3
     RET_ERROR_WORNG_FILE_FORMAT      = 4
     RET_ERROR_ISSUE_NOT_FOUND        = 5
     RET_ERROR_FILE_OPEN_FAILED       = 6
     RET_ERROR_NO_USERINFORMATION     = 7
     RET_ERROR_MISSING_UNSERINFO      = 8
-    RET_ERROR_MISSING_ARG_INFO     = 9
+    RET_ERROR_MISSING_ARG_INFO       = 9
     RET_ERROR_CREATING_TICKET_FAILED = 10
     RET_ERROR_INFO_FILE_EXPIRED      = 11
 ################################################################################
