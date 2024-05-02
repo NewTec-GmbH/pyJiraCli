@@ -1,5 +1,7 @@
-"""Contains constant values"""
-
+""" This Enum is for data type distinction.
+    The crypto module uses these data types,
+    to select which type of information to store.
+"""
 # BSD 3-Clause License
 #
 # Copyright (c) 2024, NewTec GmbH
@@ -32,78 +34,30 @@
 ################################################################################
 # Imports
 ################################################################################
+from enum import IntEnum
 
 ################################################################################
 # Variables
 ################################################################################
-ISSUE_TYPES = {
-    """ This Dictionbary contains information,
-        about which ID corrsponds to which issuetype of
-        a jira issue.
-    """
-    '1' : 'Bug',
-    '2' : 'Neue Funktion',
-    '3' : 'Aufgabe',
-    '4' : 'Story',
-    '5' : 'Epos',
-    '6' : 'ToDo',
-    '7' : 'Änderungsantrag (Dev)',
-    '8' : 'QMeldung'
-}
 
-ISSUE_PRIORITIES = {
-    """ This Dictionbary contains information,
-        about which ID corrsponds to which priority of
-        a jira issue.
-    """
-    '1' : 'Blocker',
-    '2' : 'Critical',
-    '3' : 'Major (Default)',
-    '4' : 'Low',
-    '5' : 'Non-sentable'
-}
-
-# all available issue fields
-ISSUE_FIELDS = [
-            'key',              
-            'project_key',            
-            'summary',                
-            'description',            
-            'issuetype',              
-            'priority',               
-            'duedate',                
-            'assignee',               
-            'creator',
-            'creation_date',            
-            'originalEstimate',     
-            'remainingEstimate', 
-            'environment',            
-            'status',                 
-            'labels',                 
-            'components',             
-            'versions',               
-            'fixVersions'
-        ]
-
-# all fields that can hold mutliple values
-LIST_FIELDS = [
-            'labels',                 
-            'components',             
-            'versions',               
-            'fixVersions'
-        ]
-
-# fields excluded when creating issues from files
-EXCLUDED_FIELDS = [
-            'creator',
-            'creation_date',
-            'key',
-            'status'
-        ]
 ################################################################################
 # Classes
 ################################################################################
+class DataType (IntEnum):
+    """" Data_type to concern between which data information will be encrypted
+         or decrypted with the encrypt_information() and 
+         decrypt_information() functions."""
+    DATATYPE_USER_INFO       = 0
+    DATATYPE_TOKEN_INFO      = 1
+    DATATYPE_SERVER          = 2
+    DATATYPE_SERVER_DEFAULT  = 3
 
+class DataMembers(IntEnum):
+    """ Enum to decide which data member of the crypto class to get with the
+        get_data() function.
+    """
+    DATA_MEM_1 = 0
+    DATA_MEM_2 = 1
 ################################################################################
 # Functions
 ################################################################################
