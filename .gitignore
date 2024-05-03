@@ -159,11 +159,14 @@ cython_debug/
 # pngs of diagrams
 design/*.png 
 
-# documentation
+# documentationsssssssss
 docs/
 
 # imported issues
 issues/
+
+# test files
+test.py
 
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can

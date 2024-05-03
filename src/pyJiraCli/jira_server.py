@@ -41,6 +41,7 @@ from requests import exceptions as reqex
 from urllib3 import exceptions as urlex
 
 from pyJiraCli.crypto_file_handler import Crypto, DataType, DataMembers
+from pyJiraCli.error_handler import prerr, ErrorType
 from pyJiraCli.ret import Ret
 
 ################################################################################
@@ -59,8 +60,15 @@ class Server:
         self._server_url = DEFAULT_SERVER
         self._jira_obj = None
         self._search_result = None
+        self._cert_path = None
+        self._user = None
 
         urllib3.disable_warnings()
+
+    def logout(self) -> None:
+        """ Logout from the jira session and delete all tmp files.
+        """
+        self._crypto_h.delete_cert_path()
 
     def login(self, user:str, pw:str) -> Ret:
         """ Login to jira server with user info or login info from 
@@ -74,8 +82,15 @@ class Server:
             Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
         """
         ret_status = Ret.RET_OK
+        cert_path = self._crypto_h.get_cert_path()
 
         self._get_server_url()
+
+        if cert_path is None:
+            prerr(ErrorType.WARNING, Ret.RET_WARNING_UNSAVE_CONNECTION)
+
+        else:
+            self._cert_path = cert_path
 
         if user is None or pw is None:
             # get login information from login module
@@ -97,6 +112,10 @@ class Server:
         else:
             ret_status = self._login_with_password(user, pw)
 
+        if ret_status == Ret.RET_OK and \
+           self._user is not None:
+            prerr(ErrorType.INFO, txt=f'Login succesful. Logged in as: {self._user}')
+
         return ret_status
 
     def try_login(self, user:str=None, pw:str=None, token:str=None) -> Ret:
@@ -113,7 +132,16 @@ class Server:
             Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
         """
 
+        ret_status = Ret.RET_OK
+        cert_path = self._crypto_h.get_cert_path()
+
         self._get_server_url()
+
+        if cert_path is None:
+            prerr(ErrorType.WARNING, Ret.RET_WARNING_UNSAVE_CONNECTION)
+
+        else:
+            self._cert_path = cert_path
 
         if token is None:
             ret_status = self._login_with_password(user, pw)
@@ -123,6 +151,12 @@ class Server:
 
         else:
             return Ret.RET_ERROR_MISSING_ARG_INFO
+
+        if ret_status == Ret.RET_OK and \
+           self._user is not None:
+            prerr(ErrorType.INFO, txt=f'Login succesful. Logged in as: {self._user}')
+
+        self._crypto_h.delete_cert_path()
 
         return ret_status
 
@@ -179,25 +213,38 @@ class Server:
             Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
         """
 
+        user = None
         ret_status = Ret.RET_OK
+
         os.environ["SSL_CERT_FILE"] = certifi.where()
 
         try:
-            self._jira_obj = JIRA(server=self._server_url,
-                                  token_auth=token,
-                                  options={"verify": False},
-                                  timeout=10)
+            if self._cert_path is None:
+                self._jira_obj = JIRA(server= self._server_url, #'https://jira-dev.newtec.zz:8443',
+                                      options={'verify' : False},
+                                      token_auth=token)
+            else:
+                self._jira_obj = JIRA(server=self._server_url,
+                                      options={'verify' : self._cert_path},
+                                      token_auth=token)
+
+            user = self._jira_obj.current_user()
 
             self._jira_obj.verify_ssl = False
 
         except (exceptions.JIRAError, reqex.ConnectionError, urlex.MaxRetryError) as e:
             #print error
-            if e is exceptions.JIRAError:
+            if isinstance(e, exceptions.JIRAError):
                 print(e.text)
             else:
                 print(str(e))
 
             ret_status = Ret.RET_ERROR_JIRA_LOGIN
+
+        if user is None:
+            ret_status = Ret.RET_ERROR_JIRA_LOGIN
+
+        self._user = user
 
         return ret_status
 
@@ -217,17 +264,31 @@ class Server:
         os.environ["SSL_CERT_FILE"] = certifi.where()
 
         try:
-            self._jira_obj = JIRA(server=self._server_url,
-                                  basic_auth=(user, pw),
-                                  options={"verify": False},
-                                  timeout=10)
+            if self._cert_path is None:
+                self._jira_obj = JIRA(server=self._server_url,
+                                      basic_auth=(user, pw))
+            else:
+                self._jira_obj = JIRA(server=self._server_url,
+                                      basic_auth=(user, pw),
+                                      options={'verify' : self._cert_path})
+
+            user = self._jira_obj.current_user()
 
             self._jira_obj.verify_ssl = False
 
         except (exceptions.JIRAError, reqex.ConnectionError, urlex.MaxRetryError) as e:
             #print error
-            print(str(e))
+            if isinstance(e, exceptions.JIRAError):
+                print(e.text)
+            else:
+                print(str(e))
+
             ret_status = Ret.RET_ERROR_JIRA_LOGIN
+
+        if user is None:
+            ret_status = Ret.RET_ERROR_JIRA_LOGIN
+
+        self._user = user
 
         return ret_status
 

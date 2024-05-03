@@ -54,6 +54,7 @@ class Ret(IntEnum):
     RET_ERROR_CREATING_TICKET_FAILED = 10
     RET_ERROR_INFO_FILE_EXPIRED      = 11
     RET_ERROR_INVALID_SEARCH         = 12
+    RET_WARNING_UNSAVE_CONNECTION    = 13
 ################################################################################
 # Functions
 ################################################################################

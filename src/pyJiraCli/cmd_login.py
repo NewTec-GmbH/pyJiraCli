@@ -64,17 +64,21 @@ def register(subparser) -> object:
     """
 
     sb_login = subparser.add_parser('login',
-                                     help="save or delete login information")
+                                    help="save or delete login information")
 
-    sb_login.add_argument('-token',
-                           type=str,
-                           metavar='<API token>',
-                           help="user API token for login authenfication")
+    data_grp = sb_login.add_argument_group('data')
 
-    sb_login.add_argument('-url',
+    data_grp.add_argument('data1',
                            type=str,
-                           metavar='<server url>',
-                           help="jira server for login")
+                           metavar='<data1>',
+                           nargs='?',
+                           help="<username, token, url>")
+
+    data_grp.add_argument('data2',
+                           type=str,
+                           metavar='<data2>',
+                           nargs='?',
+                           help="optional <password>")
 
     sb_login.add_argument('-expires',
                            type=int,
@@ -82,15 +86,17 @@ def register(subparser) -> object:
                            help="time after which the stored login info \
                                  will expire. default = 30 days")
 
-    sb_login.add_argument('--min',
+    expire_grp = sb_login.add_argument_group('expiry options')
+
+    expire_grp.add_argument('--min',
                            action='store_true',
                            help="expire time in minutes")
 
-    sb_login.add_argument('--day',
+    expire_grp.add_argument('--day',
                            action='store_true',
                            help="expire time in days")
 
-    sb_login.add_argument('--month',
+    expire_grp.add_argument('--month',
                            action='store_true',
                            help="expire time in months")
 
@@ -98,25 +104,32 @@ def register(subparser) -> object:
                            action='store_true',
                            help="delete login information")
 
-    sb_login.add_argument('--default',
-                           action='store_true',
-                           help="delete or store default server url")
+    option_grp = sb_login.add_argument_group('data type to store or delete')
 
-    sb_login.add_argument('--userinfo',
-                          '-ui',
-                           action='store_true',
-                           help="delete user infomation only")
+    option_grp.add_argument('--default',
+                            '-d',
+                            action='store_true',
+                            help="default server url")
 
-    sb_login.add_argument('--server',
-                          '-s',
-                           action='store_true',
-                           help="delete server information only")
+    option_grp.add_argument('--userinfo',
+                            '-ui',
+                            action='store_true',
+                            help="username, pw")
 
-    sb_login.add_argument('--token',
-                          '-t',
-                           action='store_true',
-                           help="delete API token information only")
+    option_grp.add_argument('--server',
+                            '-s',
+                            action='store_true',
+                            help="primary server url to use")
 
+    option_grp.add_argument('--token',
+                            '-t',
+                            action='store_true',
+                            help="API token for jira server")
+
+    option_grp.add_argument('--cert',
+                            '-c',
+                            action='store_true',
+                            help="authentification certificate for jira server")
 
     return sb_login
 
@@ -144,7 +157,7 @@ def _cmd_login(args) -> Ret:
     ret_status = Ret.RET_OK
 
     if args.delete:
-        ret_status =  _delete_login_file(args.userinfo, args.token, args.server, args.default)
+        ret_status =  _delete_login_file(args.userinfo, args.token, args.server, args.default, args.cert)
 
     else:
         ret_status = _store_login_info(args)
@@ -167,56 +180,65 @@ def _store_login_info(args) -> Ret:
     crypto_h = Crypto()
     server = Server()
 
-    user = args.user
-    pw = args.pw
-    url = args.url
-    token = args.token
+    data1 = None # username, token, url or path
+    data2 = None # optional: pw only with username
     expiration = args.expires
 
-    if token is None and pw is None and url is None:
-        return Ret.RET_ERROR_MISSING_ARG_INFO
+    if args.userinfo:
+        data1 = args.data1
+        data2 = args.data2
+
+    else:
+        data1 = args.data1
+
+    if data1 is None and data2 is None :
+        ret_status = Ret.RET_ERROR_MISSING_ARG_INFO
 
     if expiration is not None:
         expiration_date = _get_expiration_date_(args)
     else:
         expiration_date = time.time() + DEFAULT_EXPIRATION_TIME
 
-    if url is not None:
+    if args.server or args.default:
         if args.default:
             data_type = DataType.DATATYPE_SERVER_DEFAULT
         else:
             data_type = DataType.DATATYPE_SERVER
 
-        crypto_h.set_data(url)
+        crypto_h.set_data(data1)
         ret_status = crypto_h.encrypt_information(expiration_date, data_type)
 
-    if  pw is not None:
-        if user is None:
+    elif args.userinfo:
+        if data2 is None:
             return Ret.RET_ERROR_MISSING_UNSERINFO
 
-        ret_status = server.try_login(user, pw, None)
+        ret_status = server.try_login(data1, data2, None)
 
         if ret_status != Ret.RET_OK:
             return ret_status
 
-        crypto_h.set_data(user, pw)
+        crypto_h.set_data(data1, data2)
         ret_status = crypto_h.encrypt_information(expiration_date, DataType.DATATYPE_USER_INFO)
 
-    if token is not None:
-        ret_status = server.try_login(None, None, token)
+    elif args.token:
+        ret_status = server.try_login(None, None, data1)
 
         if ret_status != Ret.RET_OK:
             return ret_status
 
-        crypto_h.set_data(token)
+        crypto_h.set_data(data1)
         ret_status = crypto_h.encrypt_information(expiration_date, DataType.DATATYPE_TOKEN_INFO)
+
+    elif args.cert:
+        ret_status = crypto_h.store_certificate(data1, expiration_date)
 
     return ret_status
 
 def _delete_login_file(delete_userinfo:bool,
                        delete_token:bool,
                        delete_server:bool,
-                       delete_default_server:bool) -> Ret:
+                       delete_default_server:bool,
+                       delete_certificate:bool) -> Ret:
     """ Delete the login files corresponding to the set dataType flags.
 
     Args:
@@ -224,6 +246,7 @@ def _delete_login_file(delete_userinfo:bool,
         delete_token (bool):            Flag to delete token data.
         delete_server (bool):           Flag to delete server data.
         delete_default_server (bool):   Flag to delete default server.
+        delete_certificate (bool):      Flag to delete the server certificate.
 
     Returns:
         Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
@@ -242,8 +265,13 @@ def _delete_login_file(delete_userinfo:bool,
     if delete_default_server:
         crypto_h.delete(DataType.DATATYPE_SERVER_DEFAULT)
 
+    if delete_certificate:
+        crypto_h.delete_cert_path()
+        crypto_h.delete(DataType.DATATYPE_CERT_INFO)
+
     elif not delete_userinfo and not delete_token and \
-       not delete_server and not delete_default_server:
+         not delete_server and not delete_default_server and \
+         not delete_certificate:
         crypto_h.delete_all()
 
     return Ret.RET_OK

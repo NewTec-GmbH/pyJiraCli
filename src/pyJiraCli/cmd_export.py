@@ -233,4 +233,6 @@ def _export_ticket_to_file(issue_key:str, filepath:str, user:str, pw:str, csv:bo
             # export file to json format
             ret_status = issue.create_json(filepath)
 
+    server.logout()
+
     return ret_status

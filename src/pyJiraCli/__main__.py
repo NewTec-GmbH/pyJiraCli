@@ -48,7 +48,7 @@ from pyJiraCli import cmd_search
 from pyJiraCli import cmd_login
 from pyJiraCli import cmd_print
 
-from pyJiraCli.error_handler import prerr
+from pyJiraCli.error_handler import prerr, ErrorType
 from pyJiraCli.ret import Ret
 from pyJiraCli.version import __version__, __author__, __email__, __repository__, __license__
 
@@ -87,6 +87,7 @@ def add_parser() -> object:
                                      epilog="Copyright (c) 2022 - 2024 " + __author__ + " - " + \
                                              __license__ + \
                                             " - Find the project on github: " + __repository__)
+
     parser.add_argument('-user',
                         type=str,
                         metavar='<username>',
@@ -137,7 +138,7 @@ def main() -> Ret:
     ret_status = args.func(args)
 
     if ret_status != Ret.RET_OK:
-        prerr(ret_status)
+        prerr(ErrorType.ERROR, ret_status)
 
     return ret_status
 

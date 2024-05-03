@@ -189,14 +189,14 @@ class FileHandler:
             class instance.
         """
         if self._file is not None:
-            if not self._file.closed():
+            if not self._file.closed:
                 self._file.close()
                 self._file = None
                 self._ext = None
 
         if os.path.exists(self._path):
             os.remove(self._path)
-            self._path = None
+
 ################################################################################
 # Functions
 ################################################################################

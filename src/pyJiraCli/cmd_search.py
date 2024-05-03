@@ -123,6 +123,8 @@ def _cmd_search(filter_str:str, user:str, pw:str, results:int) -> Ret:
 
         _print_table(found_issues)
 
+    server.logout()
+    
     return ret_status
 
 def _print_table(issues:list):
