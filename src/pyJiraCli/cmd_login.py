@@ -157,7 +157,11 @@ def _cmd_login(args) -> Ret:
     ret_status = Ret.RET_OK
 
     if args.delete:
-        ret_status =  _delete_login_file(args.userinfo, args.token, args.server, args.default, args.cert)
+        ret_status =  _delete_login_file(args.userinfo,
+                                         args.token,
+                                         args.server,
+                                         args.default,
+                                         args.cert)
 
     else:
         ret_status = _store_login_info(args)
