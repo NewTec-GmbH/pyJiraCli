@@ -34,11 +34,13 @@
 ################################################################################
 # Imports
 ################################################################################
+from enum import IntEnum
 from pyJiraCli.ret import Ret
 ################################################################################
 # Variables
 ################################################################################
 CRED = '\033[91m'
+CYLW = '\033[93m'
 CEND = '\033[0m'
 
 RETURN_MSG = {
@@ -58,19 +60,45 @@ RETURN_MSG = {
                                            "(-user, -pw), -server or -delete",
     Ret.RET_ERROR_CREATING_TICKET_FAILED : "creating the ticket on the jira server failed",
     Ret.RET_ERROR_INFO_FILE_EXPIRED      : "the stored information has expired",
-    Ret.RET_ERROR_INVALID_SEARCH         : "search string returned a jira error"
+    Ret.RET_ERROR_INVALID_SEARCH         : "search string returned a jira error",
+    Ret.RET_WARNING_UNSAVE_CONNECTION    : "No certificate for server authentification found.\n" + \
+                                           " It's strongly advised, " +\
+                                           "to add a certificate with the login command."
 }
 ################################################################################
 # Classes
 ################################################################################
+class ErrorType(IntEnum):
+    """ Different Error Types.
+    """
+    ERROR = 0,
+    WARNING = 1,
+    INFO = 2,
+
+COLOR = {
+    ErrorType.ERROR : CRED,
+    ErrorType.WARNING : CYLW,
+    ErrorType.INFO : CEND
+}
+
+TYPE = {
+    ErrorType.ERROR : "Error",
+    ErrorType.WARNING : "Warning",
+    ErrorType.INFO : "Info"
+}
 
 ################################################################################
 # Functions
 ################################################################################
-def prerr(error:Ret) -> None:
+def prerr(err_type:ErrorType, error:Ret=Ret.RET_OK, txt:str=None) -> None:
     """ Print the exit error.
     
     Args:
-        error (Ret):    The return code for which an error shall be printed.
+        type (ErrorType)    The type of the msg (Error, Warning or Info).
+        error (Ret):        The return code for which an error shall be printed.
     """
-    print(CRED, "Error: ", RETURN_MSG[error], CEND)
+    if err_type in (ErrorType.ERROR, ErrorType.WARNING):
+        print(COLOR[err_type], TYPE[err_type],":", CEND, RETURN_MSG[error])
+
+    else:
+        print(COLOR[err_type], TYPE[err_type],":", CEND, txt)

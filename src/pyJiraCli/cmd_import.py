@@ -135,6 +135,8 @@ def _cmd_import(input_file:str, user:str, pw:str) -> Ret:
             jira = server.get_handle()
             ret_status = issue.create_ticket(jira)
 
+    server.logout()
+
     return ret_status
 
 

@@ -100,7 +100,7 @@ class JiraIssue:
             self._issue = jira.issue(issue)
 
         except ex.JIRAError as e:
-            print(str(e))
+            print(e.text)
             ret_status = Ret.RET_ERROR_ISSUE_NOT_FOUND
 
         if ret_status == Ret.RET_OK:
@@ -201,7 +201,7 @@ class JiraIssue:
             issue_key = jira.create_issue(fields=write_dictionary).key
 
         except ex.JIRAError as e:
-            print(str(e))
+            print(e.text)
             ret_status = Ret.RET_ERROR_CREATING_TICKET_FAILED
 
         if ret_status == Ret.RET_OK:
