@@ -186,7 +186,6 @@ def _store_login_info(args) -> Ret:
 
     data1 = None # username, token, url or path
     data2 = None # optional: pw only with username
-    expiration = args.expires
 
     if args.userinfo:
         data1 = args.data1
@@ -198,43 +197,41 @@ def _store_login_info(args) -> Ret:
     if data1 is None and data2 is None :
         ret_status = Ret.RET_ERROR_MISSING_ARG_INFO
 
-    if expiration is not None:
+    if ret_status == Ret.RET_OK:
         expiration_date = _get_expiration_date_(args)
-    else:
-        expiration_date = time.time() + DEFAULT_EXPIRATION_TIME
 
-    if args.server or args.default:
-        if args.default:
-            data_type = DataType.DATATYPE_SERVER_DEFAULT
-        else:
-            data_type = DataType.DATATYPE_SERVER
+        if args.server or args.default:
+            if args.default:
+                data_type = DataType.DATATYPE_SERVER_DEFAULT
+            else:
+                data_type = DataType.DATATYPE_SERVER
 
-        crypto_h.set_data(data1)
-        ret_status = crypto_h.encrypt_information(expiration_date, data_type)
+            crypto_h.set_data(data1)
+            ret_status = crypto_h.encrypt_information(expiration_date, data_type)
 
-    elif args.userinfo:
-        if data2 is None:
-            return Ret.RET_ERROR_MISSING_UNSERINFO
+        elif args.userinfo:
+            if data2 is None:
+                return Ret.RET_ERROR_MISSING_UNSERINFO
 
-        ret_status = server.try_login(data1, data2, None)
+            ret_status = server.try_login(data1, data2, None)
 
-        if ret_status != Ret.RET_OK:
-            return ret_status
+            if ret_status != Ret.RET_OK:
+                return ret_status
 
-        crypto_h.set_data(data1, data2)
-        ret_status = crypto_h.encrypt_information(expiration_date, DataType.DATATYPE_USER_INFO)
+            crypto_h.set_data(data1, data2)
+            ret_status = crypto_h.encrypt_information(expiration_date, DataType.DATATYPE_USER_INFO)
 
-    elif args.token:
-        ret_status = server.try_login(None, None, data1)
+        elif args.token:
+            ret_status = server.try_login(None, None, data1)
 
-        if ret_status != Ret.RET_OK:
-            return ret_status
+            if ret_status != Ret.RET_OK:
+                return ret_status
 
-        crypto_h.set_data(data1)
-        ret_status = crypto_h.encrypt_information(expiration_date, DataType.DATATYPE_TOKEN_INFO)
+            crypto_h.set_data(data1)
+            ret_status = crypto_h.encrypt_information(expiration_date, DataType.DATATYPE_TOKEN_INFO)
 
-    elif args.cert:
-        ret_status = crypto_h.store_certificate(data1, expiration_date)
+        elif args.cert:
+            ret_status = crypto_h.store_certificate(data1, expiration_date)
 
     return ret_status
 
@@ -293,7 +290,10 @@ def _get_expiration_date_(args) -> float:
 
     input_int = args.expires
 
-    if args.min:
+    if input_int is None:
+        input_int = DEFAULT_EXPIRATION_TIME
+
+    elif args.min:
         exp_time = input_int * 60
 
     elif args.days:
