@@ -41,8 +41,8 @@ from requests import exceptions as reqex
 from urllib3 import exceptions as urlex
 
 from pyJiraCli.crypto_file_handler import Crypto, DataType, DataMembers
-from pyJiraCli.error_handler import prerr, ErrorType
-from pyJiraCli.ret import Ret
+from pyJiraCli.error_handler import Error, ErrorType
+from pyJiraCli.ret import Ret, Warnings
 
 ################################################################################
 # Variables
@@ -57,6 +57,7 @@ class Server:
     """
     def __init__(self):
         self._crypto_h = Crypto()
+        self._error_h = Error()
         self._server_url = DEFAULT_SERVER
         self._jira_obj = None
         self._search_result = None
@@ -87,7 +88,7 @@ class Server:
         self._get_server_url()
 
         if cert_path is None:
-            prerr(ErrorType.WARNING, Ret.RET_WARNING_UNSAVE_CONNECTION)
+            self._error_h.print(ErrorType.WARNING, Warnings.WARNING_UNSAVE_CONNECTION)
 
         else:
             self._cert_path = cert_path
@@ -114,7 +115,7 @@ class Server:
 
         if ret_status == Ret.RET_OK and \
            self._user is not None:
-            prerr(ErrorType.INFO, txt=f'Login succesful. Logged in as: {self._user}')
+            self._error_h.print_info(txt=f'Login succesful. Logged in as: {self._user}')
 
         return ret_status
 
@@ -138,7 +139,7 @@ class Server:
         self._get_server_url()
 
         if cert_path is None:
-            prerr(ErrorType.WARNING, Ret.RET_WARNING_UNSAVE_CONNECTION)
+            self._error_h.print(ErrorType.WARNING, Warnings.WARNING_UNSAVE_CONNECTION)
 
         else:
             self._cert_path = cert_path
@@ -150,11 +151,11 @@ class Server:
             ret_status = self._login_with_token(token)
 
         else:
-            return Ret.RET_ERROR_MISSING_ARG_INFO
+            return Ret.RET_ERROR
 
         if ret_status == Ret.RET_OK and \
            self._user is not None:
-            prerr(ErrorType.INFO, txt=f'Login succesful. Logged in as: {self._user}')
+            self._error_h.print_info(txt=f'Login succesful. Logged in as: {self._user}')
 
         self._crypto_h.delete_cert_path()
 
@@ -309,6 +310,9 @@ class Server:
 
             if ret_status is not Ret.RET_OK:
                 server_url = DEFAULT_SERVER
+
+                self._error_h.print(ErrorType.WARNING, Warnings.WARNING_SERVER_URL_MISSING)
+                self._error_h.print_info(txt=f"Using hardcoded default url at {DEFAULT_SERVER}")
 
         if ret_status is Ret.RET_OK:
             server_url = self._crypto_h.get_data(DataMembers.DATA_MEM_1)

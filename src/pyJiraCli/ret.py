@@ -40,7 +40,7 @@ from enum import IntEnum
 # Classes
 ################################################################################
 class Ret(IntEnum):
-    """"exit statuses of the modules"""
+    """ The exit statuses of the modules."""
     RET_OK                           = 0
     RET_ERROR                        = 1
     RET_ERROR_JIRA_LOGIN             = 2
@@ -50,11 +50,18 @@ class Ret(IntEnum):
     RET_ERROR_FILE_OPEN_FAILED       = 6
     RET_ERROR_NO_USERINFORMATION     = 7
     RET_ERROR_MISSING_UNSERINFO      = 8
-    RET_ERROR_MISSING_ARG_INFO       = 9
-    RET_ERROR_CREATING_TICKET_FAILED = 10
-    RET_ERROR_INFO_FILE_EXPIRED      = 11
-    RET_ERROR_INVALID_SEARCH         = 12
-    RET_WARNING_UNSAVE_CONNECTION    = 13
+    RET_ERROR_MISSING_LOGIN_DATA     = 9
+    RET_ERROR_MISSING_DATATYPE       = 10
+    RET_ERROR_CREATING_TICKET_FAILED = 11
+    RET_ERROR_INFO_FILE_EXPIRED      = 12
+    RET_ERROR_INVALID_SEARCH         = 13
+
+class Warnings(IntEnum):
+    """ Th Warnings of the modules."""
+    WARNING_UNSAVE_CONNECTION      = 0
+    WARNING_SERVER_URL_MISSING     = 1
+    WARNING_CSV_OPTION_WRONG       = 2
+    WARNING_UNKNOWN_FILE_EXTENSION = 3
 ################################################################################
 # Functions
 ################################################################################

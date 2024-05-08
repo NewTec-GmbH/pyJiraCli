@@ -211,7 +211,7 @@ class Crypto:
             filepath_key  = self._homepath + file_name_key
 
             if not os.path.exists(filepath_data):
-                ret_status = Ret.RET_ERROR
+                ret_status = Ret.RET_ERROR_NO_USERINFORMATION
 
         if ret_status == Ret.RET_OK:
             ret_status = self._read_encrypted_data(filepath_data,
