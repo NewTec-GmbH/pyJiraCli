@@ -227,48 +227,6 @@ def _store_login_info(args) -> Ret:
 
     return ret_status
 
-def _delete_login_file(delete_userinfo:bool,
-                       delete_token:bool,
-                       delete_server:bool,
-                       delete_default_server:bool,
-                       delete_certificate:bool) -> Ret:
-    """ Delete the login files corresponding to the set dataType flags.
-
-    Args:
-        delete_userinfo (bool):         Flag to delete userinfo data.
-        delete_token (bool):            Flag to delete token data.
-        delete_server (bool):           Flag to delete server data.
-        delete_default_server (bool):   Flag to delete default server.
-        delete_certificate (bool):      Flag to delete the server certificate.
-
-    Returns:
-        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
-    """
-    crypto_h = Crypto()
-
-    if delete_userinfo:
-        crypto_h.delete(DataType.DATATYPE_USER_INFO)
-
-    if delete_token:
-        crypto_h.delete(DataType.DATATYPE_TOKEN_INFO)
-
-    if delete_server:
-        crypto_h.delete(DataType.DATATYPE_SERVER)
-
-    if delete_default_server:
-        crypto_h.delete(DataType.DATATYPE_SERVER_DEFAULT)
-
-    if delete_certificate:
-        crypto_h.delete_cert_path()
-        crypto_h.delete(DataType.DATATYPE_CERT_INFO)
-
-    elif not delete_userinfo and not delete_token and \
-         not delete_server and not delete_default_server and \
-         not delete_certificate:
-        crypto_h.delete_all()
-
-    return Ret.RET_OK
-
 def _get_expiration_date_(args) -> float:
     """ Calculate the expiration date 
         from the commandline arguments in epoch seconds.

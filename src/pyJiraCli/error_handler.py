@@ -34,14 +34,26 @@
 ################################################################################
 # Imports
 ################################################################################
-from enum import IntEnum
 from colorama import Fore, Style
 
+from pyJiraCli.error_type import ErrorType
 from pyJiraCli.ret import Ret, Warnings
 
 ################################################################################
 # Variables
 ################################################################################
+COLOR = {
+    ErrorType.ERROR   : Fore.RED,
+    ErrorType.WARNING : Fore.YELLOW,
+    ErrorType.INFO    : Fore.WHITE
+}
+
+TYPE = {
+    ErrorType.ERROR   : "Error",
+    ErrorType.WARNING : "Warning",
+    ErrorType.INFO    : "Info"
+}
+
 RETURN_MSG = {
     Ret.RET_OK                           : "Process succesful",
     Ret.RET_ERROR                        : "Error occured",
@@ -84,25 +96,6 @@ WARN_MSG = {
 ################################################################################
 # Classes
 ################################################################################
-class ErrorType(IntEnum):
-    """ Different Error Types.
-    """
-    ERROR = 0,
-    WARNING = 1,
-    INFO = 2,
-
-COLOR = {
-    ErrorType.ERROR   : Fore.RED,
-    ErrorType.WARNING : Fore.YELLOW,
-    ErrorType.INFO    : Fore.WHITE
-}
-
-TYPE = {
-    ErrorType.ERROR   : "Error",
-    ErrorType.WARNING : "Warning",
-    ErrorType.INFO    : "Info"
-}
-
 class Error:
     """ The error handler class.
     """

@@ -1,6 +1,7 @@
-""" Command for the print function.
-    prints the ticket information for a provided issue key
-    onto the console."""
+"""  The different print msg types
+     (error, warning, info).
+"""
+
 # BSD 3-Clause License
 #
 # Copyright (c) 2024, NewTec GmbH
@@ -33,9 +34,7 @@
 ################################################################################
 # Imports
 ################################################################################
-from pyJiraCli.jira_server import Server
-from pyJiraCli.jira_issue import JiraIssue
-from pyJiraCli.ret import Ret
+from enum import IntEnum
 ################################################################################
 # Variables
 ################################################################################
@@ -43,69 +42,12 @@ from pyJiraCli.ret import Ret
 ################################################################################
 # Classes
 ################################################################################
-
+class ErrorType(IntEnum):
+    """ Different Error Types.
+    """
+    ERROR = 0
+    WARNING = 1
+    INFO = 2
 ################################################################################
 # Functions
 ################################################################################
-# subparser for the 'print' command
-def register(subparser) -> object:
-    """ Register subparser commands for the print module.
-        
-    Args:
-        subparser (obj):   The command subparser object provided via __main__.py.
-        
-    Returns:
-        obj:    The commmand parser object of this module.
-    """
-
-    sb_search = subparser.add_parser('print',
-                                      help="print issue details to the console")
-
-    sb_search.add_argument('issue',
-                            type=str,
-                            help="issue key")
-
-    return sb_search
-
-def execute(args) -> Ret:
-    """ This function servers as entry point for the command 'print'.
-        It will be stored as callback for this moduls subparser command.
-    
-    Args: 
-        args (obj): The command line arguments.
-        
-    Returns:
-        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
-    """
-    return _cmd_print(args.issue, args.user, args.pw)
-
-def _cmd_print(issue_key:str, user:str, pw:str) -> Ret:
-    """Load the data of the provided issue key and 
-        and print it to the command line.
-
-    Args:
-        issue_key (str): the unique issue key in string format
-        user (str): username for login
-        pw (str): password for login
-
-    Returns:
-        retval.Ret: return status of the module
-    """
-# pylint: disable=R0801
-    ret_status = Ret.RET_OK
-    issue = JiraIssue()
-    server = Server()
-
-    ret_status = server.login(user, pw)
-    if ret_status == Ret.RET_OK:
-        jira = server.get_handle()
-        # export issue from jira server
-        ret_status = issue.export_issue(jira, issue_key)
-# pylint: enable=R0801
-
-    if ret_status == Ret.RET_OK:
-        issue.print_issue()
-
-    server.logout()
-
-    return ret_status
