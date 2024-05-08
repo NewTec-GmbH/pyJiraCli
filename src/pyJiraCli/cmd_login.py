@@ -97,7 +97,7 @@ def register(subparser) -> object:
     expire_grp.add_argument('--month',
                            action='store_true',
                            help="expire time in months")
-    
+
     # pylint: disable=duplicate-code
 
     option_grp = sb_login.add_argument_group('data type to store')
