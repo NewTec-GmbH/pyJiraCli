@@ -25,7 +25,7 @@
 # AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 # IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 # DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL-
 # DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
 # SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
@@ -39,11 +39,12 @@ import os
 
 from pyJiraCli.jira_issue import JiraIssue
 from pyJiraCli.jira_server import Server
-from pyJiraCli.ret import Ret
+from pyJiraCli.error_handler import Error, ErrorType
+from pyJiraCli.ret import Ret, Warnings
 ################################################################################
 # Variables
 ################################################################################
-
+error_h = Error()
 ################################################################################
 # Classes
 ################################################################################
@@ -123,9 +124,9 @@ def _cmd_export(args) -> Ret:
     ret_status = Ret.RET_OK
 
     filepath = _get_filepath(args.issue,
-                                         args.file,
-                                         args.path,
-                                         args.csv)
+                             args.file,
+                             args.path,
+                             args.csv)
     if filepath is None:
         ret_status = Ret.RET_ERROR_FILEPATH_INVALID
 
@@ -135,6 +136,9 @@ def _cmd_export(args) -> Ret:
                                             args.user,
                                             args.pw,
                                             args.csv)
+
+    if ret_status == Ret.RET_OK:
+        error_h.print_info(f"File saved at {filepath}")
 
     return ret_status
 
@@ -159,39 +163,36 @@ def _get_filepath(issue:str, file:str, path:str, csv:bool) -> str:
     if file is None:
         filename = issue
     else:
-        filename = file
+        filename, csv = _get_filename(file, csv)
 
     if path is None:
         # save file in project folder
-        if csv:
-            file_path = f'.\\{filename}.csv'
+
+        path_comps = filename.split('/')
+
+        if len(path_comps) == 1:
+            path_comps = filename.split('\\')
+
+        if len(path_comps) > 1:
+            if -1 == path_comps[0].find('\\'):
+                path_comps[0] += '\\'
+
+            file_path = os.path.join(*path_comps)
+
+            if csv:
+                file_path = f'{file_path}.csv'
+            else:
+                file_path = f'{file_path}.json'
+
         else:
-            file_path = f'.\\{filename}.json'
+            if csv:
+                file_path = f'.\\{filename}.csv'
+            else:
+                file_path = f'.\\{filename}.json'
 
     else:
         # check if provided path or file is viable
-        if os.path.exists(path):
-
-            # check if its a path to a file or a folderss
-            if os.path.isfile(path):
-
-                # check for file extension
-                ext = os.path.splitext(path)[-1]
-
-                if ext == '.json' and not csv or \
-                   ext == '.csv' and csv:
-                    file_path = path
-
-                else:
-                    file_path = None
-            else:
-                # folder to save files was provided
-                if csv:
-                    file_path = os.path.join(path, f'{filename}.csv')
-                else:
-                    file_path = os.path.join(path, f'{filename}.json')
-        else:
-            file_path = None
+        file_path = _get_path(path, filename, file, csv)
 
     return file_path
 
@@ -236,3 +237,131 @@ def _export_ticket_to_file(issue_key:str, filepath:str, user:str, pw:str, csv:bo
     server.logout()
 
     return ret_status
+
+
+def _get_filename(file:str, csv:bool) -> str:
+    """ Get the filename. Handle possible extension errors 
+        with the file provided via the -file option.
+        The returned filename will be without extension.
+
+    Args:
+        file (str):The -file option string provided via the console.
+
+    Returns:
+        str: The filename according to the -file option.
+             The extension will be added later.
+    """
+    # check for file extension
+    ext = os.path.splitext(file)[-1]
+
+    if ext == '.json' and csv:
+        error_h.print(ErrorType.WARNING, Warnings.WARNING_CSV_OPTION_WRONG )
+        csv = False
+
+    elif ext == '.csv' and not csv:
+        error_h.print(ErrorType.WARNING, Warnings.WARNING_CSV_OPTION_WRONG )
+        csv = True
+
+    elif ext[0] == '.' and \
+         ext not in ('.json', '.csv'):
+        error_h.print(ErrorType.WARNING, Warnings.WARNING_UNKNOWN_FILE_EXTENSION)
+
+    filename = file.replace(ext, '')
+
+    return filename, csv
+
+
+def _get_path(path:str, filename:str, file:str, csv:bool) -> str:
+    """ Get the path to the output file with 
+        the provided -file and -path options.
+
+    Args:
+        path (str): The path provided by the -path option.
+        filename (str): the filename that was returned by _get_filename().
+        file (str): The file provided by the -file option.
+        csv (bool): The csv flag entered with the -csv option.
+
+    Returns:
+        str: The final path where the output file will be stored. 
+    """
+    if os.path.exists(path):
+
+        # check if its a path to a file or a folderss
+        if os.path.isfile(path):
+            file_path = _handle_path_to_file(path, filename, file, csv)
+
+        else:
+            # folder to save files was provided
+            if csv:
+                file_path = os.path.join(path, f'{filename}.csv')
+            else:
+                file_path = os.path.join(path, f'{filename}.json')
+
+        file_path_comps = file_path.split('/')
+
+        if len(file_path_comps) > 1:
+
+            if -1 == file_path_comps[0].find('\\'):
+                file_path_comps[0] += '\\'
+                file_path = os.path.join(*file_path_comps)
+
+    else:
+        file_path = None
+
+    return file_path
+
+def _handle_path_to_file(path:str, filename:str, file:str, csv:bool) -> str:
+    """ Handle the output file path if a file location
+        was provided with the -path option.
+
+    Args:
+        path (str): The path provided by the -path option.
+        filename (str): the filename that was returned by _get_filename().
+        file (str): The file provided by the -file option.
+        csv (bool): The csv flag entered with the -csv option.
+
+    Returns:
+        str: Returns the file path is a path was provided with the -file option.
+    """
+
+    # check for file extension
+    ext = os.path.splitext(path)[-1]
+
+    file_path = None
+
+    if ext == '.json' and csv or \
+       ext == '.csv' and not csv:
+        error_h.print(ErrorType.WARNING, Warnings.WARNING_CSV_OPTION_WRONG)
+        file_path = path
+
+        if ext == '.csv':
+            csv = True
+
+        else:
+            csv = False
+
+    elif ext not in ('.json', '.csv'):
+        error_h.print(ErrorType.WARNING, Warnings.WARNING_UNKNOWN_FILE_EXTENSION)
+        path.replace(ext, '')
+
+        if csv:
+            file_path = os.path.join(path, f'{filename}.csv')
+        else:
+            file_path = os.path.join(path, f'{filename}.json')
+
+    else:
+        file_path = path
+
+    if file is not None:
+        path_comps = path.split('/')
+
+        if len(path_comps) > 1:
+            if -1 == path_comps[0].find('\\'):
+                path_comps[0] += '\\'
+
+            if csv:
+                file_path = os.path.join(*path_comps[:-1], f'{filename}.csv')
+            else:
+                file_path = os.path.join(*path_comps[:-1], f'{filename}.json')
+
+    return file_path
