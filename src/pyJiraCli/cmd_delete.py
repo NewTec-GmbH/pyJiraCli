@@ -60,6 +60,8 @@ def register(subparser) -> object:
     sb_login = subparser.add_parser('delete',
                                     help="delete login information")
 
+    # pylint: disable=duplicate-code
+
     option_grp = sb_login.add_argument_group('data type to delete')
 
     option_grp.add_argument('--default',
@@ -86,6 +88,8 @@ def register(subparser) -> object:
                             '-c',
                             action='store_true',
                             help="authentification certificate for jira server")
+    
+    # pylint: disable=duplicate-code
 
     return sb_login
 
