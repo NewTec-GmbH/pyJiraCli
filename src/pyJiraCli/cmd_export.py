@@ -333,14 +333,9 @@ def _handle_path_to_file(path:str, filename:str, file:str, csv:bool) -> str:
        ext == '.csv' and not csv:
         error_h.print(ErrorType.WARNING, Warnings.WARNING_CSV_OPTION_WRONG)
         file_path = path
+        csv = ext == '.csv'
 
-        if ext == '.csv':
-            csv = True
-
-        else:
-            csv = False
-
-    elif ext not in ('.json', '.csv'):
+    if ext not in ('.json', '.csv'):
         error_h.print(ErrorType.WARNING, Warnings.WARNING_UNKNOWN_FILE_EXTENSION)
         path.replace(ext, '')
 

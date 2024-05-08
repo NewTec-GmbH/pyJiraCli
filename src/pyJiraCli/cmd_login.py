@@ -97,8 +97,10 @@ def register(subparser) -> object:
     expire_grp.add_argument('--month',
                            action='store_true',
                            help="expire time in months")
+    
+    # pylint: disable=duplicate-code
 
-    option_grp = sb_login.add_argument_group('data type to store or delete')
+    option_grp = sb_login.add_argument_group('data type to store')
 
     option_grp.add_argument('--default',
                             '-d',
@@ -124,6 +126,8 @@ def register(subparser) -> object:
                             '-c',
                             action='store_true',
                             help="authentification certificate for jira server")
+
+    # pylint: enable=duplicate-code
 
     return sb_login
 
@@ -170,9 +174,6 @@ def _store_login_info(args) -> Ret:
     """
     ret_status = Ret.RET_OK
 
-    crypto_h = Crypto()
-    server = Server()
-
     data1 = None # username, token, url or path
     data2 = None # optional: pw only with username
     expiration = args.expires
@@ -189,6 +190,26 @@ def _store_login_info(args) -> Ret:
     else:
         expiration_date = time.time() + DEFAULT_EXPIRATION_TIME
 
+    ret_status = _store_information(data1, data2, args, expiration_date)
+
+    return ret_status
+
+def _store_information(data1:str, data2:str, args:object, expiration_date:float) -> Ret:
+    """_summary_
+
+    Args:
+        data1 (str): _description_
+        data2 (str): _description_
+        args (object): _description_
+        expiration_date (float): _description_
+
+    Returns:
+        Ret: _description_
+    """
+
+    crypto_h = Crypto()
+    server = Server()
+
     if args.server or args.default:
         if args.default:
             data_type = DataType.DATATYPE_SERVER_DEFAULT
@@ -200,24 +221,21 @@ def _store_login_info(args) -> Ret:
 
     elif args.userinfo:
         if data2 is None:
-            return Ret.RET_ERROR_MISSING_UNSERINFO
+            ret_status = Ret.RET_ERROR_MISSING_UNSERINFO
 
-        ret_status = server.try_login(data1, data2, None)
+        else:
+            ret_status = server.try_login(data1, data2, None)
 
-        if ret_status != Ret.RET_OK:
-            return ret_status
-
-        crypto_h.set_data(data1, data2)
-        ret_status = crypto_h.encrypt_information(expiration_date, DataType.DATATYPE_USER_INFO)
+        if ret_status == Ret.RET_OK:
+            crypto_h.set_data(data1, data2)
+            ret_status = crypto_h.encrypt_information(expiration_date, DataType.DATATYPE_USER_INFO)
 
     elif args.token:
         ret_status = server.try_login(None, None, data1)
 
-        if ret_status != Ret.RET_OK:
-            return ret_status
-
-        crypto_h.set_data(data1)
-        ret_status = crypto_h.encrypt_information(expiration_date, DataType.DATATYPE_TOKEN_INFO)
+        if ret_status == Ret.RET_OK:
+            crypto_h.set_data(data1)
+            ret_status = crypto_h.encrypt_information(expiration_date, DataType.DATATYPE_TOKEN_INFO)
 
     elif args.cert:
         ret_status = crypto_h.store_certificate(data1, expiration_date)

@@ -232,8 +232,6 @@ class Crypto:
         """
         ret_status = Ret.RET_OK
 
-        folderpath = _get_path_to_login_folder()
-
         cert_input_file = File()
         cert_info_file  = File()
         cert_exp_file   = File()
@@ -247,13 +245,13 @@ class Crypto:
                 ret_status = Ret.RET_ERROR_WORNG_FILE_FORMAT
 
         if ret_status == Ret.RET_OK:
-            ret_status = cert_exp_file.set_filepath(folderpath + CERT_EXP_FILE)
+            ret_status = cert_exp_file.set_filepath(_get_path_to_login_folder() + CERT_EXP_FILE)
 
         if ret_status == Ret.RET_OK:
-            ret_status = cert_key_file.set_filepath(folderpath + CERT_KEY_FILE)
+            ret_status = cert_key_file.set_filepath(_get_path_to_login_folder() + CERT_KEY_FILE)
 
         if ret_status == Ret.RET_OK:
-            ret_status = cert_info_file.set_filepath(folderpath + CERT_INFO_FILE)
+            ret_status = cert_info_file.set_filepath(_get_path_to_login_folder() + CERT_INFO_FILE)
 
         if ret_status == Ret.RET_OK:
             ret_status = cert_input_file.read_file()
