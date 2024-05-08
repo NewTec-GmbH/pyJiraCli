@@ -88,7 +88,7 @@ def register(subparser) -> object:
                             '-c',
                             action='store_true',
                             help="authentification certificate for jira server")
-    
+
     # pylint: disable=duplicate-code
 
     return sb_login
