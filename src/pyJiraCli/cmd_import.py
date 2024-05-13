@@ -42,6 +42,7 @@ import ast
 from pyJiraCli.jira_issue import JiraIssue, _const
 from pyJiraCli.jira_server import Server
 from pyJiraCli.file_handler import FileHandler as File
+from pyJiraCli.error_handler import Error
 from pyJiraCli.ret import Ret
 ################################################################################
 # Variables
@@ -105,6 +106,7 @@ def _cmd_import(input_file:str, user:str, pw:str) -> Ret:
     ret_status = Ret.RET_OK
     issue = JiraIssue()
     server = Server()
+    error_h = Error()
     issue_dict = {}
 
     file = File()
@@ -133,7 +135,13 @@ def _cmd_import(input_file:str, user:str, pw:str) -> Ret:
 
         if ret_status == Ret.RET_OK:
             jira = server.get_handle()
-            ret_status = issue.create_ticket(jira)
+            issue_key = issue.create_ticket(jira)
+
+    if issue_key is None:
+        ret_status = Ret.RET_ERROR_CREATING_TICKET_FAILED
+
+    else:
+        error_h.print_info('Your ticket has been created with key:', issue_key)
 
     server.logout()
 

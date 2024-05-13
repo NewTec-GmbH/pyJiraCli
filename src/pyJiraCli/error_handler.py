@@ -93,6 +93,8 @@ WARN_MSG = {
                                               "name and a file format according to the " +\
                                               "-csv option will be created."
 }
+
+INFO_TAB = "      "
 ################################################################################
 # Classes
 ################################################################################
@@ -124,15 +126,22 @@ class Error:
         elif err_type is ErrorType.ERROR:
             print(COLOR[err_type] + TYPE[err_type] + ": " + Style.RESET_ALL + RETURN_MSG[error])
 
-    def print_info(self, txt:str) -> None:
+    def print_info(self, *args:str) -> None:
         """ Print the information to the console.
     
         Args:
-            type (ErrorType)    The type of the msg (Error, Warning or Info).
-            txt (str):          The information that will be printed.
+            txt (*str):          The information that will be printed.
         """
+        first_line = True
+
         if self._print_verbose:
-            print("Info: " + txt)
+            for arg in args:
+                if first_line:
+                    print("Info: " + arg)
+                    first_line = False
+
+                else:
+                    print(INFO_TAB + arg)
 
 ################################################################################
 # Functions
