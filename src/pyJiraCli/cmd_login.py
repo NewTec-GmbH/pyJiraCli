@@ -1,6 +1,5 @@
 """ Command to store login information.
     Stores User, pw and a server url in an encoded file
-    or deltes stored login informations.
 """
 # BSD 3-Clause License
 #
@@ -64,14 +63,13 @@ def register(subparser) -> object:
     """
 
     sb_login = subparser.add_parser('login',
-                                    help="save or delete login information")
+                                    help="save login information")
 
     data_grp = sb_login.add_argument_group('data')
 
     data_grp.add_argument('data1',
                            type=str,
                            metavar='<data1>',
-                           nargs='?',
                            help="<username, token, url>")
 
     data_grp.add_argument('data2',
@@ -100,16 +98,14 @@ def register(subparser) -> object:
                            action='store_true',
                            help="expire time in months")
 
-    sb_login.add_argument('-delete',
-                           action='store_true',
-                           help="delete login information")
+    # pylint: disable=duplicate-code
 
-    option_grp = sb_login.add_argument_group('data type to store or delete')
+    option_grp = sb_login.add_argument_group('data type to store')
 
     option_grp.add_argument('--default',
                             '-d',
                             action='store_true',
-                            help="default server url")
+                            help="primary server url to use")
 
     option_grp.add_argument('--userinfo',
                             '-ui',
@@ -119,7 +115,7 @@ def register(subparser) -> object:
     option_grp.add_argument('--server',
                             '-s',
                             action='store_true',
-                            help="primary server url to use")
+                            help="secondary server url to use")
 
     option_grp.add_argument('--token',
                             '-t',
@@ -130,6 +126,8 @@ def register(subparser) -> object:
                             '-c',
                             action='store_true',
                             help="authentification certificate for jira server")
+
+    # pylint: enable=duplicate-code
 
     return sb_login
 
@@ -156,13 +154,8 @@ def _cmd_login(args) -> Ret:
     """
     ret_status = Ret.RET_OK
 
-    if args.delete:
-        ret_status =  _delete_login_file(args.userinfo,
-                                         args.token,
-                                         args.server,
-                                         args.default,
-                                         args.cert)
-
+    if args.data1 is None and args.data2 is None :
+        ret_status = Ret.RET_ERROR_MISSING_LOGIN_DATA
     else:
         ret_status = _store_login_info(args)
 
@@ -181,11 +174,9 @@ def _store_login_info(args) -> Ret:
     """
     ret_status = Ret.RET_OK
 
-    crypto_h = Crypto()
-    server = Server()
-
     data1 = None # username, token, url or path
     data2 = None # optional: pw only with username
+    expiration = args.expires
 
     if args.userinfo:
         data1 = args.data1
@@ -194,88 +185,65 @@ def _store_login_info(args) -> Ret:
     else:
         data1 = args.data1
 
-    if data1 is None and data2 is None :
-        ret_status = Ret.RET_ERROR_MISSING_ARG_INFO
-
-    if ret_status == Ret.RET_OK:
+    if expiration is not None:
         expiration_date = _get_expiration_date_(args)
+    else:
+        expiration_date = time.time() + DEFAULT_EXPIRATION_TIME
 
-        if args.server or args.default:
-            if args.default:
-                data_type = DataType.DATATYPE_SERVER_DEFAULT
-            else:
-                data_type = DataType.DATATYPE_SERVER
-
-            crypto_h.set_data(data1)
-            ret_status = crypto_h.encrypt_information(expiration_date, data_type)
-
-        elif args.userinfo:
-            if data2 is None:
-                return Ret.RET_ERROR_MISSING_UNSERINFO
-
-            ret_status = server.try_login(data1, data2, None)
-
-            if ret_status != Ret.RET_OK:
-                return ret_status
-
-            crypto_h.set_data(data1, data2)
-            ret_status = crypto_h.encrypt_information(expiration_date, DataType.DATATYPE_USER_INFO)
-
-        elif args.token:
-            ret_status = server.try_login(None, None, data1)
-
-            if ret_status != Ret.RET_OK:
-                return ret_status
-
-            crypto_h.set_data(data1)
-            ret_status = crypto_h.encrypt_information(expiration_date, DataType.DATATYPE_TOKEN_INFO)
-
-        elif args.cert:
-            ret_status = crypto_h.store_certificate(data1, expiration_date)
+    ret_status = _store_information(data1, data2, args, expiration_date)
 
     return ret_status
 
-def _delete_login_file(delete_userinfo:bool,
-                       delete_token:bool,
-                       delete_server:bool,
-                       delete_default_server:bool,
-                       delete_certificate:bool) -> Ret:
-    """ Delete the login files corresponding to the set dataType flags.
+def _store_information(data1:str, data2:str, args:object, expiration_date:float) -> Ret:
+    """_summary_
 
     Args:
-        delete_userinfo (bool):         Flag to delete userinfo data.
-        delete_token (bool):            Flag to delete token data.
-        delete_server (bool):           Flag to delete server data.
-        delete_default_server (bool):   Flag to delete default server.
-        delete_certificate (bool):      Flag to delete the server certificate.
+        data1 (str): _description_
+        data2 (str): _description_
+        args (object): _description_
+        expiration_date (float): _description_
 
     Returns:
-        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+        Ret: _description_
     """
+
     crypto_h = Crypto()
+    server = Server()
 
-    if delete_userinfo:
-        crypto_h.delete(DataType.DATATYPE_USER_INFO)
+    if args.server or args.default:
+        if args.default:
+            data_type = DataType.DATATYPE_SERVER_DEFAULT
+        else:
+            data_type = DataType.DATATYPE_SERVER
 
-    if delete_token:
-        crypto_h.delete(DataType.DATATYPE_TOKEN_INFO)
+        crypto_h.set_data(data1)
+        ret_status = crypto_h.encrypt_information(expiration_date, data_type)
 
-    if delete_server:
-        crypto_h.delete(DataType.DATATYPE_SERVER)
+    elif args.userinfo:
+        if data2 is None:
+            ret_status = Ret.RET_ERROR_MISSING_UNSERINFO
 
-    if delete_default_server:
-        crypto_h.delete(DataType.DATATYPE_SERVER_DEFAULT)
+        else:
+            ret_status = server.try_login(data1, data2, None)
 
-    if delete_certificate:
-        crypto_h.delete_cert_path()
-        crypto_h.delete(DataType.DATATYPE_CERT_INFO)
+        if ret_status == Ret.RET_OK:
+            crypto_h.set_data(data1, data2)
+            ret_status = crypto_h.encrypt_information(expiration_date, DataType.DATATYPE_USER_INFO)
 
-    elif not delete_userinfo and not delete_token and \
-         not delete_server and not delete_default_server and \
-         not delete_certificate:
-        crypto_h.delete_all()
+    elif args.token:
+        ret_status = server.try_login(None, None, data1)
 
-    return Ret.RET_OK
+        if ret_status == Ret.RET_OK:
+            crypto_h.set_data(data1)
+            ret_status = crypto_h.encrypt_information(expiration_date, DataType.DATATYPE_TOKEN_INFO)
+
+    elif args.cert:
+        ret_status = crypto_h.store_certificate(data1, expiration_date)
+
+    else:
+        ret_status = Ret.RET_ERROR_MISSING_DATATYPE
+
+    return ret_status
 
 def _get_expiration_date_(args) -> float:
     """ Calculate the expiration date 
@@ -290,10 +258,7 @@ def _get_expiration_date_(args) -> float:
 
     input_int = args.expires
 
-    if input_int is None:
-        input_int = DEFAULT_EXPIRATION_TIME
-
-    elif args.min:
+    if args.min:
         exp_time = input_int * 60
 
     elif args.days:

@@ -35,6 +35,7 @@
 # Imports
 ################################################################################
 from pyJiraCli.jira_server import Server
+from pyJiraCli.error_handler import Error
 from pyJiraCli.ret import Ret
 ################################################################################
 # Variables
@@ -107,6 +108,7 @@ def _cmd_search(filter_str:str, user:str, pw:str, results:int) -> Ret:
     """
     ret_status = Ret.RET_OK
     server = Server()
+    error_h = Error()
 
     if results is None:
         results=50
@@ -118,8 +120,8 @@ def _cmd_search(filter_str:str, user:str, pw:str, results:int) -> Ret:
 
     if ret_status == Ret.RET_OK:
         found_issues = server.get_search_result()
-        print(f'\nSearch string: "{filter_str}"')
-        print(f"Found Issues: {len(found_issues)}\n")
+        error_h.print_info('Search string:', filter_str)
+        error_h.print_info('Found Issues:', str(len(found_issues)))
 
         _print_table(found_issues)
 
