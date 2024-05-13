@@ -134,11 +134,10 @@ def _cmd_export(args) -> Ret:
         ret_status = _export_ticket_to_file(args.issue,
                                             filepath,
                                             args.user,
-                                            args.pw,
-                                            args.csv)
+                                            args.pw)
 
     if ret_status == Ret.RET_OK:
-        error_h.print_info(f"File saved at {filepath}")
+        error_h.print_info('File saved at:', filepath)
 
     return ret_status
 
@@ -196,7 +195,7 @@ def _get_filepath(issue:str, file:str, path:str, csv:bool) -> str:
 
     return file_path
 
-def _export_ticket_to_file(issue_key:str, filepath:str, user:str, pw:str, csv:bool) -> Ret:
+def _export_ticket_to_file(issue_key:str, filepath:str, user:str, pw:str) -> Ret:
     """ Export a jira issue from the server
         and write the issue data to a csv or json file.
         
@@ -205,8 +204,6 @@ def _export_ticket_to_file(issue_key:str, filepath:str, user:str, pw:str, csv:bo
         filepath (str):   The path to the output file.
         user (str):       User name for login (if provided).
         pw (str):         Password for login (if provided).  
-        csv (bool):       A flag, if true save the file in csv format \
-                          else as a json file (default).
 
     Returns:
         Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
@@ -224,6 +221,11 @@ def _export_ticket_to_file(issue_key:str, filepath:str, user:str, pw:str, csv:bo
         # export issue from jira server
         ret_status = issue.export_issue(jira, issue_key)
 # pylint: enable=R0801
+
+    csv = False
+
+    if os.path.splitext(filepath)[-1] == '.csv':
+        csv = True
 
     if ret_status == Ret.RET_OK:
         if csv:

@@ -115,7 +115,7 @@ class Server:
 
         if ret_status == Ret.RET_OK and \
            self._user is not None:
-            self._error_h.print_info(txt=f'Login succesful. Logged in as: {self._user}')
+            self._error_h.print_info('Login succesful. Logged in as:', self._user)
 
         return ret_status
 
@@ -155,7 +155,7 @@ class Server:
 
         if ret_status == Ret.RET_OK and \
            self._user is not None:
-            self._error_h.print_info(txt=f'Login succesful. Logged in as: {self._user}')
+            self._error_h.print_info('Login succesful. Logged in as:', self._user)
 
         self._crypto_h.delete_cert_path()
 
@@ -312,7 +312,7 @@ class Server:
                 server_url = DEFAULT_SERVER
 
                 self._error_h.print(ErrorType.WARNING, Warnings.WARNING_SERVER_URL_MISSING)
-                self._error_h.print_info(txt=f"Using hardcoded default url at {DEFAULT_SERVER}")
+                self._error_h.print_info(f"Using hardcoded default url at {DEFAULT_SERVER}")
 
         if ret_status is Ret.RET_OK:
             server_url = self._crypto_h.get_data(DataMembers.DATA_MEM_1)
