@@ -34,21 +34,31 @@
 ################################################################################
 # Imports
 ################################################################################
-from enum import IntEnum
-from pyJiraCli.ret import Ret
+from colorama import Fore, Style
+
+from pyJiraCli.error_type import ErrorType
+from pyJiraCli.ret import Ret, Warnings
+
 ################################################################################
 # Variables
 ################################################################################
-CRED = '\033[91m'
-CYLW = '\033[93m'
-CEND = '\033[0m'
+COLOR = {
+    ErrorType.ERROR   : Fore.RED,
+    ErrorType.WARNING : Fore.YELLOW,
+    ErrorType.INFO    : Fore.WHITE
+}
+
+TYPE = {
+    ErrorType.ERROR   : "Error",
+    ErrorType.WARNING : "Warning",
+    ErrorType.INFO    : "Info"
+}
 
 RETURN_MSG = {
     Ret.RET_OK                           : "Process succesful",
     Ret.RET_ERROR                        : "Error occured",
     Ret.RET_ERROR_JIRA_LOGIN             : "Login to jira server was not possible",
-    Ret.RET_ERROR_FILEPATH_INVALID       : "Folder or File doesn't exist or" + \
-                                           "the file has the wrong format (only json or csv).",
+    Ret.RET_ERROR_FILEPATH_INVALID       : "The provided -path doesnt exist",
     Ret.RET_ERROR_WORNG_FILE_FORMAT      : "Wrong file format for save file provided",
     Ret.RET_ERROR_ISSUE_NOT_FOUND        : "Jira Issue not found",
     Ret.RET_ERROR_FILE_OPEN_FAILED       : "opening File failed",
@@ -56,49 +66,83 @@ RETURN_MSG = {
                                            "or stored information file",
     Ret.RET_ERROR_MISSING_UNSERINFO      : "both -user and -pw option must be provided " + \
                                            "to store useriformation",
-    Ret.RET_ERROR_MISSING_ARG_INFO       : "At least one of the options must be provided: " + \
-                                           "(-user, -pw), -server or -delete",
+    Ret.RET_ERROR_MISSING_LOGIN_DATA     : "At least one of the arguments must be provided: " + \
+                                           "<data1> (with --userinfo, --token, --server" + \
+                                           " or --default option) or -delete",
+    Ret.RET_ERROR_MISSING_DATATYPE       : "No datatype for login command given. " + \
+                                           "Provide the Datatype via " +\
+                                           "--userinfo, --token, --server or -- default " + \
+                                           "option with the login command",
     Ret.RET_ERROR_CREATING_TICKET_FAILED : "creating the ticket on the jira server failed",
     Ret.RET_ERROR_INFO_FILE_EXPIRED      : "the stored information has expired",
     Ret.RET_ERROR_INVALID_SEARCH         : "search string returned a jira error",
-    Ret.RET_WARNING_UNSAVE_CONNECTION    : "No certificate for server authentification found.\n" + \
-                                           " It's strongly advised, " +\
-                                           "to add a certificate with the login command."
 }
+
+WARN_MSG = {
+    Warnings.WARNING_UNSAVE_CONNECTION      : "No certificate for server " + \
+                                              "authentification found. " + \
+                                              "It's strongly advised, " +\
+                                              "to add a certificate with the login command.",
+    Warnings.WARNING_SERVER_URL_MISSING     : "No Server url found. PLease add a " + \
+                                              "custom url for your jira server.",
+    Warnings.WARNING_CSV_OPTION_WRONG       : "File ending from provided file and " + \
+                                              "csv option dont match. " + \
+                                              "File format provided by file or path was used.",
+    Warnings.WARNING_UNKNOWN_FILE_EXTENSION : "The provided file has an unknown file format. " +\
+                                              "A new file with the same " +\
+                                              "name and a file format according to the " +\
+                                              "-csv option will be created."
+}
+
+INFO_TAB = "      "
 ################################################################################
 # Classes
 ################################################################################
-class ErrorType(IntEnum):
-    """ Different Error Types.
+class Error:
+    """ The error handler class.
     """
-    ERROR = 0,
-    WARNING = 1,
-    INFO = 2,
 
-COLOR = {
-    ErrorType.ERROR : CRED,
-    ErrorType.WARNING : CYLW,
-    ErrorType.INFO : CEND
-}
+    _print_verbose = False
 
-TYPE = {
-    ErrorType.ERROR : "Error",
-    ErrorType.WARNING : "Warning",
-    ErrorType.INFO : "Info"
-}
+    def __init__(self):
+        pass
+
+    @classmethod
+    def set_verbose(cls):
+        """Set verbose mode for all instances of the class."""
+        cls._print_verbose = True
+
+    def print(self, err_type:ErrorType, error:Ret=Ret.RET_OK) -> None:
+        """ Print the exit error.
+    
+        Args:
+            type (ErrorType)    The type of the msg (Error, Warning or Info).
+            error (Ret):        The return code for which an error shall be printed.
+        """
+        if err_type is ErrorType.WARNING and \
+           self._print_verbose:
+            print(COLOR[err_type] + TYPE[err_type] + ": " + Style.RESET_ALL + WARN_MSG[error])
+
+        elif err_type is ErrorType.ERROR:
+            print(COLOR[err_type] + TYPE[err_type] + ": " + Style.RESET_ALL + RETURN_MSG[error])
+
+    def print_info(self, *args:str) -> None:
+        """ Print the information to the console.
+    
+        Args:
+            txt (*str):          The information that will be printed.
+        """
+        first_line = True
+
+        if self._print_verbose:
+            for arg in args:
+                if first_line:
+                    print("Info: " + arg)
+                    first_line = False
+
+                else:
+                    print(INFO_TAB + arg)
 
 ################################################################################
 # Functions
 ################################################################################
-def prerr(err_type:ErrorType, error:Ret=Ret.RET_OK, txt:str=None) -> None:
-    """ Print the exit error.
-    
-    Args:
-        type (ErrorType)    The type of the msg (Error, Warning or Info).
-        error (Ret):        The return code for which an error shall be printed.
-    """
-    if err_type in (ErrorType.ERROR, ErrorType.WARNING):
-        print(COLOR[err_type], TYPE[err_type],":", CEND, RETURN_MSG[error])
-
-    else:
-        print(COLOR[err_type], TYPE[err_type],":", CEND, txt)

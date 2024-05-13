@@ -1,4 +1,7 @@
-"""The Error codes of pyJiraCli tool."""
+"""  The different print msg types
+     (error, warning, info).
+"""
+
 # BSD 3-Clause License
 #
 # Copyright (c) 2024, NewTec GmbH
@@ -39,29 +42,12 @@ from enum import IntEnum
 ################################################################################
 # Classes
 ################################################################################
-class Ret(IntEnum):
-    """ The exit statuses of the modules."""
-    RET_OK                           = 0
-    RET_ERROR                        = 1
-    RET_ERROR_JIRA_LOGIN             = 2
-    RET_ERROR_FILEPATH_INVALID       = 3
-    RET_ERROR_WORNG_FILE_FORMAT      = 4
-    RET_ERROR_ISSUE_NOT_FOUND        = 5
-    RET_ERROR_FILE_OPEN_FAILED       = 6
-    RET_ERROR_NO_USERINFORMATION     = 7
-    RET_ERROR_MISSING_UNSERINFO      = 8
-    RET_ERROR_MISSING_LOGIN_DATA     = 9
-    RET_ERROR_MISSING_DATATYPE       = 10
-    RET_ERROR_CREATING_TICKET_FAILED = 11
-    RET_ERROR_INFO_FILE_EXPIRED      = 12
-    RET_ERROR_INVALID_SEARCH         = 13
-
-class Warnings(IntEnum):
-    """ Th Warnings of the modules."""
-    WARNING_UNSAVE_CONNECTION      = 0
-    WARNING_SERVER_URL_MISSING     = 1
-    WARNING_CSV_OPTION_WRONG       = 2
-    WARNING_UNKNOWN_FILE_EXTENSION = 3
+class ErrorType(IntEnum):
+    """ Different Error Types.
+    """
+    ERROR = 0
+    WARNING = 1
+    INFO = 2
 ################################################################################
 # Functions
 ################################################################################

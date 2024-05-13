@@ -107,5 +107,5 @@ def _cmd_print(issue_key:str, user:str, pw:str) -> Ret:
         issue.print_issue()
 
     server.logout()
-    
+
     return ret_status

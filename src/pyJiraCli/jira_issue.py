@@ -125,13 +125,73 @@ class JiraIssue:
                 self._issue_dictionary[field] = dictionary[field]
 
     def print_issue(self) -> None:
-        """" Print issue information containend
-             in class instance to the command line.
+        """ Print issue information contained
+            in class instance to the command line.
         """
-
         for field_name, field_data in self._issue_dictionary.items():
+
             print(f"{field_name:<{KEY_FIELD_COL_WIDTH}}", end="")
-            print(f"{str(field_data):<{DATA_FIELD_COL_WIDTH}}", end="\n")
+
+            data_str = str(field_data)
+            if len(data_str) <= DATA_FIELD_COL_WIDTH:
+                print(f"{data_str:<{DATA_FIELD_COL_WIDTH}}")
+            else:
+                self._print_long_data_line(data_str)
+
+    def _print_long_data_line(self, data_str:str) -> None:
+
+        printable_lines = []
+
+        lines = data_str.split('\n')  # Split description into lines
+        print_first_line = True
+
+        for line in lines:
+            if len(line) > DATA_FIELD_COL_WIDTH:
+                printable_lines = printable_lines + self._split_line(line)
+
+            else:
+                printable_lines.append(line)
+
+        for line in printable_lines:
+            if print_first_line:
+                print(line)
+                print_first_line = False
+            else:
+                if line[0] == ' ':
+                    line = line[1:]
+
+                print((" " * KEY_FIELD_COL_WIDTH) + line)
+
+    def _split_line(self, line:str) -> list:
+        """_summary_
+
+        Args:
+            line (str): _description_
+
+        Returns:
+            list: _description_
+        """
+        printable_lines = []
+        split_lines = line.split('.')
+
+        new_line = ""
+
+        for split_line in split_lines:
+
+            if len(split_line) > DATA_FIELD_COL_WIDTH:
+                words_in_line = split_line.split(' ')
+
+                for word in words_in_line:
+
+                    if (len(word) + len(new_line) + 1) <= DATA_FIELD_COL_WIDTH:
+                        new_line += word + " "
+                    else:
+                        printable_lines.append(new_line)
+                        new_line = ""
+            else:
+                printable_lines.append(split_line + '.')
+
+        return printable_lines
 
     def create_json(self, file_path):
         """ write issue information in class instance to a json file
@@ -193,7 +253,7 @@ class JiraIssue:
         Returns:
             Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
         """
-        ret_status = Ret.RET_OK
+        issue_key = None
 
         write_dictionary = self._create_write_dictionary()
 
@@ -202,12 +262,8 @@ class JiraIssue:
 
         except ex.JIRAError as e:
             print(e.text)
-            ret_status = Ret.RET_ERROR_CREATING_TICKET_FAILED
 
-        if ret_status == Ret.RET_OK:
-            print(f"your ticket has been imported with key: \n{issue_key}")
-
-        return ret_status
+        return issue_key
 
 
     def _process_issue(self) -> None:
