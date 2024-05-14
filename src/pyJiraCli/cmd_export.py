@@ -255,17 +255,21 @@ def _get_filename(file:str, csv:bool) -> str:
     # check for file extension
     ext = os.path.splitext(file)[-1]
 
-    if ext == '.json' and csv:
-        printer.print_error(PrintType.WARNING, Warnings.WARNING_CSV_OPTION_WRONG )
-        csv = False
+    if len(ext) == 0:
+        filename = file
 
-    elif ext == '.csv' and not csv:
-        printer.print_error(PrintType.WARNING, Warnings.WARNING_CSV_OPTION_WRONG )
-        csv = True
+    else:
+        if ext == '.json' and csv:
+            printer.print_error(PrintType.WARNING, Warnings.WARNING_CSV_OPTION_WRONG )
+            csv = False
 
-    elif ext[0] == '.' and \
-         ext not in ('.json', '.csv'):
-        printer.print_error(PrintType.WARNING, Warnings.WARNING_UNKNOWN_FILE_EXTENSION)
+        elif ext == '.csv' and not csv:
+            printer.print_error(PrintType.WARNING, Warnings.WARNING_CSV_OPTION_WRONG )
+            csv = True
+
+        elif ext[0] == '.' and \
+             ext not in ('.json', '.csv'):
+            printer.print_error(PrintType.WARNING, Warnings.WARNING_UNKNOWN_FILE_EXTENSION)
 
     filename = file.replace(ext, '')
 

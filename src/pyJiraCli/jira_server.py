@@ -93,6 +93,8 @@ class Server:
         else:
             self._cert_path = cert_path
 
+        _printer.print_info('Loggin in to:', self._server_url)
+
         if user is None or pw is None:
             # get login information from login module
             ret_status = self._crypto_h.decrypt_information(DataType.DATATYPE_TOKEN_INFO)
