@@ -157,6 +157,9 @@ class JiraIssue:
             if len(line) > DATA_FIELD_COL_WIDTH:
                 printable_lines = printable_lines + self._split_line(line)
 
+            elif len(line) == 0:
+                pass
+
             else:
                 printable_lines.append(line)
 
@@ -202,7 +205,10 @@ class JiraIssue:
                 if len(new_line) > 0:
                     printable_lines.append(new_line)
             else:
-                printable_lines.append(split_line + '.')
+                if split_line[-1:] != '.':
+                    split_line = split_line + '.'
+
+                printable_lines.append(split_line)
 
         return printable_lines
 
