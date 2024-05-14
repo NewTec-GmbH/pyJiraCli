@@ -309,6 +309,7 @@ class Server:
         """
         data_type = DataType.DATATYPE_SERVER
         _printer = Printer()
+        server_url = None
 
         ret_status = self._crypto_h.decrypt_information(data_type)
 
