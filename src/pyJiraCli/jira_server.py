@@ -41,7 +41,7 @@ from requests import exceptions as reqex
 from urllib3 import exceptions as urlex
 
 from pyJiraCli.crypto_file_handler import Crypto, DataType, DataMembers
-from pyJiraCli.error_handler import Error, ErrorType
+from pyJiraCli.printer import Printer, PrintType
 from pyJiraCli.ret import Ret, Warnings
 
 ################################################################################
@@ -57,7 +57,6 @@ class Server:
     """
     def __init__(self):
         self._crypto_h = Crypto()
-        self._error_h = Error()
         self._server_url = DEFAULT_SERVER
         self._jira_obj = None
         self._search_result = None
@@ -80,15 +79,16 @@ class Server:
             pw (str):       Provided password from the commandline or None.
 
         returns:
-            Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+            Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
         """
         ret_status = Ret.RET_OK
+        _printer = Printer()
         cert_path = self._crypto_h.get_cert_path()
 
         self._get_server_url()
 
         if cert_path is None:
-            self._error_h.print(ErrorType.WARNING, Warnings.WARNING_UNSAVE_CONNECTION)
+            _printer.print_error(PrintType.WARNING, Warnings.WARNING_UNSAVE_CONNECTION)
 
         else:
             self._cert_path = cert_path
@@ -115,7 +115,7 @@ class Server:
 
         if ret_status == Ret.RET_OK and \
            self._user is not None:
-            self._error_h.print_info('Login succesful. Logged in as:', self._user)
+            _printer.print_info('Login succesful. Logged in as:', self._user)
 
         return ret_status
 
@@ -130,16 +130,18 @@ class Server:
             token (str):    API Token for authentification or None.
 
         Returns:
-            Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+            Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
         """
 
         ret_status = Ret.RET_OK
+        _printer = Printer()
+
         cert_path = self._crypto_h.get_cert_path()
 
         self._get_server_url()
 
         if cert_path is None:
-            self._error_h.print(ErrorType.WARNING, Warnings.WARNING_UNSAVE_CONNECTION)
+            _printer.print_error(PrintType.WARNING, Warnings.WARNING_UNSAVE_CONNECTION)
 
         else:
             self._cert_path = cert_path
@@ -155,7 +157,7 @@ class Server:
 
         if ret_status == Ret.RET_OK and \
            self._user is not None:
-            self._error_h.print_info('Login succesful. Logged in as:', self._user)
+            _printer.print_info('Login succesful. Logged in as:', self._user)
 
         self._crypto_h.delete_cert_path()
 
@@ -170,14 +172,15 @@ class Server:
         return self._jira_obj
 
     def search(self, search_str:str, max_results:int) -> Ret:
-        """_summary_
+        """ Search for jira issues with a search string.
+            The maximum of found issues can be set.
 
         Args:
-            search_str (str): _description_
-            max_results (int): _description_
+            search_str (str): The string by which to seach issues for.
+            max_results (int): The maximum number of search results.
 
         Returns:
-            Ret: _description_
+            Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
         """
 
         ret_status = Ret.RET_OK
@@ -197,10 +200,11 @@ class Server:
         return ret_status
 
     def get_search_result(self) -> list:
-        """_summary_
+        """ Return the results from a 
+            succesful search.
 
         Returns:
-            list: _description_
+            list: A list with all the found issues from the last search.
         """
         return self._search_result
 
@@ -211,7 +215,7 @@ class Server:
             token (str):    The API token for login.
 
         Returns:
-            Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+            Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
         """
 
         user = None
@@ -257,7 +261,7 @@ class Server:
             pw (str):       Password for login.
 
         Returns:
-            Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+            Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
         """
 
         ret_status = Ret.RET_OK
@@ -302,6 +306,8 @@ class Server:
             str: The server url.
         """
         data_type = DataType.DATATYPE_SERVER
+        _printer = Printer()
+
         ret_status = self._crypto_h.decrypt_information(data_type)
 
         if ret_status is not Ret.RET_OK:
@@ -311,8 +317,8 @@ class Server:
             if ret_status is not Ret.RET_OK:
                 server_url = DEFAULT_SERVER
 
-                self._error_h.print(ErrorType.WARNING, Warnings.WARNING_SERVER_URL_MISSING)
-                self._error_h.print_info(f"Using hardcoded default url at {DEFAULT_SERVER}")
+                _printer.print_error(PrintType.WARNING, Warnings.WARNING_SERVER_URL_MISSING)
+                _printer.print_info(f"Using hardcoded default url at {DEFAULT_SERVER}")
 
         if ret_status is Ret.RET_OK:
             server_url = self._crypto_h.get_data(DataMembers.DATA_MEM_1)

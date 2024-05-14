@@ -146,7 +146,7 @@ class Crypto:
             data_type (DataType):   Which data_type is to be written (userinfo, token, server).
 
         Returns:
-        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
         """
         # get file paths
         file_path_data, file_path_key = file_paths[data_type]
@@ -199,7 +199,7 @@ class Crypto:
                                     (user, token, server, default servers).
 
         Returns:
-        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
         """
 
         ret_status = Ret.RET_OK
@@ -228,7 +228,7 @@ class Crypto:
             expires (float): Date of expiration of the stored file.
 
         Returns:
-            Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+            Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
         """
         ret_status = Ret.RET_OK
 
@@ -309,9 +309,8 @@ class Crypto:
             and return if the process was succesful.
 
         Returns:
-            Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+            Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
         """
-
         ret_status = Ret.RET_OK
         expires = None
 
@@ -451,7 +450,7 @@ class Crypto:
             data_type (DataType):   The dataType that shall be decrypted.   
 
         Returns:
-        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
         """
         ret_status = Ret.RET_OK
         expires = None

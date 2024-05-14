@@ -42,8 +42,8 @@ from enum import IntEnum
 ################################################################################
 # Classes
 ################################################################################
-class ErrorType(IntEnum):
-    """ Different Error Types.
+class PrintType(IntEnum):
+    """ Different Printer Information Types.
     """
     ERROR = 0
     WARNING = 1

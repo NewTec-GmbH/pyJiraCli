@@ -60,7 +60,7 @@ class FileHandler:
             path (str): Path to the file.
         
         Returns:
-        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
         """
         ret_status = Ret.RET_OK
         folder_path = path.split(os.path.sep)[:-1]
@@ -83,7 +83,7 @@ class FileHandler:
             to the file instance.
 
         Returns:
-            Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+            Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
         """
         ret_status = Ret.RET_OK
 
@@ -132,7 +132,7 @@ class FileHandler:
             file_input (str): A string that'll be written to the file.
 
         Returns:
-            Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+            Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
         """
         ret_status = Ret.RET_OK
 
@@ -153,7 +153,7 @@ class FileHandler:
             file_mode (str): For reading files 'r' or for writing files 'w'.    
 
         Returns:
-            Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+            Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
         """
         ret_status = Ret.RET_OK
 

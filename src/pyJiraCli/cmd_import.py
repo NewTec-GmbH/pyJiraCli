@@ -42,7 +42,7 @@ import ast
 from pyJiraCli.jira_issue import JiraIssue, _const
 from pyJiraCli.jira_server import Server
 from pyJiraCli.file_handler import FileHandler as File
-from pyJiraCli.error_handler import Error
+from pyJiraCli.printer import Printer
 from pyJiraCli.ret import Ret
 ################################################################################
 # Variables
@@ -55,7 +55,6 @@ from pyJiraCli.ret import Ret
 ################################################################################
 # Functions
 ################################################################################
-# subparser for the 'import' command
 def register(subparser) -> object:
     """ Register subparser commands for the import module.
         
@@ -101,12 +100,12 @@ def _cmd_import(input_file:str, user:str, pw:str) -> Ret:
         pw (str):          The Password for login.
         
     Returns:
-        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
     """
     ret_status = Ret.RET_OK
     issue = JiraIssue()
     server = Server()
-    error_h = Error()
+    printer = Printer()
     issue_dict = {}
 
     file = File()
@@ -141,7 +140,7 @@ def _cmd_import(input_file:str, user:str, pw:str) -> Ret:
         ret_status = Ret.RET_ERROR_CREATING_TICKET_FAILED
 
     else:
-        error_h.print_info('Your ticket has been created with key:', issue_key)
+        printer.print_info('Your ticket has been created with key:', issue_key)
 
     server.logout()
 

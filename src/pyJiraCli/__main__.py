@@ -49,7 +49,7 @@ from pyJiraCli import cmd_login
 from pyJiraCli import cmd_delete
 from pyJiraCli import cmd_print
 
-from pyJiraCli.error_handler import Error, ErrorType
+from pyJiraCli.printer import Printer, PrintType
 from pyJiraCli.ret import Ret
 from pyJiraCli.version import __version__, __author__, __email__, __repository__, __license__
 
@@ -127,13 +127,13 @@ def main() -> Ret:
 
     # get parser
     parser = add_parser()
-    error_h = Error()
+    printer = Printer()
     args = parser.parse_args()
 
     # In verbose mode print all program arguments
     if args.verbose:
 
-        error_h.set_verbose()
+        printer.set_verbose()
 
         print("Program arguments: ")
 
@@ -145,7 +145,7 @@ def main() -> Ret:
     ret_status = args.func(args)
 
     if ret_status != Ret.RET_OK:
-        error_h.print(ErrorType.ERROR, ret_status)
+        printer.print_error(PrintType.ERROR, ret_status)
 
     return ret_status
 

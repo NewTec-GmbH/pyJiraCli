@@ -47,7 +47,6 @@ from pyJiraCli.ret import Ret
 ################################################################################
 # Functions
 ################################################################################
-# subparser for the 'print' command
 def register(subparser) -> object:
     """ Register subparser commands for the print module.
         
@@ -75,7 +74,7 @@ def execute(args) -> Ret:
         args (obj): The command line arguments.
         
     Returns:
-        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
     """
     return _cmd_print(args.issue, args.user, args.pw)
 

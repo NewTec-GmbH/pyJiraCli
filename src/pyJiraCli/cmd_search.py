@@ -35,7 +35,7 @@
 # Imports
 ################################################################################
 from pyJiraCli.jira_server import Server
-from pyJiraCli.error_handler import Error
+from pyJiraCli.printer import Printer
 from pyJiraCli.ret import Ret
 ################################################################################
 # Variables
@@ -91,7 +91,7 @@ def execute(args) -> Ret:
         args (obj): The command line arguments.
         
     Returns:
-        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
     """
     return _cmd_search(args.filter, args.user, args.pw, args.max)
 
@@ -104,11 +104,11 @@ def _cmd_search(filter_str:str, user:str, pw:str, results:int) -> Ret:
         pw (str)            Password for login.
     
     Returns:
-        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
     """
     ret_status = Ret.RET_OK
     server = Server()
-    error_h = Error()
+    printer = Printer()
 
     if results is None:
         results=50
@@ -120,8 +120,8 @@ def _cmd_search(filter_str:str, user:str, pw:str, results:int) -> Ret:
 
     if ret_status == Ret.RET_OK:
         found_issues = server.get_search_result()
-        error_h.print_info('Search string:', filter_str)
-        error_h.print_info('Found Issues:', str(len(found_issues)))
+        printer.print_info('Search string:', filter_str)
+        printer.print_info('Found Issues:', str(len(found_issues)))
 
         _print_table(found_issues)
 
