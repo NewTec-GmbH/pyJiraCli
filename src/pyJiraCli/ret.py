@@ -53,8 +53,7 @@ class Ret(IntEnum):
     RET_ERROR_MISSING_LOGIN_DATA     = 9
     RET_ERROR_MISSING_DATATYPE       = 10
     RET_ERROR_CREATING_TICKET_FAILED = 11
-    RET_ERROR_INFO_FILE_EXPIRED      = 12
-    RET_ERROR_INVALID_SEARCH         = 13
+    RET_ERROR_INVALID_SEARCH         = 12
 
 class Warnings(IntEnum):
     """ Th Warnings of the modules."""
@@ -62,6 +61,7 @@ class Warnings(IntEnum):
     WARNING_SERVER_URL_MISSING     = 1
     WARNING_CSV_OPTION_WRONG       = 2
     WARNING_UNKNOWN_FILE_EXTENSION = 3
+    WARNING_INFO_FILE_EXPIRED      = 4
 ################################################################################
 # Functions
 ################################################################################

@@ -44,8 +44,9 @@ import ctypes
 
 from cryptography.fernet import Fernet, InvalidToken
 
-from pyJiraCli.ret import Ret
+from pyJiraCli.ret import Ret, Warnings
 from pyJiraCli.file_handler import FileHandler as File
+from pyJiraCli.printer import Printer, PrintType
 from pyJiraCli.data_type import DataType, DataMembers
 ################################################################################
 # Variables
@@ -150,6 +151,10 @@ class Crypto:
         """
         # get file paths
         file_path_data, file_path_key = file_paths[data_type]
+
+        if os.path.exists(self._homepath + file_path_data):
+            os.remove(self._homepath + file_path_data)
+            os.remove(self._homepath + file_path_key)
 
         ret_status = self._file_data.set_filepath(self._homepath + file_path_data)
         ret_status = self._file_key.set_filepath(self._homepath + file_path_key)
@@ -311,13 +316,13 @@ class Crypto:
         Returns:
             Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
         """
+        printer = Printer()
         ret_status = Ret.RET_OK
         expires = None
 
         cert_info_file  = File()
         cert_exp_file   = File()
         cert_key_file   = File()
-
 
         ret_status = cert_exp_file.set_filepath(self._homepath + CERT_EXP_FILE)
 
@@ -345,20 +350,22 @@ class Crypto:
                 exp_data = f_reader.decrypt(cert_exp_file.get_file_content() \
                                            .encode(encoding='utf-8'))
 
+                self._data1 = data.decode(encoding='utf-8')
+                expires = float(exp_data.decode(encoding='utf-8'))
+
             except InvalidToken as e: # pylint: disable=broad-except
                 print(e)
                 ret_status = Ret.RET_ERROR
 
-        self._data1 = data.decode(encoding='utf-8')
-        expires = float(exp_data.decode(encoding='utf-8'))
-
-        if expires is not None and \
-           expires < time.time():
-            self._expired = True
-
         cert_info_file.close_file()
         cert_exp_file.close_file()
         cert_key_file.close_file()
+
+        if expires is not None and \
+           expires <= time.time():
+            printer.print_error(PrintType.WARNING, Warnings.WARNING_INFO_FILE_EXPIRED)
+            printer.print_info("Expired DatatType:", f"{str(DataType.DATATYPE_CERT_INFO)}")
+            self.delete(DataType.DATATYPE_CERT_INFO)
 
         return ret_status
 
@@ -453,6 +460,7 @@ class Crypto:
         Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
         """
         ret_status = Ret.RET_OK
+        printer = Printer()
         expires = None
         tmp_file = File()
 
@@ -503,14 +511,16 @@ class Crypto:
         else:
             ret_status = Ret.RET_ERROR_NO_USERINFORMATION
 
-        if expires is not None and \
-           expires < time.time():
-            self._expired = True
-
         self._file_key.close_file()
         self._file_data.close_file()
         tmp_file.close_file()
         tmp_file.delete_file()
+
+        if expires is not None and \
+           expires <= time.time():
+            printer.print_error(PrintType.WARNING, Warnings.WARNING_INFO_FILE_EXPIRED)
+            printer.print_info("Expired DatatType:", f"{str(data_type)}")
+            self.delete(data_type)
 
         return ret_status
 

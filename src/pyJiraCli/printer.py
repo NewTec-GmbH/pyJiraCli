@@ -74,7 +74,6 @@ RETURN_MSG = {
                                            "--userinfo, --token, --server or -- default " + \
                                            "option with the login command",
     Ret.RET_ERROR_CREATING_TICKET_FAILED : "creating the ticket on the jira server failed",
-    Ret.RET_ERROR_INFO_FILE_EXPIRED      : "the stored information has expired",
     Ret.RET_ERROR_INVALID_SEARCH         : "search string returned a jira error",
 }
 
@@ -91,7 +90,9 @@ WARN_MSG = {
     Warnings.WARNING_UNKNOWN_FILE_EXTENSION : "The provided file has an unknown file format. " +\
                                               "A new file with the same " +\
                                               "name and a file format according to the " +\
-                                              "-csv option will be created."
+                                              "-csv option will be created.",
+    Warnings.WARNING_INFO_FILE_EXPIRED      : "The stored information has expired " +\
+                                              "and will be deleted",
 }
 
 INFO_TAB = "      "
