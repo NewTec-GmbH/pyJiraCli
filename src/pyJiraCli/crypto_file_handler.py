@@ -215,7 +215,8 @@ class Crypto:
             filepath_data = self._homepath + file_name_data
             filepath_key  = self._homepath + file_name_key
 
-            if not os.path.exists(filepath_data):
+            if not os.path.exists(filepath_data) or \
+               not os.path.exists(filepath_key):
                 ret_status = Ret.RET_ERROR_NO_USERINFORMATION
 
         if ret_status == Ret.RET_OK:

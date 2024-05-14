@@ -103,12 +103,12 @@ def _cmd_import(input_file:str, user:str, pw:str) -> Ret:
         Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
     """
     ret_status = Ret.RET_OK
-    
+
     issue = JiraIssue()
     server = Server()
     printer = Printer()
     file = File()
-    
+
     issue_dict = {}
     issue_key = None
 
