@@ -1,4 +1,7 @@
 """ Command to delete login information.
+    Deletes the stored data files 
+    with Userinformation. Either one, some or all
+    DataTypes can be deleted with one command.
 """
 # BSD 3-Clause License
 #
@@ -46,9 +49,8 @@ DEFAULT_EXPIRATION_TIME = 2 * 30 * 24 * 60 * 60
 ################################################################################
 # Functions
 ################################################################################
-# subparser for the 'set_login' command
 def register(subparser) -> object:
-    """ Register subparser commands for the login module.
+    """ Register subparser commands for the delete module.
         
     Args:
         subparser (obj):   The command subparser object provided via __main__.py.
@@ -77,7 +79,7 @@ def register(subparser) -> object:
     option_grp.add_argument('--server',
                             '-s',
                             action='store_true',
-                            help="second server url")
+                            help="secondary server url")
 
     option_grp.add_argument('--token',
                             '-t',
@@ -101,7 +103,7 @@ def execute(args) -> Ret:
         args (obj): The command line arguments.
         
     Returns:
-        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
     """
     return _cmd_delete(args)
 
@@ -112,7 +114,7 @@ def _cmd_delete(args) -> Ret:
         args (obj): The command line arguments.
         
     Returns:
-        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
     """
     ret_status =  _delete_login_file(args.userinfo,
                                          args.token,
@@ -136,7 +138,7 @@ def _delete_login_file(delete_userinfo:bool,
         delete_certificate (bool):      Flag to delete the server certificate.
 
     Returns:
-        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
     """
     crypto_h = Crypto()
 

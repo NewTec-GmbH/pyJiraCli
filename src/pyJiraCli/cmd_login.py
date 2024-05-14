@@ -51,7 +51,6 @@ DEFAULT_EXPIRATION_TIME = 2 * 30 * 24 * 60 * 60
 ################################################################################
 # Functions
 ################################################################################
-# subparser for the 'set_login' command
 def register(subparser) -> object:
     """ Register subparser commands for the login module.
         
@@ -139,7 +138,7 @@ def execute(args) -> Ret:
         args (obj): The command line arguments.
         
     Returns:
-        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
     """
     return _cmd_login(args)
 
@@ -170,7 +169,7 @@ def _store_login_info(args) -> Ret:
         args (obj): The commnd line arguments.
 
     Returns:
-        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
     """
     ret_status = Ret.RET_OK
 

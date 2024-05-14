@@ -92,7 +92,7 @@ class JiraIssue:
             issue (str):   The issue key in string format.
             
         Returns:
-            Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+            Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
         """
         ret_status = Ret.RET_OK
 
@@ -139,7 +139,15 @@ class JiraIssue:
                 self._print_long_data_line(data_str)
 
     def _print_long_data_line(self, data_str:str) -> None:
+        """ This functio handles long value lines,
+            when printing ticket information.
+            The line will be split into separate parts
+            and each part will printed in a new line
+            aligned with the others.
 
+        Args:
+            data_str (str): The text that shall be printed to the screen.
+        """
         printable_lines = []
 
         lines = data_str.split('\n')  # Split description into lines
@@ -163,16 +171,18 @@ class JiraIssue:
                 print((" " * KEY_FIELD_COL_WIDTH) + line)
 
     def _split_line(self, line:str) -> list:
-        """_summary_
+        """ If a line is still too long after being split into
+            paragraphs, it'll further be split into sentences
+            or words when necessary.
 
         Args:
-            line (str): _description_
+            line (str): The paragraph that is still too long.
 
         Returns:
-            list: _description_
+            list: A list of printable lines.
         """
         printable_lines = []
-        split_lines = line.split('.')
+        split_lines = line.split('. ')
 
         new_line = ""
 
@@ -188,6 +198,9 @@ class JiraIssue:
                     else:
                         printable_lines.append(new_line)
                         new_line = ""
+
+                if len(new_line) > 0:
+                    printable_lines.append(new_line)
             else:
                 printable_lines.append(split_line + '.')
 
@@ -200,7 +213,7 @@ class JiraIssue:
             file_path (str):    The path to the json file. 
             
         Returns:
-            Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+            Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
         """
         ret_status = Ret.RET_OK
 
@@ -223,7 +236,7 @@ class JiraIssue:
             file_path (str):    The path to the csv file. 
             
         Returns:
-            Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+            Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
         """
         ret_status = Ret.RET_OK
 
@@ -251,7 +264,7 @@ class JiraIssue:
             jira (obj):    The jira obj for restAPi connection with server.
             
         Returns:
-            Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+            Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
         """
         issue_key = None
 

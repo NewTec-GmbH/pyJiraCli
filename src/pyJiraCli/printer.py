@@ -36,22 +36,22 @@
 ################################################################################
 from colorama import Fore, Style
 
-from pyJiraCli.error_type import ErrorType
+from pyJiraCli.print_type import PrintType
 from pyJiraCli.ret import Ret, Warnings
 
 ################################################################################
 # Variables
 ################################################################################
 COLOR = {
-    ErrorType.ERROR   : Fore.RED,
-    ErrorType.WARNING : Fore.YELLOW,
-    ErrorType.INFO    : Fore.WHITE
+    PrintType.ERROR   : Fore.RED,
+    PrintType.WARNING : Fore.YELLOW,
+    PrintType.INFO    : Fore.WHITE
 }
 
 TYPE = {
-    ErrorType.ERROR   : "Error",
-    ErrorType.WARNING : "Warning",
-    ErrorType.INFO    : "Info"
+    PrintType.ERROR   : "Error",
+    PrintType.WARNING : "Warning",
+    PrintType.INFO    : "Info"
 }
 
 RETURN_MSG = {
@@ -98,10 +98,12 @@ INFO_TAB = "      "
 ################################################################################
 # Classes
 ################################################################################
-class Error:
-    """ The error handler class.
+class Printer:
+    """ The printer class.
+        Prints errors, warnings and infos. 
+        Infos and warnings are only printed,
+        if verbose mode is set.
     """
-
     _print_verbose = False
 
     def __init__(self):
@@ -112,25 +114,25 @@ class Error:
         """Set verbose mode for all instances of the class."""
         cls._print_verbose = True
 
-    def print(self, err_type:ErrorType, error:Ret=Ret.RET_OK) -> None:
+    def print_error(self, err_type:PrintType, error:Ret=Ret.RET_OK) -> None:
         """ Print the exit error.
     
         Args:
-            type (ErrorType)    The type of the msg (Error, Warning or Info).
+            type (PrintType)    The type of the msg (Error, Warning or Info).
             error (Ret):        The return code for which an error shall be printed.
         """
-        if err_type is ErrorType.WARNING and \
+        if err_type is PrintType.WARNING and \
            self._print_verbose:
             print(COLOR[err_type] + TYPE[err_type] + ": " + Style.RESET_ALL + WARN_MSG[error])
 
-        elif err_type is ErrorType.ERROR:
+        elif err_type is PrintType.ERROR:
             print(COLOR[err_type] + TYPE[err_type] + ": " + Style.RESET_ALL + RETURN_MSG[error])
 
     def print_info(self, *args:str) -> None:
         """ Print the information to the console.
     
         Args:
-            txt (*str):          The information that will be printed.
+            args (*str):          The information that will be printed.
         """
         first_line = True
 

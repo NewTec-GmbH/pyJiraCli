@@ -39,12 +39,12 @@ import os
 
 from pyJiraCli.jira_issue import JiraIssue
 from pyJiraCli.jira_server import Server
-from pyJiraCli.error_handler import Error, ErrorType
+from pyJiraCli.printer import Printer, PrintType
 from pyJiraCli.ret import Ret, Warnings
 ################################################################################
 # Variables
 ################################################################################
-error_h = Error()
+printer = Printer()
 ################################################################################
 # Classes
 ################################################################################
@@ -52,7 +52,6 @@ error_h = Error()
 ################################################################################
 # Functions
 ################################################################################
-# subparser for the 'export'command
 def register(subparser) -> object:
     """ Register the subparser commands for the export module.
         
@@ -94,7 +93,7 @@ def execute(args) -> Ret:
         args (obj): The command line arguments.
         
     Returns:
-        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
     """
     return _cmd_export(args)
 
@@ -118,7 +117,7 @@ def _cmd_export(args) -> Ret:
         args (obj): The command line arguments.
         
     Returns:
-        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
     """
 
     ret_status = Ret.RET_OK
@@ -137,7 +136,7 @@ def _cmd_export(args) -> Ret:
                                             args.pw)
 
     if ret_status == Ret.RET_OK:
-        error_h.print_info('File saved at:', filepath)
+        printer.print_info('File saved at:', filepath)
 
     return ret_status
 
@@ -206,7 +205,7 @@ def _export_ticket_to_file(issue_key:str, filepath:str, user:str, pw:str) -> Ret
         pw (str):         Password for login (if provided).  
 
     Returns:
-        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
     """
 # pylint: disable=R0801
     ret_status = Ret.RET_OK
@@ -257,16 +256,16 @@ def _get_filename(file:str, csv:bool) -> str:
     ext = os.path.splitext(file)[-1]
 
     if ext == '.json' and csv:
-        error_h.print(ErrorType.WARNING, Warnings.WARNING_CSV_OPTION_WRONG )
+        printer.print_error(PrintType.WARNING, Warnings.WARNING_CSV_OPTION_WRONG )
         csv = False
 
     elif ext == '.csv' and not csv:
-        error_h.print(ErrorType.WARNING, Warnings.WARNING_CSV_OPTION_WRONG )
+        printer.print_error(PrintType.WARNING, Warnings.WARNING_CSV_OPTION_WRONG )
         csv = True
 
     elif ext[0] == '.' and \
          ext not in ('.json', '.csv'):
-        error_h.print(ErrorType.WARNING, Warnings.WARNING_UNKNOWN_FILE_EXTENSION)
+        printer.print_error(PrintType.WARNING, Warnings.WARNING_UNKNOWN_FILE_EXTENSION)
 
     filename = file.replace(ext, '')
 
@@ -333,12 +332,12 @@ def _handle_path_to_file(path:str, filename:str, file:str, csv:bool) -> str:
 
     if ext == '.json' and csv or \
        ext == '.csv' and not csv:
-        error_h.print(ErrorType.WARNING, Warnings.WARNING_CSV_OPTION_WRONG)
+        printer.print_error(PrintType.WARNING, Warnings.WARNING_CSV_OPTION_WRONG)
         file_path = path
         csv = ext == '.csv'
 
     if ext not in ('.json', '.csv'):
-        error_h.print(ErrorType.WARNING, Warnings.WARNING_UNKNOWN_FILE_EXTENSION)
+        printer.print_error(PrintType.WARNING, Warnings.WARNING_UNKNOWN_FILE_EXTENSION)
         path.replace(ext, '')
 
         if csv:
