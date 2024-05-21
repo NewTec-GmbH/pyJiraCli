@@ -36,6 +36,7 @@
 # Imports
 ################################################################################
 import os
+from typing import Tuple
 
 from pyJiraCli.jira_issue import JiraIssue
 from pyJiraCli.jira_server import Server
@@ -239,7 +240,7 @@ def _export_ticket_to_file(issue_key:str, filepath:str, user:str, pw:str) -> Ret
 
     return ret_status
 
-def _process_file_option(file:str, csv:bool) -> tuple[str, bool]:
+def _process_file_option(file:str, csv:bool) -> Tuple[str, bool]:
     """ Get the filename. Handle possible extension errors 
         with the file provided via the -file option.
         The returned filename will be without extension.
