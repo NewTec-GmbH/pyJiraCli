@@ -161,7 +161,7 @@ def _get_filepath(issue:str, file:str, path:str, csv:bool) -> str:
     if file is None:
         filename = issue
     else:
-        filename, csv = _get_filename(file, csv)
+        filename, csv = _process_file_option(file, csv)
 
     if path is None:
         # save file in project folder
@@ -239,18 +239,19 @@ def _export_ticket_to_file(issue_key:str, filepath:str, user:str, pw:str) -> Ret
 
     return ret_status
 
-
-def _get_filename(file:str, csv:bool) -> str:
+def _process_file_option(file:str, csv:bool) -> tuple[str, bool]:
     """ Get the filename. Handle possible extension errors 
         with the file provided via the -file option.
         The returned filename will be without extension.
 
     Args:
-        file (str):The -file option string provided via the console.
+        file (str): The -file option string provided via the console.
 
     Returns:
-        str: The filename according to the -file option.
-             The extension will be added later.
+        tuple[str, bool]:   str:  The filename according to the -file option.
+                                  The extension will be added later.
+                            bool: The new csv flag, The flag can change,
+                                  if it doesnt match the provided filename.
     """
     # check for file extension
     ext = os.path.splitext(file)[-1]
@@ -282,7 +283,7 @@ def _get_path(path:str, filename:str, file:str, csv:bool) -> str:
 
     Args:
         path (str): The path provided by the -path option.
-        filename (str): the filename that was returned by _get_filename().
+        filename (str): the filename that was returned by _process_file_option().
         file (str): The file provided by the -file option.
         csv (bool): The csv flag entered with the -csv option.
 
@@ -321,7 +322,7 @@ def _handle_path_to_file(path:str, filename:str, file:str, csv:bool) -> str:
 
     Args:
         path (str): The path provided by the -path option.
-        filename (str): the filename that was returned by _get_filename().
+        filename (str): the filename that was returned by _process_file_option().
         file (str): The file provided by the -file option.
         csv (bool): The csv flag entered with the -csv option.
 
