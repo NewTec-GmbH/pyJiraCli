@@ -36,6 +36,7 @@
 # Imports
 ################################################################################
 from pyJiraCli.crypto_file_handler import Crypto, DataType
+from pyJiraCli.printer import Printer
 from pyJiraCli.ret import Ret
 ################################################################################
 # Variables
@@ -117,10 +118,10 @@ def _cmd_delete(args) -> Ret:
         Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
     """
     ret_status =  _delete_login_file(args.userinfo,
-                                         args.token,
-                                         args.server,
-                                         args.default,
-                                         args.cert)
+                                     args.token,
+                                     args.server,
+                                     args.default,
+                                     args.cert)
     return ret_status
 
 def _delete_login_file(delete_userinfo:bool,
@@ -140,27 +141,37 @@ def _delete_login_file(delete_userinfo:bool,
     Returns:
         Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
     """
+
+    printer = Printer()
     crypto_h = Crypto()
+
+    printer.print_info("Deleted stored Information for:")
 
     if delete_userinfo:
         crypto_h.delete(DataType.DATATYPE_USER_INFO)
+        printer.print_info(f"{str(DataType.DATATYPE_USER_INFO)}")
 
     if delete_token:
         crypto_h.delete(DataType.DATATYPE_TOKEN_INFO)
+        printer.print_info(f"{str(DataType.DATATYPE_TOKEN_INFO)}")
 
     if delete_server:
         crypto_h.delete(DataType.DATATYPE_SERVER)
+        printer.print_info(f"{str(DataType.DATATYPE_SERVER)}")
 
     if delete_default_server:
         crypto_h.delete(DataType.DATATYPE_SERVER_DEFAULT)
+        printer.print_info(f"{str(DataType.DATATYPE_SERVER_DEFAULT)}")
 
     if delete_certificate:
         crypto_h.delete_cert_path()
         crypto_h.delete(DataType.DATATYPE_CERT_INFO)
+        printer.print_info(f"{str(DataType.DATATYPE_CERT_INFO)}")
 
     elif not delete_userinfo and not delete_token and \
          not delete_server and not delete_default_server and \
          not delete_certificate:
         crypto_h.delete_all()
+        printer.print_info("All Datatypes and remove the .logindata folder.")
 
     return Ret.RET_OK

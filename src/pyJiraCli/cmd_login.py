@@ -34,10 +34,12 @@
 # Imports
 ################################################################################
 import time
+from datetime import datetime
 
 from pyJiraCli.crypto_file_handler import Crypto, DataType
 from pyJiraCli.jira_server import Server
 from pyJiraCli.ret import Ret
+from pyJiraCli.printer import Printer
 
 ################################################################################
 # Variables
@@ -194,20 +196,24 @@ def _store_login_info(args) -> Ret:
     return ret_status
 
 def _store_information(data1:str, data2:str, args:object, expiration_date:float) -> Ret:
-    """_summary_
+    """ Store the information in encrypted files
+        with the crypto_filehandler.
 
     Args:
-        data1 (str): _description_
-        data2 (str): _description_
-        args (object): _description_
-        expiration_date (float): _description_
+        data1 (str): Data1 is either Token, Server, Certificate path or Username.
+        data2 (str): Data2 is a password if data1 is a username.
+        args (object): The command line arguments.
+        expiration_date (float): The expiration date for this information.
 
     Returns:
-        Ret: _description_
+        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
     """
 
     crypto_h = Crypto()
     server = Server()
+    printer = Printer()
+
+    data_type = None
 
     if args.server or args.default:
         if args.default:
@@ -219,6 +225,7 @@ def _store_information(data1:str, data2:str, args:object, expiration_date:float)
         ret_status = crypto_h.encrypt_information(expiration_date, data_type)
 
     elif args.userinfo:
+        data_type = DataType.DATATYPE_USER_INFO
         if data2 is None:
             ret_status = Ret.RET_ERROR_MISSING_UNSERINFO
 
@@ -230,6 +237,7 @@ def _store_information(data1:str, data2:str, args:object, expiration_date:float)
             ret_status = crypto_h.encrypt_information(expiration_date, DataType.DATATYPE_USER_INFO)
 
     elif args.token:
+        data_type = DataType.DATATYPE_TOKEN_INFO
         ret_status = server.try_login(None, None, data1)
 
         if ret_status == Ret.RET_OK:
@@ -237,10 +245,23 @@ def _store_information(data1:str, data2:str, args:object, expiration_date:float)
             ret_status = crypto_h.encrypt_information(expiration_date, DataType.DATATYPE_TOKEN_INFO)
 
     elif args.cert:
+        data_type = DataType.DATATYPE_CERT_INFO
         ret_status = crypto_h.store_certificate(data1, expiration_date)
 
     else:
         ret_status = Ret.RET_ERROR_MISSING_DATATYPE
+
+    if ret_status == Ret.RET_OK:
+        # Convert epoch time to datetime object
+        dt = datetime.fromtimestamp(expiration_date)
+
+        # Format datetime object to desired string format
+        formatted_time = dt.strftime('%d/%m/%Y %H:%M:%S')
+
+        printer.print_info("Stored the information for DataType:",
+                            str(data_type))
+        printer.print_info("Expiration date for the data:",
+                            formatted_time)
 
     return ret_status
 
@@ -260,7 +281,7 @@ def _get_expiration_date_(args) -> float:
     if args.min:
         exp_time = input_int * 60
 
-    elif args.days:
+    elif args.day:
         exp_time = input_int * 24 * 60 * 60
 
     else:
