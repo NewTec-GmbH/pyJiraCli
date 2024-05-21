@@ -1,5 +1,5 @@
 """ Command to store login information.
-    Stores User, pw and a server url in an encoded file
+    Stores User, pw and a server url seperately in encoded files.
 """
 # BSD 3-Clause License
 #

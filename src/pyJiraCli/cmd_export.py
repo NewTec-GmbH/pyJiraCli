@@ -142,29 +142,29 @@ def _cmd_export(args) -> Ret:
     return ret_status
 
 
-def _get_filepath(issue:str, file:str, path:str, csv:bool) -> str:
+def _get_filepath(issue:str, arg_file:str, arg_path:str, csv:bool) -> str:
     """ Put together the output file path.
         If no filename was provided with file option, 
         the issue key will be used as filename.
         The file extension (json/csv) will be set according to csv option.
        
     Args:
-        issue (str): The issue key (used as filename if no name or file provided).
-        file (str):  The filename for the file which will be created.
-        path (str):  Path to the folder where the file shall be stored.
-        csv (bool):  Flag, if true save the file in csv format.
+        issue (str):     The issue key (used as filename if no name or file provided).
+        arg_file (str):  The -file argument from the command line.
+        arg_path (str):  The -path argument from the dommand line.
+        csv (bool):      Flag, if true save the file in csv format.
 
     Returns:
         str:   Path where the ticket file will be stored or None.
     """
     file_path = None
 
-    if file is None:
+    if arg_file is None:
         filename = issue
     else:
-        filename, csv = _process_file_option(file, csv)
+        filename, csv = _process_file_argument(arg_file, csv)
 
-    if path is None:
+    if arg_path is None:
         # save file in project folder
 
         path_comps = filename.split('/')
@@ -191,7 +191,7 @@ def _get_filepath(issue:str, file:str, path:str, csv:bool) -> str:
 
     else:
         # check if provided path or file is viable
-        file_path = _get_path(path, filename, file, csv)
+        file_path = _process_path_argument(arg_path, filename, arg_file, csv)
 
     return file_path
 
@@ -240,13 +240,14 @@ def _export_ticket_to_file(issue_key:str, filepath:str, user:str, pw:str) -> Ret
 
     return ret_status
 
-def _process_file_option(file:str, csv:bool) -> Tuple[str, bool]:
+def _process_file_argument(arg_file:str, csv:bool) -> Tuple[str, bool]:
     """ Get the filename. Handle possible extension errors 
-        with the file provided via the -file option.
+        with the filename provided via the -file option.
+        If a path to a file was supplied, the path will be kept.
         The returned filename will be without extension.
 
     Args:
-        file (str): The -file option string provided via the console.
+        arg_file (str): The -file option string provided via the console.
 
     Returns:
         tuple[str, bool]:   str:  The filename according to the -file option.
@@ -255,10 +256,10 @@ def _process_file_option(file:str, csv:bool) -> Tuple[str, bool]:
                                   if it doesnt match the provided filename.
     """
     # check for file extension
-    ext = os.path.splitext(file)[-1]
+    ext = os.path.splitext(arg_file)[-1]
 
     if len(ext) == 0:
-        filename = file
+        filename = arg_file
 
     else:
         if ext == '.json' and csv:
@@ -273,36 +274,40 @@ def _process_file_option(file:str, csv:bool) -> Tuple[str, bool]:
              ext not in ('.json', '.csv'):
             printer.print_error(PrintType.WARNING, Warnings.WARNING_UNKNOWN_FILE_EXTENSION)
 
-    filename = file.replace(ext, '')
+    filename = arg_file.replace(ext, '')
 
     return filename, csv
 
 
-def _get_path(path:str, filename:str, file:str, csv:bool) -> str:
+def _process_path_argument(arg_path:str, filename:str, arg_file:str, csv:bool) -> str:
     """ Get the path to the output file with 
         the provided -file and -path options.
+        If the -file argument provides a path too, 
+        the path from the -path option will be used,
+        in combination with the filename from the
+        -file option. 
 
     Args:
-        path (str): The path provided by the -path option.
-        filename (str): the filename that was returned by _process_file_option().
-        file (str): The file provided by the -file option.
+        arg_path (str): The path provided by the -path option.
+        filename (str): the filename that was returned by _process_file_argument().
+        arg_file (str): The file provided by the -file option.
         csv (bool): The csv flag entered with the -csv option.
 
     Returns:
         str: The final path where the output file will be stored. 
     """
-    if os.path.exists(path):
+    if os.path.exists(arg_path):
 
         # check if its a path to a file or a folderss
-        if os.path.isfile(path):
-            file_path = _handle_path_to_file(path, filename, file, csv)
+        if os.path.isfile(arg_path):
+            file_path = _handle_path_to_file(arg_path, filename, arg_file, csv)
 
         else:
             # folder to save files was provided
             if csv:
-                file_path = os.path.join(path, f'{filename}.csv')
+                file_path = os.path.join(arg_path, f'{filename}.csv')
             else:
-                file_path = os.path.join(path, f'{filename}.json')
+                file_path = os.path.join(arg_path, f'{filename}.json')
 
         file_path_comps = file_path.split('/')
 
@@ -317,45 +322,49 @@ def _get_path(path:str, filename:str, file:str, csv:bool) -> str:
 
     return file_path
 
-def _handle_path_to_file(path:str, filename:str, file:str, csv:bool) -> str:
-    """ Handle the output file path if a file location
-        was provided with the -path option.
+def _handle_path_to_file(arg_path:str, filename:str, arg_file:str, csv:bool) -> str:
+    """ Process the final filepath if both the -path argument contains a file.
+        If the file is viable and no filename was provided via the -file argument, 
+        the file will from -path will be used.
+        If a filename is supplied with -file, the filename in the -path folder
+        will be replaced with the filename from the
+        -file argument.
 
     Args:
-        path (str): The path provided by the -path option.
-        filename (str): the filename that was returned by _process_file_option().
-        file (str): The file provided by the -file option.
+        arg_path (str): The path provided by the -path option.
+        filename (str): the filename that was returned by _process_file_argument().
+        arg_file (str): The file provided by the -file option.
         csv (bool): The csv flag entered with the -csv option.
 
     Returns:
-        str: Returns the file path is a path was provided with the -file option.
+        str: Returns the final filepath after the command arguments have been processed.
     """
 
     # check for file extension
-    ext = os.path.splitext(path)[-1]
+    ext = os.path.splitext(arg_path)[-1]
 
     file_path = None
 
     if ext == '.json' and csv or \
        ext == '.csv' and not csv:
         printer.print_error(PrintType.WARNING, Warnings.WARNING_CSV_OPTION_WRONG)
-        file_path = path
+        file_path = arg_path
         csv = ext == '.csv'
 
     if ext not in ('.json', '.csv'):
         printer.print_error(PrintType.WARNING, Warnings.WARNING_UNKNOWN_FILE_EXTENSION)
-        path.replace(ext, '')
+        arg_path.replace(ext, '')
 
         if csv:
-            file_path = os.path.join(path, f'{filename}.csv')
+            file_path = os.path.join(arg_path, f'{filename}.csv')
         else:
-            file_path = os.path.join(path, f'{filename}.json')
+            file_path = os.path.join(arg_path, f'{filename}.json')
 
     else:
-        file_path = path
+        file_path = arg_path
 
-    if file is not None:
-        path_comps = path.split('/')
+    if arg_file is not None:
+        path_comps = arg_path.split('/')
 
         if len(path_comps) > 1:
             if -1 == path_comps[0].find('\\'):
