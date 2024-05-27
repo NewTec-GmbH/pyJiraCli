@@ -119,8 +119,7 @@ $ pyJiraCli login --help
       --token, -t         delete API token information only
 
 ## search 
-**TODO** \
-  search the jira server for issues with a filter string
+  search the jira server for issues with a filter string.
     
 ```cmd
 $ pyJiraCli search --help
@@ -134,6 +133,17 @@ $ pyJiraCli search --help
       -h, --help        show this help message and exit
       -user <username>  jira usertname if not provided with set_login
       -pw <password>    jira password if not provided with set_login
+
+  
+  If you need help working with filters, check out https://confluence.atlassian.com/jirasoftwareserver/advanced-searching-939938733.html \
+  Also, the results can be ordered by command, just add "order by" to your cmd 
+
+  example:
+  ```cmd
+  pyJiraCli search "project=PROJ order by created desc" -max 50
+  ```
+
+  This will find the 50 latest issues in project PROJ and display them by descending creation date. 
 
 ## print 
 **TODO** \

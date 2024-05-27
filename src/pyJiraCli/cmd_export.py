@@ -25,7 +25,7 @@
 # AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 # IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 # DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL-
 # DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
 # SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
@@ -36,14 +36,16 @@
 # Imports
 ################################################################################
 import os
+from typing import Tuple
 
 from pyJiraCli.jira_issue import JiraIssue
 from pyJiraCli.jira_server import Server
-from pyJiraCli.ret import Ret
+from pyJiraCli.printer import Printer, PrintType
+from pyJiraCli.ret import Ret, Warnings
 ################################################################################
 # Variables
 ################################################################################
-
+printer = Printer()
 ################################################################################
 # Classes
 ################################################################################
@@ -51,7 +53,6 @@ from pyJiraCli.ret import Ret
 ################################################################################
 # Functions
 ################################################################################
-# subparser for the 'export'command
 def register(subparser) -> object:
     """ Register the subparser commands for the export module.
         
@@ -93,7 +94,7 @@ def execute(args) -> Ret:
         args (obj): The command line arguments.
         
     Returns:
-        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
     """
     return _cmd_export(args)
 
@@ -117,15 +118,15 @@ def _cmd_export(args) -> Ret:
         args (obj): The command line arguments.
         
     Returns:
-        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
     """
 
     ret_status = Ret.RET_OK
 
     filepath = _get_filepath(args.issue,
-                                         args.file,
-                                         args.path,
-                                         args.csv)
+                             args.file,
+                             args.path,
+                             args.csv)
     if filepath is None:
         ret_status = Ret.RET_ERROR_FILEPATH_INVALID
 
@@ -133,69 +134,68 @@ def _cmd_export(args) -> Ret:
         ret_status = _export_ticket_to_file(args.issue,
                                             filepath,
                                             args.user,
-                                            args.pw,
-                                            args.csv)
+                                            args.pw)
+
+    if ret_status == Ret.RET_OK:
+        printer.print_info('File saved at:', filepath)
 
     return ret_status
 
 
-def _get_filepath(issue:str, file:str, path:str, csv:bool) -> str:
+def _get_filepath(issue:str, arg_file:str, arg_path:str, csv:bool) -> str:
     """ Put together the output file path.
         If no filename was provided with file option, 
         the issue key will be used as filename.
         The file extension (json/csv) will be set according to csv option.
        
     Args:
-        issue (str): The issue key (used as filename if no name or file provided).
-        file (str):  The filename for the file which will be created.
-        path (str):  Path to the folder where the file shall be stored.
-        csv (bool):  Flag, if true save the file in csv format.
+        issue (str):     The issue key (used as filename if no name or file provided).
+        arg_file (str):  The -file argument from the command line.
+        arg_path (str):  The -path argument from the dommand line.
+        csv (bool):      Flag, if true save the file in csv format.
 
     Returns:
         str:   Path where the ticket file will be stored or None.
     """
     file_path = None
 
-    if file is None:
+    if arg_file is None:
         filename = issue
     else:
-        filename = file
+        filename, csv = _process_file_argument(arg_file, csv)
 
-    if path is None:
+    if arg_path is None:
         # save file in project folder
-        if csv:
-            file_path = f'.\\{filename}.csv'
+
+        path_comps = filename.split('/')
+
+        if len(path_comps) == 1:
+            path_comps = filename.split('\\')
+
+        if len(path_comps) > 1:
+            if -1 == path_comps[0].find('\\'):
+                path_comps[0] += '\\'
+
+            file_path = os.path.join(*path_comps)
+
+            if csv:
+                file_path = f'{file_path}.csv'
+            else:
+                file_path = f'{file_path}.json'
+
         else:
-            file_path = f'.\\{filename}.json'
+            if csv:
+                file_path = f'.\\{filename}.csv'
+            else:
+                file_path = f'.\\{filename}.json'
 
     else:
         # check if provided path or file is viable
-        if os.path.exists(path):
-
-            # check if its a path to a file or a folderss
-            if os.path.isfile(path):
-
-                # check for file extension
-                ext = os.path.splitext(path)[-1]
-
-                if ext == '.json' and not csv or \
-                   ext == '.csv' and csv:
-                    file_path = path
-
-                else:
-                    file_path = None
-            else:
-                # folder to save files was provided
-                if csv:
-                    file_path = os.path.join(path, f'{filename}.csv')
-                else:
-                    file_path = os.path.join(path, f'{filename}.json')
-        else:
-            file_path = None
+        file_path = _process_path_argument(arg_path, filename, arg_file, csv)
 
     return file_path
 
-def _export_ticket_to_file(issue_key:str, filepath:str, user:str, pw:str, csv:bool) -> Ret:
+def _export_ticket_to_file(issue_key:str, filepath:str, user:str, pw:str) -> Ret:
     """ Export a jira issue from the server
         and write the issue data to a csv or json file.
         
@@ -204,15 +204,12 @@ def _export_ticket_to_file(issue_key:str, filepath:str, user:str, pw:str, csv:bo
         filepath (str):   The path to the output file.
         user (str):       User name for login (if provided).
         pw (str):         Password for login (if provided).  
-        csv (bool):       A flag, if true save the file in csv format \
-                          else as a json file (default).
 
     Returns:
-        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
     """
-
+# pylint: disable=R0801
     ret_status = Ret.RET_OK
-
     issue = JiraIssue()
     server = Server()
 
@@ -223,6 +220,12 @@ def _export_ticket_to_file(issue_key:str, filepath:str, user:str, pw:str, csv:bo
         jira = server.get_handle()
         # export issue from jira server
         ret_status = issue.export_issue(jira, issue_key)
+# pylint: enable=R0801
+
+    csv = False
+
+    if os.path.splitext(filepath)[-1] == '.csv':
+        csv = True
 
     if ret_status == Ret.RET_OK:
         if csv:
@@ -233,4 +236,143 @@ def _export_ticket_to_file(issue_key:str, filepath:str, user:str, pw:str, csv:bo
             # export file to json format
             ret_status = issue.create_json(filepath)
 
+    server.logout()
+
     return ret_status
+
+def _process_file_argument(arg_file:str, csv:bool) -> Tuple[str, bool]:
+    """ Get the filename. Handle possible extension errors 
+        with the filename provided via the -file option.
+        If a path to a file was supplied, the path will be kept.
+        The returned filename will be without extension.
+
+    Args:
+        arg_file (str): The -file option string provided via the console.
+
+    Returns:
+        tuple[str, bool]:   str:  The filename according to the -file option.
+                                  The extension will be added later.
+                            bool: The new csv flag, The flag can change,
+                                  if it doesnt match the provided filename.
+    """
+    # check for file extension
+    ext = os.path.splitext(arg_file)[-1]
+
+    if len(ext) == 0:
+        filename = arg_file
+
+    else:
+        if ext == '.json' and csv:
+            printer.print_error(PrintType.WARNING, Warnings.WARNING_CSV_OPTION_WRONG )
+            csv = False
+
+        elif ext == '.csv' and not csv:
+            printer.print_error(PrintType.WARNING, Warnings.WARNING_CSV_OPTION_WRONG )
+            csv = True
+
+        elif ext[0] == '.' and \
+             ext not in ('.json', '.csv'):
+            printer.print_error(PrintType.WARNING, Warnings.WARNING_UNKNOWN_FILE_EXTENSION)
+
+    filename = arg_file.replace(ext, '')
+
+    return filename, csv
+
+
+def _process_path_argument(arg_path:str, filename:str, arg_file:str, csv:bool) -> str:
+    """ Get the path to the output file with 
+        the provided -file and -path options.
+        If the -file argument provides a path too, 
+        the path from the -path option will be used,
+        in combination with the filename from the
+        -file option. 
+
+    Args:
+        arg_path (str): The path provided by the -path option.
+        filename (str): the filename that was returned by _process_file_argument().
+        arg_file (str): The file provided by the -file option.
+        csv (bool): The csv flag entered with the -csv option.
+
+    Returns:
+        str: The final path where the output file will be stored. 
+    """
+    if os.path.exists(arg_path):
+
+        # check if its a path to a file or a folderss
+        if os.path.isfile(arg_path):
+            file_path = _handle_path_to_file(arg_path, filename, arg_file, csv)
+
+        else:
+            # folder to save files was provided
+            if csv:
+                file_path = os.path.join(arg_path, f'{filename}.csv')
+            else:
+                file_path = os.path.join(arg_path, f'{filename}.json')
+
+        file_path_comps = file_path.split('/')
+
+        if len(file_path_comps) > 1:
+
+            if -1 == file_path_comps[0].find('\\'):
+                file_path_comps[0] += '\\'
+                file_path = os.path.join(*file_path_comps)
+
+    else:
+        file_path = None
+
+    return file_path
+
+def _handle_path_to_file(arg_path:str, filename:str, arg_file:str, csv:bool) -> str:
+    """ Process the final filepath if both the -path argument contains a file.
+        If the file is viable and no filename was provided via the -file argument, 
+        the file will from -path will be used.
+        If a filename is supplied with -file, the filename in the -path folder
+        will be replaced with the filename from the
+        -file argument.
+
+    Args:
+        arg_path (str): The path provided by the -path option.
+        filename (str): the filename that was returned by _process_file_argument().
+        arg_file (str): The file provided by the -file option.
+        csv (bool): The csv flag entered with the -csv option.
+
+    Returns:
+        str: Returns the final filepath after the command arguments have been processed.
+    """
+
+    # check for file extension
+    ext = os.path.splitext(arg_path)[-1]
+
+    file_path = None
+
+    if ext == '.json' and csv or \
+       ext == '.csv' and not csv:
+        printer.print_error(PrintType.WARNING, Warnings.WARNING_CSV_OPTION_WRONG)
+        file_path = arg_path
+        csv = ext == '.csv'
+
+    if ext not in ('.json', '.csv'):
+        printer.print_error(PrintType.WARNING, Warnings.WARNING_UNKNOWN_FILE_EXTENSION)
+        arg_path.replace(ext, '')
+
+        if csv:
+            file_path = os.path.join(arg_path, f'{filename}.csv')
+        else:
+            file_path = os.path.join(arg_path, f'{filename}.json')
+
+    else:
+        file_path = arg_path
+
+    if arg_file is not None:
+        path_comps = arg_path.split('/')
+
+        if len(path_comps) > 1:
+            if -1 == path_comps[0].find('\\'):
+                path_comps[0] += '\\'
+
+            if csv:
+                file_path = os.path.join(*path_comps[:-1], f'{filename}.csv')
+            else:
+                file_path = os.path.join(*path_comps[:-1], f'{filename}.json')
+
+    return file_path

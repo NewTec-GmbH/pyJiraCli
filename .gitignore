@@ -153,17 +153,20 @@ dmypy.json
 cython_debug/
 
 # user defined ignores
-#vscode workspace
+# vscode workspace
 .vscode/
 
-# dont include pngs of diagrams
+# pngs of diagrams
 design/*.png 
 
-# ignore documentation
+# documentationsssssssss
 docs/
 
 # imported issues
 issues/
+
+# test files
+test.py
 
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can

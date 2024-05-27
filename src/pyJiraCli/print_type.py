@@ -1,6 +1,6 @@
-""" Contains the print error function and 
-    the error messages corresponding to 
-    the exit codes."""
+"""  The different print msg types
+     (error, warning, info).
+"""
 
 # BSD 3-Clause License
 #
@@ -34,42 +34,20 @@
 ################################################################################
 # Imports
 ################################################################################
-from pyJiraCli.ret import Ret
+from enum import IntEnum
 ################################################################################
 # Variables
 ################################################################################
-CRED = '\033[91m'
-CEND = '\033[0m'
 
-RETURN_MSG = {
-    Ret.RET_OK                           : "Process succesful",
-    Ret.RET_ERROR                        : "Error occured",
-    Ret.RET_ERROR_JIRA_LOGIN             : "Login to jira server was not possible",
-    Ret.RET_ERROR_FILEPATH_INVALID       : "Folder or File doesn't exist or" + \
-                                           "the file has the wrong format (only json or csv).",
-    Ret.RET_ERROR_WORNG_FILE_FORMAT      : "Wrong file format for save file provided",
-    Ret.RET_ERROR_ISSUE_NOT_FOUND        : "Jira Issue not found",
-    Ret.RET_ERROR_FILE_OPEN_FAILED       : "opening File failed",
-    Ret.RET_ERROR_NO_USERINFORMATION     : "no user information was provided via cli " + \
-                                           "or stored information file",
-    Ret.RET_ERROR_MISSING_UNSERINFO      : "both -user and -pw option must be provided " + \
-                                           "to store useriformation",
-    Ret.RET_ERROR_MISSING_ARG_INFO       : "At least one of the options must be provided: " + \
-                                           "(-user, -pw), -server or -delete",
-    Ret.RET_ERROR_CREATING_TICKET_FAILED : "creating the ticket on the jira server failed",
-    Ret.RET_ERROR_INFO_FILE_EXPIRED      : "the stored information has expired"
-}
 ################################################################################
 # Classes
 ################################################################################
-
+class PrintType(IntEnum):
+    """ Different Printer Information Types.
+    """
+    ERROR = 0
+    WARNING = 1
+    INFO = 2
 ################################################################################
 # Functions
 ################################################################################
-def prerr(error:Ret) -> None:
-    """ Print the exit error.
-    
-    Args:
-        error (Ret):    The return code for which an error shall be printed.
-    """
-    print(CRED, "Error: ", RETURN_MSG[error], CEND)

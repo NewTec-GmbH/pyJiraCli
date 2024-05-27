@@ -37,10 +37,6 @@
 # Variables
 ################################################################################
 ISSUE_TYPES = {
-    """ This Dictionbary contains information,
-        about which ID corrsponds to which issuetype of
-        a jira issue.
-    """
     '1' : 'Bug',
     '2' : 'Neue Funktion',
     '3' : 'Aufgabe',
@@ -52,10 +48,6 @@ ISSUE_TYPES = {
 }
 
 ISSUE_PRIORITIES = {
-    """ This Dictionbary contains information,
-        about which ID corrsponds to which priority of
-        a jira issue.
-    """
     '1' : 'Blocker',
     '2' : 'Critical',
     '3' : 'Major (Default)',

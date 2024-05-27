@@ -51,6 +51,7 @@ class DataType (IntEnum):
     DATATYPE_TOKEN_INFO      = 1
     DATATYPE_SERVER          = 2
     DATATYPE_SERVER_DEFAULT  = 3
+    DATATYPE_CERT_INFO       = 4
 
 class DataMembers(IntEnum):
     """ Enum to decide which data member of the crypto class to get with the
