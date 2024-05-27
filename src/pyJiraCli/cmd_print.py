@@ -33,6 +33,8 @@
 ################################################################################
 # Imports
 ################################################################################
+from pyJiraCli.jira_server import Server
+from pyJiraCli.jira_issue import JiraIssue
 from pyJiraCli.ret import Ret
 ################################################################################
 # Variables
@@ -45,7 +47,6 @@ from pyJiraCli.ret import Ret
 ################################################################################
 # Functions
 ################################################################################
-# subparser for the 'print' command
 def register(subparser) -> object:
     """ Register subparser commands for the print module.
         
@@ -73,22 +74,37 @@ def execute(args) -> Ret:
         args (obj): The command line arguments.
         
     Returns:
-        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
     """
     return _cmd_print(args.issue, args.user, args.pw)
 
-def _cmd_print(issue:str, user:str, pw:str) -> Ret:
-    """ Load the data of the provided issue key and 
+def _cmd_print(issue_key:str, user:str, pw:str) -> Ret:
+    """Load the data of the provided issue key and 
         and print it to the command line.
 
     Args:
-        issue (str): the issue key
+        issue_key (str): the unique issue key in string format
         user (str): username for login
         pw (str): password for login
-    
-    Returns:
-        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
-    """
-    print(f'print details for issue {issue}{user}{pw}')
 
-    return Ret.RET_OK
+    Returns:
+        retval.Ret: return status of the module
+    """
+# pylint: disable=R0801
+    ret_status = Ret.RET_OK
+    issue = JiraIssue()
+    server = Server()
+
+    ret_status = server.login(user, pw)
+    if ret_status == Ret.RET_OK:
+        jira = server.get_handle()
+        # export issue from jira server
+        ret_status = issue.export_issue(jira, issue_key)
+# pylint: enable=R0801
+
+    if ret_status == Ret.RET_OK:
+        issue.print_issue()
+
+    server.logout()
+
+    return ret_status

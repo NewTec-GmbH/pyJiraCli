@@ -34,10 +34,22 @@
 ################################################################################
 # Imports
 ################################################################################
+from pyJiraCli.jira_server import Server
+from pyJiraCli.printer import Printer
 from pyJiraCli.ret import Ret
 ################################################################################
 # Variables
 ################################################################################
+
+HEADER = ['Key', 'Project', 'Summary', 'Created', 'Creator']
+
+HEADER_COL_WIDTH = {
+    'Key'     : 22,
+    'Project' : 18,
+    'Summary' : 50,
+    'Created' : 12,
+    'Creator' : 15
+}
 
 ################################################################################
 # Classes
@@ -65,6 +77,10 @@ def register(subparser) -> object:
                             help="filter string according to \
                                   which issue are to be searched")
 
+    sb_search.add_argument('-max',
+                            type=int,
+                            help="max number of entries")
+
     return sb_search
 
 def execute(args) -> Ret:
@@ -75,11 +91,11 @@ def execute(args) -> Ret:
         args (obj): The command line arguments.
         
     Returns:
-        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
     """
-    return _cmd_search(args.filter, args.user, args.pw)
+    return _cmd_search(args.filter, args.user, args.pw, args.max)
 
-def _cmd_search(filter_str:str, user:str, pw:str) -> Ret:
+def _cmd_search(filter_str:str, user:str, pw:str, results:int) -> Ret:
     """ Search tickets with a provided filter or search string.
     
     Args:
@@ -88,8 +104,44 @@ def _cmd_search(filter_str:str, user:str, pw:str) -> Ret:
         pw (str)            Password for login.
     
     Returns:
-        Ret:   Returns Ret.RET_OK if succesfull or the corresponding error code if not.
+        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
     """
-    print(f"searching for issues with filter {filter_str, user, pw}")
+    ret_status = Ret.RET_OK
+    server = Server()
+    printer = Printer()
 
-    return Ret.RET_OK
+    if results is None:
+        results=50
+
+    ret_status = server.login(user, pw)
+
+    if ret_status == Ret.RET_OK:
+        ret_status = server.search(filter_str, results)
+
+    if ret_status == Ret.RET_OK:
+        found_issues = server.get_search_result()
+        printer.print_info('Search string:', filter_str)
+        printer.print_info('Found Issues:', str(len(found_issues)))
+
+        _print_table(found_issues)
+
+    server.logout()
+
+    return ret_status
+
+def _print_table(issues:list):
+    """ Print a quick overview vor all issues in the list.
+
+    Args:
+        issues (list): list with all found issues
+    """
+    for header in HEADER:
+        print(f"{header:<{HEADER_COL_WIDTH[header]}}", end="")
+    print()
+
+    for issue in issues:
+        print(f"{issue.key:<{HEADER_COL_WIDTH['Key']}}", end="")
+        print(f"{issue.fields.project.key:<{HEADER_COL_WIDTH['Project']}}", end="")
+        print(f"{issue.fields.summary[:HEADER_COL_WIDTH['Summary'] - 2]:<{HEADER_COL_WIDTH['Summary']}}", end="") # pylint: disable=line-too-long
+        print(f"{issue.fields.created[:10]:<{HEADER_COL_WIDTH['Created']}}", end="")
+        print(f"{issue.fields.creator.name:<{HEADER_COL_WIDTH['Creator']}}", end="\n")

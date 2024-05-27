@@ -46,9 +46,10 @@ from pyJiraCli import cmd_import
 from pyJiraCli import cmd_export
 from pyJiraCli import cmd_search
 from pyJiraCli import cmd_login
+from pyJiraCli import cmd_delete
 from pyJiraCli import cmd_print
 
-from pyJiraCli.error_handler import prerr
+from pyJiraCli.printer import Printer, PrintType
 from pyJiraCli.ret import Ret
 from pyJiraCli.version import __version__, __author__, __email__, __repository__, __license__
 
@@ -61,6 +62,7 @@ _CMD_MODULS = [
     cmd_import,
     cmd_search,
     cmd_login,
+    cmd_delete,
     cmd_print
 ]
 
@@ -84,9 +86,10 @@ def add_parser() -> object:
     parser = argparse.ArgumentParser(prog='pyJiraCli',
                                      description="A CLI tool to imoprt and export Jira Issues \
                                                   between server and json or csv files.",
-                                     epilog="Copyright (c) 2022 - 2024 " + __author__ + " - " + \
+                                     epilog="Copyright (c) 2024 " + __author__ + " - " + \
                                              __license__ + \
                                             " - Find the project on github: " + __repository__)
+
     parser.add_argument('-user',
                         type=str,
                         metavar='<username>',
@@ -124,11 +127,16 @@ def main() -> Ret:
 
     # get parser
     parser = add_parser()
+    printer = Printer()
     args = parser.parse_args()
 
     # In verbose mode print all program arguments
     if args.verbose:
+
+        printer.set_verbose()
+
         print("Program arguments: ")
+
         for arg in vars(args):
             print(f"* {arg} = {vars(args)[arg]}")
         print("\n")
@@ -137,7 +145,7 @@ def main() -> Ret:
     ret_status = args.func(args)
 
     if ret_status != Ret.RET_OK:
-        prerr(ret_status)
+        printer.print_error(PrintType.ERROR, ret_status)
 
     return ret_status
 
