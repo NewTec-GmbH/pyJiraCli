@@ -9,17 +9,17 @@ pyJiraCli is a command-line tool designed for handling Jira tickets efficiently.
 * [Installation](#installation)
 * [Overview](#overview)
 * [Usage](#usage)
-    * [Commands](#commands)
-        * [export](#export)
-        * [import](#export)
-        * [login](#login)
-        * [search](#search)
-        * [print](#print)
-    * [Add a command](#custom-cmds)
+* [Commands](#commands)
+  * [export](#export)
+  * [import](#import)
+  * [login](#login)
+  * [search](#search)
+  * [print](#print)
+* [Add a command](#add-a-command)
 * [Examples](#examples)
-    * [Field config file](#field-config-file)
-    * [json example file](#json-example-file)
-    * [csv example file](#csv-example-file)
+  * [Field config file](#field-config-file)
+  * [json example file](#json-example-file)
+  * [csv example file](#csv-example-file)
 * [Used Libraries](#used-libraries)
 * [Issues, Ideas And Bugs](#issues-ideas-and-bugs)
 * [License](#license)
@@ -315,10 +315,11 @@ With version v1 the genereated csv files will have following format:
 
 # Used Libraries
 Used 3rd party libraries which are not part of the standard Python package:
+
 * [jira](https://pypi.org/project/jira/) - Python library for interacting with JIRA via REST APIs - BSD License (BSD-2-Clause).
+* [colorama](https://github.com/tartley/colorama) - ANSI color support - BSD-3 License
 * [cryptography](https://pypi.org/project/cryptography/) - cryptography is a package which provides cryptographic recipes and primitives to Python developers. - Apache Software License, BSD License (Apache-2.0 OR BSD-3-Clause)
 * [toml](https://github.com/uiri/toml) - Parsing [TOML](https://en.wikipedia.org/wiki/TOML) - MIT License
-
 
 # Issues, Ideas And Bugs
 If you have further ideas or you found some bugs, great! Create a [issue](https://github.com/NewTec-GmbH/pyJiraCli/issues) or if you are able and willing to fix it by yourself, clone the repository and create a pull request.
