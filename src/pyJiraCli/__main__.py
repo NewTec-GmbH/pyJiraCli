@@ -53,6 +53,8 @@ from pyJiraCli.printer import Printer, PrintType
 from pyJiraCli.ret import Ret
 from pyJiraCli.version import __version__, __author__, __email__, __repository__, __license__
 
+from colorama import just_fix_windows_console
+
 ################################################################################
 # Variables
 ################################################################################
@@ -124,6 +126,10 @@ def main() -> Ret:
         int: System exit status.
     """
     ret_status = Ret.RET_OK
+
+    # Older windows consoles doesn't support ANSI color codes by default.
+    # Enable the Windows built-in ANSI support.
+    just_fix_windows_console()
 
     # get parser
     parser = add_parser()
