@@ -36,6 +36,7 @@ import os
 import certifi
 import urllib3
 
+from typing import Tuple
 from jira import JIRA, exceptions
 from requests import exceptions as reqex
 from urllib3 import exceptions as urlex
@@ -307,11 +308,11 @@ class Server:
 
         return ret_status
 
-    def _get_server_url(self) -> tuple[str, None]:
+    def _get_server_url(self) -> Tuple[str, None]:
         """ Get the server url from the encrypted files.
 
         Returns:
-            tuple[str, None]: The server url or None.
+            Tuple[str, None]: The server url or None.
         """
         data_type = DataType.DATATYPE_SERVER
         _printer = Printer()
