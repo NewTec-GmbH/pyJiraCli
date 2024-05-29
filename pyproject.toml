@@ -24,7 +24,7 @@ dependencies = [
     "jira>=3.8.0",
     "cryptography>=42.0.5",
     "toml>=0.10.2",
-    "Colorama>=0.4.6"
+    "colorama>=0.4.6"
 ]
 
 [project.optional-dependencies]
