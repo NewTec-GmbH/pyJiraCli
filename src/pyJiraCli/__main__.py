@@ -34,6 +34,7 @@
 ################################################################################
 import sys
 import argparse
+from colorama import just_fix_windows_console
 
 #import cmd_import
 #import cmd_export
@@ -52,8 +53,6 @@ from pyJiraCli import cmd_print
 from pyJiraCli.printer import Printer, PrintType
 from pyJiraCli.ret import Ret
 from pyJiraCli.version import __version__, __author__, __email__, __repository__, __license__
-
-from colorama import just_fix_windows_console
 
 ################################################################################
 # Variables
