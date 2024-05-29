@@ -33,10 +33,10 @@
 # Imports
 ################################################################################
 import os
+from typing import Tuple
 import certifi
 import urllib3
 
-from typing import Tuple
 from jira import JIRA, exceptions
 from requests import exceptions as reqex
 from urllib3 import exceptions as urlex
