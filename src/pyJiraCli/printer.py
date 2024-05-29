@@ -69,6 +69,7 @@ RETURN_MSG = {
     Ret.RET_ERROR_MISSING_LOGIN_DATA     : "At least one of the arguments must be provided: " + \
                                            "<data1> (with --userinfo, --token, --server" + \
                                            " or --default option) or -delete",
+    Ret.RET_ERROR_MISSING_SERVER_URL     : "The server URL is missing.",
     Ret.RET_ERROR_MISSING_DATATYPE       : "No datatype for login command given. " + \
                                            "Provide the Datatype via " +\
                                            "--userinfo, --token, --server or -- default " + \
