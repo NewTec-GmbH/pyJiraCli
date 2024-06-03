@@ -178,7 +178,7 @@ def _store_login_info(args) -> Ret:
 
     data1 = None # username, token, url or path
     data2 = None # optional: pw only with username
-    expiration = args.expires
+    expiration = args.expiration
 
     if args.userinfo:
         data1 = args.data1
@@ -277,7 +277,7 @@ def _get_expiration_date_(args) -> float:
         float: The time in Epoch seconds when the files will expire.
     """
 
-    input_int = args.expires
+    input_int = args.expiration
 
     if args.min:
         exp_time = input_int * 60
