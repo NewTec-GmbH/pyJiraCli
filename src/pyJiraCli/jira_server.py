@@ -33,6 +33,7 @@
 # Imports
 ################################################################################
 import os
+from typing import Tuple
 import certifi
 import urllib3
 
@@ -47,7 +48,6 @@ from pyJiraCli.ret import Ret, Warnings
 ################################################################################
 # Variables
 ################################################################################
-DEFAULT_SERVER = "https://jira.newtec.zz"
 
 ################################################################################
 # Classes
@@ -57,7 +57,7 @@ class Server:
     """
     def __init__(self):
         self._crypto_h = Crypto()
-        self._server_url = DEFAULT_SERVER
+        self._server_url = None
         self._jira_obj = None
         self._search_result = None
         self._cert_path = None
@@ -85,39 +85,44 @@ class Server:
         _printer = Printer()
         cert_path = self._crypto_h.get_cert_path()
 
-        self._get_server_url()
+        self._server_url = self._get_server_url()
 
-        if cert_path is None:
-            _printer.print_error(PrintType.WARNING, Warnings.WARNING_UNSAVE_CONNECTION)
+        if self._server_url is None:
+            ret_status = Ret.RET_ERROR_MISSING_SERVER_URL
 
         else:
-            self._cert_path = cert_path
 
-        _printer.print_info('Loggin in to:', self._server_url)
-
-        if user is None or pw is None:
-            # get login information from login module
-            ret_status = self._crypto_h.decrypt_information(DataType.DATATYPE_TOKEN_INFO)
-
-            if ret_status == Ret.RET_OK:
-                token = self._crypto_h.get_data(DataMembers.DATA_MEM_1)
-
-                ret_status = self._login_with_token(token)
+            if cert_path is None:
+                _printer.print_error(PrintType.WARNING, Warnings.WARNING_UNSAVE_CONNECTION)
 
             else:
-                ret_status = self._crypto_h.decrypt_information(DataType.DATATYPE_USER_INFO)
+                self._cert_path = cert_path
+
+            _printer.print_info('Loggin in to:', self._server_url)
+
+            if user is None or pw is None:
+                # get login information from login module
+                ret_status = self._crypto_h.decrypt_information(DataType.DATATYPE_TOKEN_INFO)
 
                 if ret_status == Ret.RET_OK:
-                    user = self._crypto_h.get_data(DataMembers.DATA_MEM_1)
-                    pw = self._crypto_h.get_data(DataMembers.DATA_MEM_2)
-                    ret_status = self._login_with_password(user, pw)
+                    token = self._crypto_h.get_data(DataMembers.DATA_MEM_1)
 
-        else:
-            ret_status = self._login_with_password(user, pw)
+                    ret_status = self._login_with_token(token)
 
-        if ret_status == Ret.RET_OK and \
-           self._user is not None:
-            _printer.print_info('Login succesful. Logged in as:', self._user)
+                else:
+                    ret_status = self._crypto_h.decrypt_information(DataType.DATATYPE_USER_INFO)
+
+                    if ret_status == Ret.RET_OK:
+                        user = self._crypto_h.get_data(DataMembers.DATA_MEM_1)
+                        pw = self._crypto_h.get_data(DataMembers.DATA_MEM_2)
+                        ret_status = self._login_with_password(user, pw)
+
+            else:
+                ret_status = self._login_with_password(user, pw)
+
+            if ret_status == Ret.RET_OK and \
+            self._user is not None:
+                _printer.print_info('Login succesful. Logged in as:', self._user)
 
         return ret_status
 
@@ -137,31 +142,35 @@ class Server:
 
         ret_status = Ret.RET_OK
         _printer = Printer()
-
         cert_path = self._crypto_h.get_cert_path()
 
-        self._get_server_url()
+        self._server_url = self._get_server_url()
 
-        if cert_path is None:
-            _printer.print_error(PrintType.WARNING, Warnings.WARNING_UNSAVE_CONNECTION)
-
-        else:
-            self._cert_path = cert_path
-
-        if token is None:
-            ret_status = self._login_with_password(user, pw)
-
-        elif pw is None:
-            ret_status = self._login_with_token(token)
+        if self._server_url is None:
+            ret_status = Ret.RET_ERROR_MISSING_SERVER_URL
 
         else:
-            return Ret.RET_ERROR
 
-        if ret_status == Ret.RET_OK and \
-           self._user is not None:
-            _printer.print_info('Login succesful. Logged in as:', self._user)
+            if cert_path is None:
+                _printer.print_error(PrintType.WARNING, Warnings.WARNING_UNSAVE_CONNECTION)
 
-        self._crypto_h.delete_cert_path()
+            else:
+                self._cert_path = cert_path
+
+            if token is None:
+                ret_status = self._login_with_password(user, pw)
+
+            elif pw is None:
+                ret_status = self._login_with_token(token)
+
+            else:
+                return Ret.RET_ERROR
+
+            if ret_status == Ret.RET_OK and \
+            self._user is not None:
+                _printer.print_info('Login succesful. Logged in as:', self._user)
+
+            self._crypto_h.delete_cert_path()
 
         return ret_status
 
@@ -299,16 +308,13 @@ class Server:
 
         return ret_status
 
-    def _get_server_url(self) -> str:
+    def _get_server_url(self) -> Tuple[str, None]:
         """ Get the server url from the encrypted files.
-            If no server data is available a hardcoded default server
-            will be returned.
 
         Returns:
-            str: The server url.
+            Tuple[str, None]: The server url or None.
         """
         data_type = DataType.DATATYPE_SERVER
-        _printer = Printer()
         server_url = None
 
         ret_status = self._crypto_h.decrypt_information(data_type)
@@ -317,16 +323,10 @@ class Server:
             data_type = DataType.DATATYPE_SERVER_DEFAULT
             ret_status = self._crypto_h.decrypt_information(data_type)
 
-            if ret_status is not Ret.RET_OK:
-                server_url = DEFAULT_SERVER
-
-                _printer.print_error(PrintType.WARNING, Warnings.WARNING_SERVER_URL_MISSING)
-                _printer.print_info(f"Using hardcoded default url at {DEFAULT_SERVER}")
-
         if ret_status is Ret.RET_OK:
             server_url = self._crypto_h.get_data(DataMembers.DATA_MEM_1)
 
-        self._server_url = server_url
+        return server_url
 
 ################################################################################
 # Functions

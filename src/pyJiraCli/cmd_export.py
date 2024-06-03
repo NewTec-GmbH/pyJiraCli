@@ -250,7 +250,7 @@ def _process_file_argument(arg_file:str, csv:bool) -> Tuple[str, bool]:
         arg_file (str): The -file option string provided via the console.
 
     Returns:
-        tuple[str, bool]:   str:  The filename according to the -file option.
+        Tuple[str, bool]:   str:  The filename according to the -file option.
                                   The extension will be added later.
                             bool: The new csv flag, The flag can change,
                                   if it doesnt match the provided filename.

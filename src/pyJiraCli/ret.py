@@ -32,6 +32,7 @@
 # Imports
 ################################################################################
 from enum import IntEnum
+
 ################################################################################
 # Variables
 ################################################################################
@@ -51,17 +52,18 @@ class Ret(IntEnum):
     RET_ERROR_NO_USERINFORMATION     = 7
     RET_ERROR_MISSING_UNSERINFO      = 8
     RET_ERROR_MISSING_LOGIN_DATA     = 9
-    RET_ERROR_MISSING_DATATYPE       = 10
-    RET_ERROR_CREATING_TICKET_FAILED = 11
-    RET_ERROR_INVALID_SEARCH         = 12
+    RET_ERROR_MISSING_SERVER_URL     = 10
+    RET_ERROR_MISSING_DATATYPE       = 11
+    RET_ERROR_CREATING_TICKET_FAILED = 12
+    RET_ERROR_INVALID_SEARCH         = 13
 
 class Warnings(IntEnum):
     """ Th Warnings of the modules."""
     WARNING_UNSAVE_CONNECTION      = 0
-    WARNING_SERVER_URL_MISSING     = 1
-    WARNING_CSV_OPTION_WRONG       = 2
-    WARNING_UNKNOWN_FILE_EXTENSION = 3
-    WARNING_INFO_FILE_EXPIRED      = 4
+    WARNING_CSV_OPTION_WRONG       = 1
+    WARNING_UNKNOWN_FILE_EXTENSION = 2
+    WARNING_INFO_FILE_EXPIRED      = 3
+
 ################################################################################
 # Functions
 ################################################################################
