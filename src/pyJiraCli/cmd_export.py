@@ -64,25 +64,26 @@ def register(subparser) -> object:
     """
 
     sb_export = subparser.add_parser('export',
-                                      help="export jira issue to json file")
+                                     help="export jira issue to json file")
 
     sb_export.add_argument('issue',
                            type=str,
                            help="Jira issue key")
 
-    sb_export.add_argument('-path',
-                            type=str,
-                            metavar='<folder_path>',
-                            help="Destination for the output file")
+    sb_export.add_argument('--path',
+                           type=str,
+                           metavar='<folder_path>',
+                           help="Destination folder for the output file. \
+                                Folder must exist.")
 
-    sb_export.add_argument('-file',
-                            type=str,
-                            metavar='<filename>',
-                            help="name of the output file")
+    sb_export.add_argument('--filename',
+                           type=str,
+                           metavar='<filename>',
+                           help="Name of the output file. Default is the issue key.")
 
-    sb_export.add_argument('-csv' ,
-                            action='store_true',
-                            help="save data in csv file format")
+    sb_export.add_argument('--csv',
+                           action='store_true',
+                           help="Save data in CSV file format.")
 
     return sb_export
 
