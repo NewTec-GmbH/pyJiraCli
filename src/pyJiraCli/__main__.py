@@ -85,29 +85,30 @@ def add_parser() -> object:
         obj:  The parser object for commandline arguments.
     """
     parser = argparse.ArgumentParser(prog='pyJiraCli',
-                                     description="A CLI tool to imoprt and export Jira Issues \
-                                                  between server and json or csv files.",
-                                     epilog="Copyright (c) 2024 " + __author__ + " - " + \
+                                     description="A CLI tool to import and export Jira issues \
+                                                  between server and JSON or CSV files.",
+                                     epilog="Copyright (c) 2024 NewTec GmbH - " + \
                                              __license__ + \
-                                            " - Find the project on github: " + __repository__)
+                                            " - Find the project on GitHub: " + __repository__)
 
-    parser.add_argument('-user',
+    parser.add_argument('--user', '-u',
                         type=str,
                         metavar='<username>',
-                        help="jira username if not provided with login")
+                        help="Jira username, if not provided with login command.")
 
-    parser.add_argument('-pw'  ,
+    parser.add_argument('--password', '-p',
                         type=str,
                         metavar='<password>',
-                        help="jira password if not provided with login")
+                        help="Jira password, if not provided with login command.")
 
-    parser.add_argument("--version",
+    parser.add_argument("--version", "-v",
                         action="version",
                         version="%(prog)s " + __version__)
 
     parser.add_argument("--verbose",
                         action="store_true",
-                        help="print full command details before executing the command")
+                        help="Print full command details before executing the command.\
+                            Enables logs of type INFO and WARNING.")
 
     subparser = parser.add_subparsers(required='True')
 
