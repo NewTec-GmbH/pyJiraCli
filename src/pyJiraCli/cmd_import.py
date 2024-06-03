@@ -85,7 +85,7 @@ def execute(args) -> Ret:
     """
     ret_status = Ret.RET_OK
 
-    ret_status =  _cmd_import(args.file, args.user, args.pw)
+    ret_status =  _cmd_import(args.file, args.user, args.password)
 
     return ret_status
 

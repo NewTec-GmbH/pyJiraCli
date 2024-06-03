@@ -76,7 +76,7 @@ def execute(args) -> Ret:
     Returns:
         Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
     """
-    return _cmd_print(args.issue, args.user, args.pw)
+    return _cmd_print(args.issueKey, args.user, args.password)
 
 def _cmd_print(issue_key:str, user:str, pw:str) -> Ret:
     """Load the data of the provided issue key and 

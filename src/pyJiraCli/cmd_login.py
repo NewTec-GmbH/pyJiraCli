@@ -86,7 +86,12 @@ def register(subparser) -> object:
                            help="Time after which the stored login info \
                                  will expire. Default value = 60 days")
 
-    expire_grp = sb_login.add_argument_group('--expiration options. Only one option is allowed.')
+    expiration_desc = sb_login.add_argument_group(
+        title='Expiration time options',
+        description='Only one option can be used for setting the expiration time.'
+    )
+
+    expire_grp = expiration_desc.add_mutually_exclusive_group(required=False)
 
     expire_grp.add_argument('--min',
                            action='store_true',
@@ -102,7 +107,13 @@ def register(subparser) -> object:
 
     # pylint: disable=duplicate-code
 
-    option_grp = sb_login.add_argument_group('Type of login data to store.')
+    # Adding description for datatype options
+    datatype_desc = sb_login.add_argument_group(
+        title='Datatype options',
+        description='Only one option can be used to specify the datatype.'
+    )
+
+    option_grp = datatype_desc.add_mutually_exclusive_group(required=True)
 
     option_grp.add_argument('--default',
                             '-d',
@@ -178,7 +189,7 @@ def _store_login_info(args) -> Ret:
 
     data1 = None # username, token, url or path
     data2 = None # optional: pw only with username
-    expiration = args.expires
+    expiration = args.expiration
 
     if args.userinfo:
         data1 = args.data1
@@ -277,7 +288,7 @@ def _get_expiration_date_(args) -> float:
         float: The time in Epoch seconds when the files will expire.
     """
 
-    input_int = args.expires
+    input_int = args.expiration
 
     if args.min:
         exp_time = input_int * 60

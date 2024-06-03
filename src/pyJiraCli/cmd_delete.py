@@ -61,7 +61,7 @@ def register(subparser) -> object:
     """
 
     sb_login = subparser.add_parser('delete',
-                                    help="delete login information")
+                                    help="Delete stored login information.")
 
     # pylint: disable=duplicate-code
 
