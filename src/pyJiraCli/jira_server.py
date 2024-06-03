@@ -315,7 +315,6 @@ class Server:
             Tuple[str, None]: The server url or None.
         """
         data_type = DataType.DATATYPE_SERVER
-        _printer = Printer()
         server_url = None
 
         ret_status = self._crypto_h.decrypt_information(data_type)
@@ -323,9 +322,6 @@ class Server:
         if ret_status is not Ret.RET_OK:
             data_type = DataType.DATATYPE_SERVER_DEFAULT
             ret_status = self._crypto_h.decrypt_information(data_type)
-
-            if ret_status is not Ret.RET_OK:
-                _printer.print_error(PrintType.WARNING, Warnings.WARNING_SERVER_URL_MISSING)
 
         if ret_status is Ret.RET_OK:
             server_url = self._crypto_h.get_data(DataMembers.DATA_MEM_1)

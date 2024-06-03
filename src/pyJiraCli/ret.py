@@ -60,10 +60,9 @@ class Ret(IntEnum):
 class Warnings(IntEnum):
     """ Th Warnings of the modules."""
     WARNING_UNSAVE_CONNECTION      = 0
-    WARNING_SERVER_URL_MISSING     = 1
-    WARNING_CSV_OPTION_WRONG       = 2
-    WARNING_UNKNOWN_FILE_EXTENSION = 3
-    WARNING_INFO_FILE_EXPIRED      = 4
+    WARNING_CSV_OPTION_WRONG       = 1
+    WARNING_UNKNOWN_FILE_EXTENSION = 2
+    WARNING_INFO_FILE_EXPIRED      = 3
 
 ################################################################################
 # Functions
