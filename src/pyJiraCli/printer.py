@@ -69,6 +69,8 @@ RETURN_MSG = {
     Ret.RET_ERROR_MISSING_LOGIN_DATA     : "At least one of the arguments must be provided: " + \
                                            "<data1> (with --userinfo, --token, --server" + \
                                            " or --default option) or -delete",
+    Ret.RET_ERROR_MISSING_SERVER_URL     : "No Server url found. PLease add a " + \
+                                           "custom url for your jira server.",
     Ret.RET_ERROR_MISSING_DATATYPE       : "No datatype for login command given. " + \
                                            "Provide the Datatype via " +\
                                            "--userinfo, --token, --server or -- default " + \
@@ -82,8 +84,6 @@ WARN_MSG = {
                                               "authentification found. " + \
                                               "It's strongly advised, " +\
                                               "to add a certificate with the login command.",
-    Warnings.WARNING_SERVER_URL_MISSING     : "No Server url found. PLease add a " + \
-                                              "custom url for your jira server.",
     Warnings.WARNING_CSV_OPTION_WRONG       : "File ending from provided file and " + \
                                               "csv option dont match. " + \
                                               "File format provided by file or path was used.",
