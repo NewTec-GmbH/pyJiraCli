@@ -70,27 +70,27 @@ def register(subparser) -> object:
     option_grp.add_argument('--default',
                             '-d',
                             action='store_true',
-                            help="primary server url to use")
+                            help="Delete the server URL of the default server.")
 
     option_grp.add_argument('--userinfo',
-                            '-ui',
+                            '-i',
                             action='store_true',
-                            help="username, pw")
+                            help="Delete the user information (username and password).")
 
     option_grp.add_argument('--server',
                             '-s',
                             action='store_true',
-                            help="secondary server url")
+                            help="Delete the server URL of the secondary server.")
 
     option_grp.add_argument('--token',
                             '-t',
                             action='store_true',
-                            help="API token for jira server")
+                            help="Delete the API token for Jira server.")
 
     option_grp.add_argument('--cert',
                             '-c',
                             action='store_true',
-                            help="authentification certificate for jira server")
+                            help="Delete the authentification certificate for Jira server.")
 
     # pylint: disable=duplicate-code
 

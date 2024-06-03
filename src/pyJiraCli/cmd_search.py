@@ -69,17 +69,16 @@ def register(subparser) -> object:
     """
     # subparser for the 'search' command
     sb_search = subparser.add_parser('search',
-                                      help="search for jira issues \
-                                            with specified filter string")
+                                      help="Search for the Jira server for issues \
+                                            using the specified filter string.")
 
     sb_search.add_argument('filter',
                             type=str,
-                            help="filter string according to \
-                                  which issue are to be searched")
+                            help="Filter string to search for. Must be in JQL format.")
 
-    sb_search.add_argument('-max',
+    sb_search.add_argument('--max',
                             type=int,
-                            help="max number of entries")
+                            help="Maximum number of issues that may be found. Default is 50.")
 
     return sb_search
 

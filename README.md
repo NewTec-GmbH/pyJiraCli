@@ -180,14 +180,14 @@ to add a cmd module:
 
         sb_cmd.add_argument('postional arg',
                              type=str,
-                             help="some positional argument that is read as a string")
+                             help="Some positional argument that is read as a string.")
 
-        sb_cmd.add_argument('-option',
+        sb_cmd.add_argument('--option',
                              type=str,
                              metavar='<username>',
-                             help="some otption that reads in a string")
+                             help="Some option that is read as a string and stored in a metavar.")
         
-        sb_cmd.add_argument('-bool_option',
+        sb_cmd.add_argument('--bool_option',
                               action="store_true",
                               help="store 'True'' in args.bool_option if the option \
                                     is set on the commandline \
