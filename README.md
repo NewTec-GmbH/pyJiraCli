@@ -10,6 +10,7 @@ pyJiraCli is a command-line tool designed for handling Jira tickets efficiently.
 * [Overview](#overview)
 * [Usage](#usage)
 * [Commands](#commands)
+  * [Delete](#delete)
   * [Export](#export)
   * [Import](#import)
   * [Login](#login)
@@ -74,7 +75,39 @@ Copyright (c) 2024 NewTec GmbH - BSD 3-Clause - Find the project on GitHub: docu
 
 ## Commands
 
-All added command modules must provide a "execute()" and a "register()"
+All added command modules must provide an "execute()" and a "register()" function.
+
+### Delete
+
+Delete the saved login data. See [login](#login) for more details.
+
+```cmd
+pyJiraCli delete --help
+```
+
+Output:
+
+```cmd
+usage: pyJiraCli delete [-h] [--default] [--userinfo] [--server] [--token] [--cert]
+
+options:
+  -h, --help      show this help message and exit
+
+data type to delete:
+  --default, -d   Delete the server URL of the default server.
+  --userinfo, -i  Delete the user information (username and password).
+  --server, -s    Delete the server URL of the secondary server.
+  --token, -t     Delete the API token for Jira server.
+  --cert, -c      Delete the authentification certificate for Jira server.
+```
+
+Example:
+
+```cmd
+pyJiraCli delete -i 
+```
+
+This command deletes the saved user info.
 
 ### Export
 
@@ -159,7 +192,7 @@ pyJiraCli login --help
 Output:
 
 ```cmd
-usage: pyJiraCli login [-h] [--expiration <time>] [--min] [--day] [--month] [--default] [--userinfo] [--server] [--token] [--cert] <data1> [<data2>]
+usage: pyJiraCli login [-h] [--expiration <time>] [--min | --day | --month] (--default | --userinfo | --server | --token | --cert) <data1> [<data2>]
 
 options:
   -h, --help           show this help message and exit
@@ -169,12 +202,16 @@ data:
   <data1>              <username, token, url>
   <data2>              optional <password>
 
---expiration options. Only one option is allowed.:
+Expiration time options:
+  Only one option can be used for setting the expiration time.
+
   --min                Expiration time in minutes.
   --day                Expiration time in days.
   --month              Expiration time in months.
 
-Type of login data to store.:
+Datatype options:
+  Only one option can be used to specify the datatype.
+
   --default, -d        The server URL of the default server.
   --userinfo, -i       The user information (username and password).
   --server, -s         The server URL of the secondary server.
@@ -182,12 +219,24 @@ Type of login data to store.:
   --cert, -c           The authentification certificate for Jira server.
 ```
 
-Example:
+Examples:
+
+Set the default server URL
 
 ```cmd
-pyJiraCli login --default https://my.jira.server/ # Set the default server URL
-pyJiraCli login --server https://my.jira.server/ # Set the secondary server URL
-pyJiraCli login --token <xxxxxxxxxxxxxxx> # Set your API token.
+pyJiraCli login --default https://my.jira.server/
+```
+
+Set the secondary server URL:
+
+```cmd
+pyJiraCli login --server https://my.other.jira.server/
+```
+
+Set your API token:
+
+```cmd
+pyJiraCli login --token <xxxxxxxxxxxxxxx> # 
 ```
 
 ### Search
@@ -204,14 +253,14 @@ pyJiraCli search --help
 Output:
 
 ```cmd
-usage: pyJiraCli search [-h] [--max MAX] filter
+usage: pyJiraCli search [-h] [--max <MAX>] filter
 
 positional arguments:
-  filter      Filter string to search for. Must be in JQL format.
+  filter       Filter string to search for. Must be in JQL format.
 
 options:
-  -h, --help  show this help message and exit
-  --max MAX   Maximum number of issues that may be found. Default is 50.
+  -h, --help   show this help message and exit
+  --max <MAX>  Maximum number of issues that may be found. Default is 50.
 ```
 
 Example:
@@ -345,46 +394,29 @@ _CMD_MODULS = [
 
 ```py
 class Ret(IntEnum):
-    """"exit statuses of the modules"""
+    """ The exit statuses of the modules."""
     RET_OK                           = 0
     RET_ERROR                        = 1
     RET_ERROR_JIRA_LOGIN             = 2
-    RET_ERROR_FILE_NOT_FOUND         = 3
+    RET_ERROR_FILEPATH_INVALID       = 3
     RET_ERROR_WORNG_FILE_FORMAT      = 4
     RET_ERROR_ISSUE_NOT_FOUND        = 5
     RET_ERROR_FILE_OPEN_FAILED       = 6
     RET_ERROR_NO_USERINFORMATION     = 7
     RET_ERROR_MISSING_UNSERINFO      = 8
-    RET_ERROR_MISSING_ARG_INFO     = 9
-    RET_ERROR_CREATING_TICKET_FAILED = 10
-    RET_ERROR_INFO_FILE_EXPIRED      = 11
-    RET_ERROR_CUSTOM_ERR             = 12 # custom error
+    RET_ERROR_MISSING_LOGIN_DATA     = 9
+    RET_ERROR_MISSING_SERVER_URL     = 10
+    RET_ERROR_MISSING_DATATYPE       = 11
+    RET_ERROR_CREATING_TICKET_FAILED = 12
+    RET_ERROR_INVALID_SEARCH         = 13
 
+class Warnings(IntEnum):
+    """ Th Warnings of the modules."""
+    WARNING_UNSAVE_CONNECTION      = 0
+    WARNING_CSV_OPTION_WRONG       = 1
+    WARNING_UNKNOWN_FILE_EXTENSION = 2
+    WARNING_INFO_FILE_EXPIRED      = 3
 
-RETURN_MSG = {
-    Ret.RET_OK                           : "Process succesful",
-    Ret.RET_ERROR                        : "Error occured",
-    Ret.RET_ERROR_JIRA_LOGIN             : "Login to jira server was not possible",
-    Ret.RET_ERROR_FILE_NOT_FOUND         : "Folder or File doesn't exist",
-    Ret.RET_ERROR_WORNG_FILE_FORMAT      : "Wrong file format for save file provided",
-    Ret.RET_ERROR_ISSUE_NOT_FOUND        : "Jira Issue not found",
-    Ret.RET_ERROR_FILE_OPEN_FAILED       : "opening File failed",
-    Ret.RET_ERROR_NO_USERINFORMATION     : "no user information was provided via cli" + \
-                                            "or stored information file",
-    Ret.RET_ERROR_MISSING_UNSERINFO      : "both -user and -pw option must be provided " + 
-                                            "to store useriformation",
-    Ret.RET_ERROR_MISSING_ARG_INFO     : "At least one of the options must be" + 
-                                            "provided:" +                               
-                                            "(-user, -pw), -server or -delete",
-    Ret.RET_ERROR_CREATING_TICKET_FAILED : "creating the ticket on the jira server" +
-                                            " failed",
-    Ret.RET_ERROR_INFO_FILE_EXPIRED      : "the stored information has expired"
-    Ret.RET_ERROR_CUSTOM_ERR             : "error text" # custom error text,
-                                                        # that will be
-                                                        # displayed if,
-                                                        # the tool exits with your 
-                                                        # error code
-}
 ```
 
 </p>
