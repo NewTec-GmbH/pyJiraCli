@@ -34,6 +34,7 @@
 ################################################################################
 import sys
 import argparse
+from colorama import just_fix_windows_console
 
 #import cmd_import
 #import cmd_export
@@ -124,6 +125,10 @@ def main() -> Ret:
         int: System exit status.
     """
     ret_status = Ret.RET_OK
+
+    # Older windows consoles doesn't support ANSI color codes by default.
+    # Enable the Windows built-in ANSI support.
+    just_fix_windows_console()
 
     # get parser
     parser = add_parser()
