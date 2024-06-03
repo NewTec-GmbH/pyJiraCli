@@ -78,6 +78,7 @@ def register(subparser) -> object:
 
     sb_search.add_argument('--max',
                             type=int,
+                            metavar='<MAX>',
                             help="Maximum number of issues that may be found. Default is 50.")
 
     return sb_search
