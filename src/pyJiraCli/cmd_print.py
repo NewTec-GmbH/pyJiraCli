@@ -58,11 +58,11 @@ def register(subparser) -> object:
     """
 
     sb_search = subparser.add_parser('print',
-                                      help="print issue details to the console")
+                                      help="Print the Jira Issue details to the console.")
 
-    sb_search.add_argument('issue',
+    sb_search.add_argument('issueKey',
                             type=str,
-                            help="issue key")
+                            help="The Jira Issue Key of the Issue to print.")
 
     return sb_search
 

@@ -65,11 +65,11 @@ def register(subparser) -> object:
         obj:  The commmand parser object of this module.
     """
     sb_import = subparser.add_parser('import',
-                                      help="import jira issue from json or csv file")
+                                      help="Import a Jira Issue from a JSON or a CSV file.")
 
     sb_import.add_argument('file',
                             type=str,
-                            help="file path to the json file")
+                            help="Path to the input file.")
 
     return sb_import
 
