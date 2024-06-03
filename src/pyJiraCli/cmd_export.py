@@ -64,7 +64,7 @@ def register(subparser) -> object:
     """
 
     sb_export = subparser.add_parser('export',
-                                     help="export jira issue to json file")
+                                     help="Export a ticket from a Jira Server to a JSON file.")
 
     sb_export.add_argument('issue',
                            type=str,
@@ -125,7 +125,7 @@ def _cmd_export(args) -> Ret:
     ret_status = Ret.RET_OK
 
     filepath = _get_filepath(args.issue,
-                             args.file,
+                             args.filename,
                              args.path,
                              args.csv)
     if filepath is None:
@@ -135,7 +135,7 @@ def _cmd_export(args) -> Ret:
         ret_status = _export_ticket_to_file(args.issue,
                                             filepath,
                                             args.user,
-                                            args.pw)
+                                            args.password)
 
     if ret_status == Ret.RET_OK:
         printer.print_info('File saved at:', filepath)

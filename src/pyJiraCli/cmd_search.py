@@ -92,7 +92,7 @@ def execute(args) -> Ret:
     Returns:
         Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
     """
-    return _cmd_search(args.filter, args.user, args.pw, args.max)
+    return _cmd_search(args.filter, args.user, args.password, args.max)
 
 def _cmd_search(filter_str:str, user:str, pw:str, results:int) -> Ret:
     """ Search tickets with a provided filter or search string.
