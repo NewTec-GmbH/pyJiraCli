@@ -68,7 +68,7 @@ def register(subparser) -> object:
 
     sb_export.add_argument('issue',
                            type=str,
-                           help="issue key")
+                           help="Jira issue key")
 
     sb_export.add_argument('-path',
                             type=str,

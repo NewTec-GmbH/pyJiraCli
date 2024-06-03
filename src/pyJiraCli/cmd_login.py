@@ -64,7 +64,8 @@ def register(subparser) -> object:
     """
 
     sb_login = subparser.add_parser('login',
-                                    help="save login information")
+                                    help="Save the login information \
+                                        into an encrypted file for easier use.")
 
     data_grp = sb_login.add_argument_group('data')
 
@@ -79,54 +80,54 @@ def register(subparser) -> object:
                            nargs='?',
                            help="optional <password>")
 
-    sb_login.add_argument('-expires',
+    sb_login.add_argument('--expiration',
                            type=int,
                            metavar='<time>',
-                           help="time after which the stored login info \
-                                 will expire. default = 30 days")
+                           help="Time after which the stored login info \
+                                 will expire. Default value = 60 days")
 
-    expire_grp = sb_login.add_argument_group('expiry options')
+    expire_grp = sb_login.add_argument_group('--expiration options. Only one option is allowed.')
 
     expire_grp.add_argument('--min',
                            action='store_true',
-                           help="expire time in minutes")
+                           help="Expiration time in minutes.")
 
     expire_grp.add_argument('--day',
                            action='store_true',
-                           help="expire time in days")
+                           help="Expiration time in days.")
 
     expire_grp.add_argument('--month',
                            action='store_true',
-                           help="expire time in months")
+                           help="Expiration time in months.")
 
     # pylint: disable=duplicate-code
 
-    option_grp = sb_login.add_argument_group('data type to store')
+    option_grp = sb_login.add_argument_group('Type of login data to store.')
 
     option_grp.add_argument('--default',
                             '-d',
                             action='store_true',
-                            help="primary server url to use")
+                            help="The server URL of the default server.")
 
     option_grp.add_argument('--userinfo',
-                            '-ui',
+                            '-i',
                             action='store_true',
-                            help="username, pw")
+                            help="The user information (username and password).")
 
     option_grp.add_argument('--server',
                             '-s',
                             action='store_true',
-                            help="secondary server url to use")
+                            help="The server URL of the secondary server.")
 
     option_grp.add_argument('--token',
                             '-t',
                             action='store_true',
-                            help="API token for jira server")
+                            help="The API token for Jira server.")
 
     option_grp.add_argument('--cert',
                             '-c',
                             action='store_true',
-                            help="authentification certificate for jira server")
+                            help="The authentification certificate for Jira server.")
 
     # pylint: enable=duplicate-code
 
