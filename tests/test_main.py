@@ -28,7 +28,7 @@ def run_pyjiracli(arguments) -> object:
                           capture_output=True,
                           # Do not raise exception on non-zero exit code.
                           check=False,
-                          shell=True)  # Run command in shell.
+                          shell=False)  # Run command in shell.
 
 
 def test_help():
