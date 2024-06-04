@@ -3,13 +3,12 @@ Tests for the pyJiraCli command line interface.
 """
 
 import subprocess
-from typing import List
 
 PYTHON_EXECUTABLE = "python"
 PYJIRACLI_EXECUTABLE = "src/pyJiraCli/__main__.py"
 
 
-def run_pyjiracli(arguments: List[str]) -> subprocess.CompletedProcess[bytes]:
+def run_pyjiracli(arguments) -> subprocess.CompletedProcess[bytes]:
     """
     Wrapper to run pyJiraCli command line.
 
