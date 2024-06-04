@@ -51,16 +51,6 @@ jobs:
         run: |
           pylint ./src/pyJiraCli
 
-      - name: Create coverage report
-        run: |
-          pytest tests -v --cov=./src/pyJiraCli --cov-report=html:coverage_report
-
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: coverage_report/
-
   test:
     # The type of runner that the job will run on.
     runs-on: ubuntu-latest
