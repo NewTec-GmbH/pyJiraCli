@@ -44,8 +44,8 @@ def test_help():
     help_message = ret.stdout.decode("utf-8")
     start_index = help_message.find("{")
     end_index = help_message.find("}")
-    assert start_index != -1  # Start of command list not found.
-    assert end_index != -1  # End of command list not found.
+    assert start_index != -1, help_message  # Start of command list not found.
+    assert end_index != -1, help_message  # End of command list not found.
 
     # Extract the command list.
     command_list = help_message[start_index+1:end_index].split(",")
