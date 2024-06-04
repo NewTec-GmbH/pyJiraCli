@@ -5,7 +5,7 @@ Tests for the pyJiraCli command line interface.
 import subprocess
 
 PYTHON_EXECUTABLE = "python"
-PYJIRACLI_EXECUTABLE = "src/pyJiraCli/__main__.py"
+PYJIRACLI_EXECUTABLE = "pyJiraCli"
 
 
 def run_pyjiracli(arguments) -> object:
@@ -20,7 +20,7 @@ def run_pyjiracli(arguments) -> object:
         Includes return code, stdout and stderr.
 
     """
-    args = [PYTHON_EXECUTABLE, PYJIRACLI_EXECUTABLE]
+    args = [PYJIRACLI_EXECUTABLE]
     args.extend(arguments)
 
     return subprocess.run(args,
