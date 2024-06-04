@@ -8,7 +8,7 @@ PYTHON_EXECUTABLE = "python"
 PYJIRACLI_EXECUTABLE = "src/pyJiraCli/__main__.py"
 
 
-def run_pyjiracli(arguments) -> subprocess.CompletedProcess[bytes]:
+def run_pyjiracli(arguments) -> object:
     """
     Wrapper to run pyJiraCli command line.
 
