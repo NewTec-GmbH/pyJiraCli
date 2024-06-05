@@ -32,17 +32,12 @@
 ################################################################################
 # Imports
 ################################################################################
+
 import sys
 import argparse
 from colorama import just_fix_windows_console
 
-#import cmd_import
-#import cmd_export
-#import cmd_search
-#import cmd_login
-#import cmd_print
-
-# import command modules
+# Import command modules
 from pyJiraCli import cmd_import
 from pyJiraCli import cmd_export
 from pyJiraCli import cmd_search
@@ -57,7 +52,8 @@ from pyJiraCli.version import __version__, __author__, __email__, __repository__
 ################################################################################
 # Variables
 ################################################################################
-# add commando modules here
+
+# Add command modules here
 _CMD_MODULS = [
     cmd_export,
     cmd_import,
@@ -71,25 +67,40 @@ _CMD_MODULS = [
 # Classes
 ################################################################################
 
+
+class ArgumentParser(argparse.ArgumentParser):
+    """ Overridden ArgumentParser class to raise an exception on error.
+        This is needed to handle the return values of the program without exiting.
+    """
+
+    def error(self, message):
+        self.print_usage(sys.stderr)
+        if message:
+            print(f"Error: {message}")
+        raise RuntimeError(message)
+
 ################################################################################
 # Functions
 ################################################################################
+
+
 def add_parser() -> object:
     """ Add parser for command line arguments and
         set the execute function of each 
         cmd module as callback for the subparser command.
         Return the parser after all the modules have been registered
         and added their subparsers.
-        
+
+
     Returns:
         obj:  The parser object for commandline arguments.
     """
-    parser = argparse.ArgumentParser(prog='pyJiraCli',
-                                     description="A CLI tool to import and export Jira issues \
+    parser = ArgumentParser(prog='pyJiraCli',
+                            description="A CLI tool to import and export Jira issues \
                                                   between server and JSON or CSV files.",
-                                     epilog="Copyright (c) 2024 NewTec GmbH - " + \
-                                             __license__ + \
-                                            " - Find the project on GitHub: " + __repository__)
+                            epilog="Copyright (c) 2024 NewTec GmbH - " +
+                            __license__ +
+                            " - Find the project on GitHub: " + __repository__)
 
     parser.add_argument('--user', '-u',
                         type=str,
@@ -112,12 +123,13 @@ def add_parser() -> object:
 
     subparser = parser.add_subparsers(required='True')
 
-    # register command moduls und argparser arguments
+    # Register command modules und argparser arguments
     for mod in _CMD_MODULS:
         cmd_parser = mod.register(subparser)
         cmd_parser.set_defaults(func=mod.execute)
 
     return parser
+
 
 def main() -> Ret:
     """ The program entry point function.
@@ -126,38 +138,51 @@ def main() -> Ret:
         int: System exit status.
     """
     ret_status = Ret.RET_OK
+    printer = Printer()
+    args = None
+
+    # Get all arguments except the program name.
+    input_arguments = sys.argv[1:]
+
+    # If no arguments are given, show help. Required by Python 3.8.
+    if 0 == len(input_arguments):
+        input_arguments.append("--help")
 
     # Older windows consoles doesn't support ANSI color codes by default.
     # Enable the Windows built-in ANSI support.
     just_fix_windows_console()
 
-    # get parser
+    # Get parser
     parser = add_parser()
-    printer = Printer()
-    args = parser.parse_args()
 
-    # In verbose mode print all program arguments
-    if args.verbose:
+    try:
+        args = parser.parse_args(input_arguments)
+        assert args is not None
+        assert args.func is not None
+    except RuntimeError:
+        ret_status = Ret.RET_ERROR_PARSE_ARGUMENTS
+    else:
+        # In verbose mode print all program arguments
+        if args.verbose:
+            printer.set_verbose()
+            print("Program arguments: ")
 
-        printer.set_verbose()
+            for arg in vars(args):
+                print(f"* {arg} = {vars(args)[arg]}")
+            print("\n")
 
-        print("Program arguments: ")
+        # call command function and return exit status
+        ret_status = args.func(args)
 
-        for arg in vars(args):
-            print(f"* {arg} = {vars(args)[arg]}")
-        print("\n")
-
-    # call command function and return exit status
-    ret_status = args.func(args)
-
-    if ret_status != Ret.RET_OK:
-        printer.print_error(PrintType.ERROR, ret_status)
+        if ret_status != Ret.RET_OK:
+            printer.print_error(PrintType.ERROR, ret_status)
 
     return ret_status
 
 ################################################################################
 # Main
 ################################################################################
+
 
 if __name__ == "__main__":
     sys.exit(main())

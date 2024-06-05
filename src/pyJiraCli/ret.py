@@ -56,6 +56,7 @@ class Ret(IntEnum):
     RET_ERROR_MISSING_DATATYPE       = 11
     RET_ERROR_CREATING_TICKET_FAILED = 12
     RET_ERROR_INVALID_SEARCH         = 13
+    RET_ERROR_PARSE_ARGUMENTS        = 14
 
 class Warnings(IntEnum):
     """ Th Warnings of the modules."""
