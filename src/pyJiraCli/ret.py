@@ -44,7 +44,7 @@ class Ret(IntEnum):
     """ The exit statuses of the modules."""
     RET_OK                           = 0
     RET_ERROR                        = 1
-    RET_ERROR_JIRA_LOGIN             = 2
+    RET_ERROR_ARGPARSE               = 2 # Must be 2 to match the argparse error code.
     RET_ERROR_FILEPATH_INVALID       = 3
     RET_ERROR_WORNG_FILE_FORMAT      = 4
     RET_ERROR_ISSUE_NOT_FOUND        = 5
@@ -56,7 +56,7 @@ class Ret(IntEnum):
     RET_ERROR_MISSING_DATATYPE       = 11
     RET_ERROR_CREATING_TICKET_FAILED = 12
     RET_ERROR_INVALID_SEARCH         = 13
-    RET_ERROR_PARSE_ARGUMENTS        = 14
+    RET_ERROR_JIRA_LOGIN             = 14
 
 class Warnings(IntEnum):
     """ Th Warnings of the modules."""

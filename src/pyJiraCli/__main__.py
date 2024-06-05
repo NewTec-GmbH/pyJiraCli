@@ -67,18 +67,6 @@ _CMD_MODULS = [
 # Classes
 ################################################################################
 
-
-class ArgumentParser(argparse.ArgumentParser):
-    """ Overridden ArgumentParser class to raise an exception on error.
-        This is needed to handle the return values of the program without exiting.
-    """
-
-    def error(self, message):
-        self.print_usage(sys.stderr)
-        if message:
-            print(f"Error: {message}")
-        raise RuntimeError(message)
-
 ################################################################################
 # Functions
 ################################################################################
@@ -95,12 +83,12 @@ def add_parser() -> object:
     Returns:
         obj:  The parser object for commandline arguments.
     """
-    parser = ArgumentParser(prog='pyJiraCli',
-                            description="A CLI tool to import and export Jira issues \
+    parser = argparse.ArgumentParser(prog='pyJiraCli',
+                                     description="A CLI tool to import and export Jira issues \
                                                   between server and JSON or CSV files.",
-                            epilog="Copyright (c) 2024 NewTec GmbH - " +
-                            __license__ +
-                            " - Find the project on GitHub: " + __repository__)
+                                     epilog="Copyright (c) 2024 NewTec GmbH - " +
+                                     __license__ +
+                                     " - Find the project on GitHub: " + __repository__)
 
     parser.add_argument('--user', '-u',
                         type=str,
@@ -155,27 +143,25 @@ def main() -> Ret:
     # Get parser
     parser = add_parser()
 
-    try:
-        args = parser.parse_args(input_arguments)
-        assert args is not None
-        assert args.func is not None
-    except RuntimeError:
-        ret_status = Ret.RET_ERROR_PARSE_ARGUMENTS
-    else:
-        # In verbose mode print all program arguments
-        if args.verbose:
-            printer.set_verbose()
-            print("Program arguments: ")
+    args = parser.parse_args(input_arguments)
 
-            for arg in vars(args):
-                print(f"* {arg} = {vars(args)[arg]}")
-            print("\n")
+    assert args is not None
+    assert args.func is not None
 
-        # call command function and return exit status
-        ret_status = args.func(args)
+    # In verbose mode print all program arguments
+    if args.verbose:
+        printer.set_verbose()
+        print("Program arguments: ")
 
-        if ret_status != Ret.RET_OK:
-            printer.print_error(PrintType.ERROR, ret_status)
+        for arg in vars(args):
+            print(f"* {arg} = {vars(args)[arg]}")
+        print("\n")
+
+    # call command function and return exit status
+    ret_status = args.func(args)
+
+    if ret_status != Ret.RET_OK:
+        printer.print_error(PrintType.ERROR, ret_status)
 
     return ret_status
 
