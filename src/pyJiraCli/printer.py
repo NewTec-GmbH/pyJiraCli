@@ -57,7 +57,7 @@ TYPE = {
 RETURN_MSG = {
     Ret.RET_OK                           : "Process succesful",
     Ret.RET_ERROR                        : "Error occured",
-    Ret.RET_ERROR_JIRA_LOGIN             : "Login to jira server was not possible",
+    Ret.RET_ERROR_ARGPARSE               : "Error while parsing arguments",
     Ret.RET_ERROR_FILEPATH_INVALID       : "The provided -path doesnt exist",
     Ret.RET_ERROR_WORNG_FILE_FORMAT      : "Wrong file format for save file provided",
     Ret.RET_ERROR_ISSUE_NOT_FOUND        : "Jira Issue not found",
@@ -77,6 +77,7 @@ RETURN_MSG = {
                                            "option with the login command",
     Ret.RET_ERROR_CREATING_TICKET_FAILED : "creating the ticket on the jira server failed",
     Ret.RET_ERROR_INVALID_SEARCH         : "search string returned a jira error",
+    Ret.RET_ERROR_JIRA_LOGIN             : "Login to jira server was not possible",
 }
 
 WARN_MSG = {
