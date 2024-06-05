@@ -62,6 +62,9 @@ class Server:
         self._search_result = None
         self._cert_path = None
         self._user = None
+        self._max_retries = 0
+        self._timeout = 1 # Unknow unit. Not specified in Jira library. Probably seconds.
+        # Results in around 2 seconds for a timeout.
 
         urllib3.disable_warnings()
 
@@ -238,11 +241,15 @@ class Server:
             if self._cert_path is None:
                 self._jira_obj = JIRA(server= self._server_url, #'https://jira-dev.newtec.zz:8443',
                                       options={'verify' : False},
-                                      token_auth=token)
+                                      token_auth=token,
+                                      max_retries=self._max_retries,
+                                      timeout=self._timeout)
             else:
                 self._jira_obj = JIRA(server=self._server_url,
                                       options={'verify' : self._cert_path},
-                                      token_auth=token)
+                                      token_auth=token,
+                                      max_retries=self._max_retries,
+                                      timeout=self._timeout)
 
             user = self._jira_obj.current_user()
 
@@ -282,11 +289,15 @@ class Server:
         try:
             if self._cert_path is None:
                 self._jira_obj = JIRA(server=self._server_url,
-                                      basic_auth=(user, pw))
+                                      basic_auth=(user, pw),
+                                      max_retries=self._max_retries,
+                                      timeout=self._timeout)
             else:
                 self._jira_obj = JIRA(server=self._server_url,
                                       basic_auth=(user, pw),
-                                      options={'verify' : self._cert_path})
+                                      options={'verify' : self._cert_path},
+                                      max_retries=self._max_retries,
+                                      timeout=self._timeout)
 
             user = self._jira_obj.current_user()
 
