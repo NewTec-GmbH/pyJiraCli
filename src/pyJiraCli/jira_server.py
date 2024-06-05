@@ -62,7 +62,7 @@ class Server:
         self._search_result = None
         self._cert_path = None
         self._user = None
-        self._max_retries = 1
+        self._max_retries = 0
         self._timeout = 1 # Unknow unit. Not specified in Jira library. Probably seconds.
         # Results in around 12 seconds for a timeout.
 
