@@ -70,7 +70,7 @@ def test_delete():
     # Test the delete command with no arguments.
     ret = run_pyjiracli(["delete"])
     # Expect invalid arguments.
-    assert Ret.RET_OK == ret.returncode, ret.stderr
+    assert Ret.RET_OK == ret.returncode
 
     # Futher tests will be done in the future, as the command will change.
 
@@ -83,7 +83,7 @@ def test_export():
     # Test the export command with no arguments.
     ret = run_pyjiracli(["export"])
     # Expect invalid arguments.
-    assert Ret.RET_ERROR_ARGPARSE == ret.returncode, ret.stderr
+    assert Ret.RET_ERROR_ARGPARSE == ret.returncode
 
     # Futher tests will be done in the future, as the command will change.
 
@@ -96,7 +96,7 @@ def test_import():
     # Test the import command with no arguments.
     ret = run_pyjiracli(["import"])
     # Expect invalid arguments.
-    assert Ret.RET_ERROR_ARGPARSE == ret.returncode, ret.stderr
+    assert Ret.RET_ERROR_ARGPARSE == ret.returncode
 
     # Futher tests will be done in the future, as the command will change.
 
@@ -109,7 +109,7 @@ def test_login():
     # Test the login command with no arguments.
     ret = run_pyjiracli(["login"])
     # Expect invalid arguments.
-    assert Ret.RET_ERROR_ARGPARSE == ret.returncode, ret.stderr
+    assert Ret.RET_ERROR_ARGPARSE == ret.returncode
 
     # Futher tests will be done in the future, as the command will change.
 
@@ -122,7 +122,7 @@ def test_print():
     # Test the print command with no arguments.
     ret = run_pyjiracli(["print"])
     # Expect invalid arguments.
-    assert Ret.RET_ERROR_ARGPARSE == ret.returncode, ret.stderr
+    assert Ret.RET_ERROR_ARGPARSE == ret.returncode
 
     # Futher tests will be done in the future, as the command will change.
 
@@ -135,6 +135,6 @@ def test_search():
     # Test the search command with no arguments.
     ret = run_pyjiracli(["search"])
     # Expect invalid arguments.
-    assert Ret.RET_ERROR_ARGPARSE == ret.returncode, ret.stderr
+    assert Ret.RET_ERROR_ARGPARSE == ret.returncode
 
     # Futher tests will be done in the future, as the command will change.
