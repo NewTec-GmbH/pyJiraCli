@@ -41,9 +41,8 @@ from colorama import just_fix_windows_console
 from pyJiraCli import cmd_import
 from pyJiraCli import cmd_export
 from pyJiraCli import cmd_search
-from pyJiraCli import cmd_login
-from pyJiraCli import cmd_delete
 from pyJiraCli import cmd_print
+from pyJiraCli import cmd_profile
 
 from pyJiraCli.printer import Printer, PrintType
 from pyJiraCli.ret import Ret
@@ -58,9 +57,8 @@ _CMD_MODULS = [
     cmd_export,
     cmd_import,
     cmd_search,
-    cmd_login,
-    cmd_delete,
-    cmd_print
+    cmd_print,
+    cmd_profile
 ]
 
 ################################################################################
@@ -90,15 +88,10 @@ def add_parser() -> object:
                                      __license__ +
                                      " - Find the project on GitHub: " + __repository__)
 
-    parser.add_argument('--user', '-u',
+    parser.add_argument('--profile',
                         type=str,
-                        metavar='<username>',
-                        help="Jira username, if not provided with login command.")
-
-    parser.add_argument('--password', '-p',
-                        type=str,
-                        metavar='<password>',
-                        help="Jira password, if not provided with login command.")
+                        metavar='<server profile>',
+                        help="The name of the server profile which shall be used for this process")
 
     parser.add_argument("--version", "-v",
                         action="version",

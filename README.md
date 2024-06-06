@@ -316,26 +316,26 @@ from pyJiraCli.retval import Ret
 def register(subparser):
   ''' register the command and its options '''
 
-    sb_cmd = subparser.add_parser('cmd',
+    sub_parser_cmd = subparser.add_parser('cmd',
                                     help="a custom command")
 
-    sb_cmd.add_argument('postional arg',
+    sub_parser_cmd.add_argument('postional arg',
                           type=str,
                           help="Some positional argument that is read as a string.")
 
-    sb_cmd.add_argument('--option',
+    sub_parser_cmd.add_argument('--option',
                           type=str,
                           metavar='<username>',
                           help="Some option that is read as a string and stored in a metavar.")
     
-    sb_cmd.add_argument('--bool_option',
+    sub_parser_cmd.add_argument('--bool_option',
                           action="store_true",
                           help="store 'True'' in args.bool_option if the option \
                                 is set on the commandline \
                                 otehrwise store 'False'")
     
     # make sure to return the command parser
-    return sb_cmd
+    return sub_parser_cmd
 
 def execute(args):
   ''' execute function, your module enty point will be here

@@ -1,6 +1,8 @@
-""" Command for the print function.
-    prints the ticket information for a provided issue key
-    onto the console."""
+""" Command for the profile function.
+    This module caan add, remove or configure server profiles.
+    The profiles contain server url, login data, the server certificate
+    and configuration data for a specific jira server instance.
+"""
 # BSD 3-Clause License
 #
 # Copyright (c) 2024, NewTec GmbH
@@ -34,7 +36,7 @@
 # Imports
 ################################################################################
 from pyJiraCli.jira_server import Server
-from pyJiraCli.jira_issue import JiraIssue
+from pyJiraCli.profile import Profile
 from pyJiraCli.ret import Ret
 ################################################################################
 # Variables
@@ -57,14 +59,57 @@ def register(subparser) -> object:
         obj:    The commmand parser object of this module.
     """
 
-    sub_parser_search = subparser.add_parser('print',
+    sub_parser_profile = subparser.add_parser('profile',
                                       help="Print the Jira Issue details to the console.")
 
-    sub_parser_search.add_argument('issueKey',
-                            type=str,
-                            help="The Jira Issue Key of the Issue to print.")
+    login_group = sub_parser_profile.add_argument_group("Profile Data")
 
-    return sub_parser_search
+    login_group.add_argument('profile_name',
+                            type=str,
+                            metavar="<profile name>",
+                            help="The Name under which the profile will be saved.")
+
+    login_group.add_argument('--url',
+                            type=str,
+                            metavar="<profile url>",
+                            help="The server url for the profile.")
+
+
+    login_group.add_argument("--token",
+                             type=str,
+                             metavar="<api token>",
+                             help="The api token for login with this server profile")
+
+    login_group.add_argument('--cert',
+                            type=str,
+                            metavar="<certificate path>",
+                            required=False,
+                            help="The server url for the profile.")
+
+    datatype_desc = sub_parser_profile.add_argument_group(
+        title='profile operations',
+        description='Only one operation type can be processed at a time.'
+    )
+
+    option_grp = datatype_desc.add_mutually_exclusive_group(required=True)
+
+    option_grp.add_argument('--add',
+                           '-a',
+                            action="store_true",
+                            help="The server url for the profile.")
+
+    option_grp.add_argument('--remove',
+                           '-r',
+                            action="store_true",
+                            help="The server url for the profile.")
+
+    option_grp.add_argument('--confiq',
+                           '-c',
+                            action="store_true",
+                            help="The server url for the profile.")
+
+
+    return sub_parser_profile
 
 def execute(args) -> Ret:
     """ This function servers as entry point for the command 'print'.
@@ -74,11 +119,11 @@ def execute(args) -> Ret:
         args (obj): The command line arguments.
         
     Returns:
-        Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
+        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
     """
-    return _cmd_print(args.issueKey, args.user, args.password)
+    return _cmd_profile(args)
 
-def _cmd_print(issue_key:str, user:str, pw:str) -> Ret:
+def _cmd_profile(args) -> Ret:
     """Load the data of the provided issue key and 
         and print it to the command line.
 
@@ -90,21 +135,50 @@ def _cmd_print(issue_key:str, user:str, pw:str) -> Ret:
     Returns:
         retval.Ret: return status of the module
     """
-# pylint: disable=R0801
+
     ret_status = Ret.CODE.RET_OK
-    issue = JiraIssue()
-    server = Server()
 
-    ret_status = server.login(user, pw)
-    if ret_status == Ret.CODE.RET_OK:
-        jira = server.get_handle()
-        # export issue from jira server
-        ret_status = issue.export_issue(jira, issue_key)
-# pylint: enable=R0801
+    if args.add:
+        ret_status = _add_profile(args)
 
-    if ret_status == Ret.CODE.RET_OK:
-        issue.print_issue()
+    elif args.remove:
+        ret_status = _remove_profile(args.profile_name)
 
-    server.logout()
+    else:
+        ret_status = _configure_profile(args)
 
+    return ret_status
+
+
+
+def _add_profile(args):
+    ret_status = Ret.CODE.RET_OK
+
+    _server = Server()
+    _profile = Profile()
+
+    if args.url is None:
+        ret_status = Ret.CODE.RET_ERROR_NO_SERVER_URL
+
+    else:
+        name = args.profile_name
+        url = args.url
+        token = args.token
+        certificate = args.cert
+
+        ret_status = _server.try_login(url, token, certificate)
+
+        if ret_status == Ret.CODE.RET_OK:
+            ret_status = _profile.add(name, url, token, certificate)
+
+    return ret_status
+
+def _remove_profile(profile_name:str):
+    ret_status = Ret.CODE.RET_OK
+    print(f"remove Profile {profile_name}")
+    return ret_status
+
+def _configure_profile(args):
+    ret_status = Ret.CODE.RET_OK
+    print(f"configure Profile {args.profile_name}")
     return ret_status
