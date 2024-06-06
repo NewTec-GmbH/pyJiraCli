@@ -92,18 +92,18 @@ class JiraIssue:
             issue (str):   The issue key in string format.
             
         Returns:
-            Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+            Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
-        ret_status = Ret.RET_OK
+        ret_status = Ret.CODE.RET_OK
 
         try:
             self._issue = jira.issue(issue)
 
         except ex.JIRAError as e:
             print(e.text)
-            ret_status = Ret.RET_ERROR_ISSUE_NOT_FOUND
+            ret_status = Ret.CODE.RET_ERROR_ISSUE_NOT_FOUND
 
-        if ret_status == Ret.RET_OK:
+        if ret_status == Ret.CODE.RET_OK:
             self._process_issue()
 
         return ret_status
@@ -219,16 +219,16 @@ class JiraIssue:
             file_path (str):    The path to the json file. 
             
         Returns:
-            Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+            Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
-        ret_status = Ret.RET_OK
+        ret_status = Ret.CODE.RET_OK
 
         # serialize json object
         json_object = json.dumps(self._issue_dictionary, indent=4)
 
         ret_status = self._file_h.set_filepath(file_path)
 
-        if ret_status == Ret.RET_OK:
+        if ret_status == Ret.CODE.RET_OK:
             ret_status = self._file_h.write_file(json_object)
 
         self._file_h.close_file()
@@ -242,16 +242,16 @@ class JiraIssue:
             file_path (str):    The path to the csv file. 
             
         Returns:
-            Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+            Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
-        ret_status = Ret.RET_OK
+        ret_status = Ret.CODE.RET_OK
 
         ret_status = self._file_h.set_filepath(file_path)
 
-        if ret_status == Ret.RET_OK:
+        if ret_status == Ret.CODE.RET_OK:
             ret_status = self._file_h.open_file(file_mode='w')
 
-        if ret_status == Ret.RET_OK:
+        if ret_status == Ret.CODE.RET_OK:
             csv_writer = csv.DictWriter(self._file_h.get_file(),
                                         delimiter=';',
                                         fieldnames=_const.ISSUE_FIELDS)
@@ -270,7 +270,7 @@ class JiraIssue:
             jira (obj):    The jira obj for restAPi connection with server.
             
         Returns:
-            Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+            Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
         issue_key = None
 

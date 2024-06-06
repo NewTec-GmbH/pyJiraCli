@@ -40,11 +40,11 @@ def test_help():
 
     # No arguments should return the help message.
     ret = run_pyjiracli([])
-    assert Ret.RET_OK == ret.returncode  # Expect success.
+    assert Ret.CODE.RET_OK == ret.returncode  # Expect success.
 
     # Test the help argument of the pyJiraCli.
     ret = run_pyjiracli(["--help"])
-    assert Ret.RET_OK == ret.returncode  # Expect success.
+    assert Ret.CODE.RET_OK == ret.returncode  # Expect success.
 
     # Get all commands of the pyJiraCli using the previous help command.
     help_message = ret.stdout.decode("utf-8")
@@ -59,7 +59,7 @@ def test_help():
     # Test the help argument of all commands.
     for command in command_list:
         ret = run_pyjiracli([command, "--help"])
-        assert Ret.RET_OK == ret.returncode
+        assert Ret.CODE.RET_OK == ret.returncode
 
 
 def test_delete():
@@ -70,7 +70,7 @@ def test_delete():
     # Test the delete command with no arguments.
     ret = run_pyjiracli(["delete"])
     # Expect invalid arguments.
-    assert Ret.RET_OK == ret.returncode
+    assert Ret.CODE.RET_OK == ret.returncode
 
     # Futher tests will be done in the future, as the command will change.
 
@@ -83,7 +83,7 @@ def test_export():
     # Test the export command with no arguments.
     ret = run_pyjiracli(["export"])
     # Expect invalid arguments.
-    assert Ret.RET_ERROR_ARGPARSE == ret.returncode
+    assert Ret.CODE.RET_ERROR_ARGPARSE == ret.returncode
 
     # Futher tests will be done in the future, as the command will change.
 
@@ -96,7 +96,7 @@ def test_import():
     # Test the import command with no arguments.
     ret = run_pyjiracli(["import"])
     # Expect invalid arguments.
-    assert Ret.RET_ERROR_ARGPARSE == ret.returncode
+    assert Ret.CODE.RET_ERROR_ARGPARSE == ret.returncode
 
     # Futher tests will be done in the future, as the command will change.
 
@@ -109,7 +109,7 @@ def test_login():
     # Test the login command with no arguments.
     ret = run_pyjiracli(["login"])
     # Expect invalid arguments.
-    assert Ret.RET_ERROR_ARGPARSE == ret.returncode
+    assert Ret.CODE.RET_ERROR_ARGPARSE == ret.returncode
 
     # Futher tests will be done in the future, as the command will change.
 
@@ -122,7 +122,7 @@ def test_print():
     # Test the print command with no arguments.
     ret = run_pyjiracli(["print"])
     # Expect invalid arguments.
-    assert Ret.RET_ERROR_ARGPARSE == ret.returncode
+    assert Ret.CODE.RET_ERROR_ARGPARSE == ret.returncode
 
     # Futher tests will be done in the future, as the command will change.
 
@@ -135,6 +135,6 @@ def test_search():
     # Test the search command with no arguments.
     ret = run_pyjiracli(["search"])
     # Expect invalid arguments.
-    assert Ret.RET_ERROR_ARGPARSE == ret.returncode
+    assert Ret.CODE.RET_ERROR_ARGPARSE == ret.returncode
 
     # Futher tests will be done in the future, as the command will change.

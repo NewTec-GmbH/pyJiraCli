@@ -104,7 +104,7 @@ def execute(args) -> Ret:
         args (obj): The command line arguments.
         
     Returns:
-        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+        Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
     return _cmd_delete(args)
 
@@ -115,7 +115,7 @@ def _cmd_delete(args) -> Ret:
         args (obj): The command line arguments.
         
     Returns:
-        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+        Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
     ret_status =  _delete_login_file(args.userinfo,
                                      args.token,
@@ -139,7 +139,7 @@ def _delete_login_file(delete_userinfo:bool,
         delete_certificate (bool):      Flag to delete the server certificate.
 
     Returns:
-        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+        Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
 
     printer = Printer()
@@ -174,4 +174,4 @@ def _delete_login_file(delete_userinfo:bool,
         crypto_h.delete_all()
         printer.print_info("All Datatypes and remove the .logindata folder.")
 
-    return Ret.RET_OK
+    return Ret.CODE.RET_OK

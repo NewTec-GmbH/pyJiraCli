@@ -95,7 +95,7 @@ def execute(args) -> Ret:
         args (obj): The command line arguments.
         
     Returns:
-        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+        Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
     return _cmd_export(args)
 
@@ -119,17 +119,17 @@ def _cmd_export(args) -> Ret:
         args (obj): The command line arguments.
         
     Returns:
-        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+        Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
 
-    ret_status = Ret.RET_OK
+    ret_status = Ret.CODE.RET_OK
 
     filepath = _get_filepath(args.issue,
                              args.filename,
                              args.path,
                              args.csv)
     if filepath is None:
-        ret_status = Ret.RET_ERROR_FILEPATH_INVALID
+        ret_status = Ret.CODE.RET_ERROR_FILEPATH_INVALID
 
     else:
         ret_status = _export_ticket_to_file(args.issue,
@@ -137,7 +137,7 @@ def _cmd_export(args) -> Ret:
                                             args.user,
                                             args.password)
 
-    if ret_status == Ret.RET_OK:
+    if ret_status == Ret.CODE.RET_OK:
         printer.print_info('File saved at:', filepath)
 
     return ret_status
@@ -207,17 +207,17 @@ def _export_ticket_to_file(issue_key:str, filepath:str, user:str, pw:str) -> Ret
         pw (str):         Password for login (if provided).  
 
     Returns:
-        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+        Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
 # pylint: disable=R0801
-    ret_status = Ret.RET_OK
+    ret_status = Ret.CODE.RET_OK
     issue = JiraIssue()
     server = Server()
 
     # login to server, get jira handle obj
     ret_status = server.login(user, pw)
 
-    if ret_status == Ret.RET_OK:
+    if ret_status == Ret.CODE.RET_OK:
         jira = server.get_handle()
         # export issue from jira server
         ret_status = issue.export_issue(jira, issue_key)
@@ -228,7 +228,7 @@ def _export_ticket_to_file(issue_key:str, filepath:str, user:str, pw:str) -> Ret
     if os.path.splitext(filepath)[-1] == '.csv':
         csv = True
 
-    if ret_status == Ret.RET_OK:
+    if ret_status == Ret.CODE.RET_OK:
         if csv:
             # export fiel to csv format
             ret_status = issue.create_csv(filepath)
@@ -264,16 +264,16 @@ def _process_file_argument(arg_file:str, csv:bool) -> Tuple[str, bool]:
 
     else:
         if ext == '.json' and csv:
-            printer.print_error(PrintType.WARNING, Warnings.WARNING_CSV_OPTION_WRONG )
+            printer.print_error(PrintType.WARNING, Warnings.CODE.WARNING_CSV_OPTION_WRONG )
             csv = False
 
         elif ext == '.csv' and not csv:
-            printer.print_error(PrintType.WARNING, Warnings.WARNING_CSV_OPTION_WRONG )
+            printer.print_error(PrintType.WARNING, Warnings.CODE.WARNING_CSV_OPTION_WRONG )
             csv = True
 
         elif ext[0] == '.' and \
              ext not in ('.json', '.csv'):
-            printer.print_error(PrintType.WARNING, Warnings.WARNING_UNKNOWN_FILE_EXTENSION)
+            printer.print_error(PrintType.WARNING, Warnings.CODE.WARNING_UNKNOWN_FILE_EXTENSION)
 
     filename = arg_file.replace(ext, '')
 
@@ -348,12 +348,12 @@ def _handle_path_to_file(arg_path:str, filename:str, arg_file:str, csv:bool) -> 
 
     if ext == '.json' and csv or \
        ext == '.csv' and not csv:
-        printer.print_error(PrintType.WARNING, Warnings.WARNING_CSV_OPTION_WRONG)
+        printer.print_error(PrintType.WARNING, Warnings.CODE.WARNING_CSV_OPTION_WRONG)
         file_path = arg_path
         csv = ext == '.csv'
 
     if ext not in ('.json', '.csv'):
-        printer.print_error(PrintType.WARNING, Warnings.WARNING_UNKNOWN_FILE_EXTENSION)
+        printer.print_error(PrintType.WARNING, Warnings.CODE.WARNING_UNKNOWN_FILE_EXTENSION)
         arg_path.replace(ext, '')
 
         if csv:
