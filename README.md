@@ -340,8 +340,8 @@ def register(subparser):
 def execute(args):
   ''' execute function, your module enty point will be here
       returns the module exit code: 
-      retval.Ret.RET_OK'''
-    ret_status = Ret.RET_OK
+      retval.Ret.CODE.RET_OK'''
+    ret_status = Ret.CODE.RET_OK
 
     ret_status = execute_cmd(args)
 
