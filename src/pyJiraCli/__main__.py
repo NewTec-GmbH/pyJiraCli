@@ -125,7 +125,7 @@ def main() -> Ret:
     Returns:
         int: System exit status.
     """
-    ret_status = Ret.RET_OK
+    ret_status = Ret.CODE.RET_OK
     printer = Printer()
     args = None
 
@@ -160,7 +160,7 @@ def main() -> Ret:
     # call command function and return exit status
     ret_status = args.func(args)
 
-    if ret_status != Ret.RET_OK:
+    if ret_status != Ret.CODE.RET_OK:
         printer.print_error(PrintType.ERROR, ret_status)
 
     return ret_status

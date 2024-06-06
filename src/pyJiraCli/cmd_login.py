@@ -152,7 +152,7 @@ def execute(args) -> Ret:
         args (obj): The command line arguments.
         
     Returns:
-        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+        Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
     return _cmd_login(args)
 
@@ -163,12 +163,12 @@ def _cmd_login(args) -> Ret:
         args (obj): The command line arguments.
         
     Returns:
-        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+        Ret:   Ret.CODE.RET_OK if succesfull, corresponding error code if not
     """
-    ret_status = Ret.RET_OK
+    ret_status = Ret.CODE.RET_OK
 
     if args.data1 is None and args.data2 is None :
-        ret_status = Ret.RET_ERROR_MISSING_LOGIN_DATA
+        ret_status = Ret.CODE.RET_ERROR_MISSING_LOGIN_DATA
     else:
         ret_status = _store_login_info(args)
 
@@ -183,9 +183,9 @@ def _store_login_info(args) -> Ret:
         args (obj): The commnd line arguments.
 
     Returns:
-        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+        Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
-    ret_status = Ret.RET_OK
+    ret_status = Ret.CODE.RET_OK
 
     data1 = None # username, token, url or path
     data2 = None # optional: pw only with username
@@ -218,7 +218,7 @@ def _store_information(data1:str, data2:str, args:object, expiration_date:float)
         expiration_date (float): The expiration date for this information.
 
     Returns:
-        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+        Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
 
     crypto_h = Crypto()
@@ -239,12 +239,12 @@ def _store_information(data1:str, data2:str, args:object, expiration_date:float)
     elif args.userinfo:
         data_type = DataType.DATATYPE_USER_INFO
         if data2 is None:
-            ret_status = Ret.RET_ERROR_MISSING_UNSERINFO
+            ret_status = Ret.CODE.RET_ERROR_MISSING_UNSERINFO
 
         else:
             ret_status = server.try_login(data1, data2, None)
 
-        if ret_status == Ret.RET_OK:
+        if ret_status == Ret.CODE.RET_OK:
             crypto_h.set_data(data1, data2)
             ret_status = crypto_h.encrypt_information(expiration_date, DataType.DATATYPE_USER_INFO)
 
@@ -252,7 +252,7 @@ def _store_information(data1:str, data2:str, args:object, expiration_date:float)
         data_type = DataType.DATATYPE_TOKEN_INFO
         ret_status = server.try_login(None, None, data1)
 
-        if ret_status == Ret.RET_OK:
+        if ret_status == Ret.CODE.RET_OK:
             crypto_h.set_data(data1)
             ret_status = crypto_h.encrypt_information(expiration_date, DataType.DATATYPE_TOKEN_INFO)
 
@@ -261,9 +261,9 @@ def _store_information(data1:str, data2:str, args:object, expiration_date:float)
         ret_status = crypto_h.store_certificate(data1, expiration_date)
 
     else:
-        ret_status = Ret.RET_ERROR_MISSING_DATATYPE
+        ret_status = Ret.CODE.RET_ERROR_MISSING_DATATYPE
 
-    if ret_status == Ret.RET_OK:
+    if ret_status == Ret.CODE.RET_OK:
         # Convert epoch time to datetime object
         dt = datetime.fromtimestamp(expiration_date)
 

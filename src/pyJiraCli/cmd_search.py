@@ -91,7 +91,7 @@ def execute(args) -> Ret:
         args (obj): The command line arguments.
         
     Returns:
-        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+        Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
     return _cmd_search(args.filter, args.user, args.password, args.max)
 
@@ -104,9 +104,9 @@ def _cmd_search(filter_str:str, user:str, pw:str, results:int) -> Ret:
         pw (str)            Password for login.
     
     Returns:
-        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+        Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
-    ret_status = Ret.RET_OK
+    ret_status = Ret.CODE.RET_OK
     server = Server()
     printer = Printer()
 
@@ -115,10 +115,10 @@ def _cmd_search(filter_str:str, user:str, pw:str, results:int) -> Ret:
 
     ret_status = server.login(user, pw)
 
-    if ret_status == Ret.RET_OK:
+    if ret_status == Ret.CODE.RET_OK:
         ret_status = server.search(filter_str, results)
 
-    if ret_status == Ret.RET_OK:
+    if ret_status == Ret.CODE.RET_OK:
         found_issues = server.get_search_result()
         printer.print_info('Search string:', filter_str)
         printer.print_info('Found Issues:', str(len(found_issues)))

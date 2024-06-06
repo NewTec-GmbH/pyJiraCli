@@ -60,9 +60,9 @@ class FileHandler:
             path (str): Path to the file.
         
         Returns:
-        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+        Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
-        ret_status = Ret.RET_OK
+        ret_status = Ret.CODE.RET_OK
         folder_path = path.split(os.path.sep)[:-1]
         folder_path = os.path.sep.join(folder_path)
 
@@ -74,7 +74,7 @@ class FileHandler:
                 self._ext = os.path.splitext(path)[-1]
 
         else:
-            ret_status = Ret.RET_ERROR_FILEPATH_INVALID
+            ret_status = Ret.CODE.RET_ERROR_FILEPATH_INVALID
 
         return  ret_status
 
@@ -83,15 +83,15 @@ class FileHandler:
             to the file instance.
 
         Returns:
-            Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+            Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
-        ret_status = Ret.RET_OK
+        ret_status = Ret.CODE.RET_OK
 
         if self._file is None:
             # open file in read mode
             ret_status = self.open_file(file_mode='r')
 
-        if ret_status == Ret.RET_OK:
+        if ret_status == Ret.CODE.RET_OK:
             self._content = self._file.read()
 
         return ret_status
@@ -132,15 +132,15 @@ class FileHandler:
             file_input (str): A string that'll be written to the file.
 
         Returns:
-            Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+            Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
-        ret_status = Ret.RET_OK
+        ret_status = Ret.CODE.RET_OK
 
         if self._file is None:
             # open file in write mode
             ret_status = self.open_file(file_mode='w')
 
-        if ret_status == Ret.RET_OK:
+        if ret_status == Ret.CODE.RET_OK:
             self._file.write(file_input)
 
         return  ret_status
@@ -153,9 +153,9 @@ class FileHandler:
             file_mode (str): For reading files 'r' or for writing files 'w'.    
 
         Returns:
-            Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+            Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
-        ret_status = Ret.RET_OK
+        ret_status = Ret.CODE.RET_OK
 
         try:
             self._file = open(self._path, mode=file_mode, encoding='utf-8') # pylint: disable=consider-using-with
@@ -163,7 +163,7 @@ class FileHandler:
         except (OSError, FileNotFoundError, IOError) as e:
             # print exception
             print(str(e))
-            ret_status = Ret.RET_ERROR_FILE_OPEN_FAILED
+            ret_status = Ret.CODE.RET_ERROR_FILE_OPEN_FAILED
 
         return  ret_status
 

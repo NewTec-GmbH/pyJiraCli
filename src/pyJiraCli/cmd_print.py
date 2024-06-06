@@ -74,7 +74,7 @@ def execute(args) -> Ret:
         args (obj): The command line arguments.
         
     Returns:
-        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+        Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
     return _cmd_print(args.issueKey, args.user, args.password)
 
@@ -91,18 +91,18 @@ def _cmd_print(issue_key:str, user:str, pw:str) -> Ret:
         retval.Ret: return status of the module
     """
 # pylint: disable=R0801
-    ret_status = Ret.RET_OK
+    ret_status = Ret.CODE.RET_OK
     issue = JiraIssue()
     server = Server()
 
     ret_status = server.login(user, pw)
-    if ret_status == Ret.RET_OK:
+    if ret_status == Ret.CODE.RET_OK:
         jira = server.get_handle()
         # export issue from jira server
         ret_status = issue.export_issue(jira, issue_key)
 # pylint: enable=R0801
 
-    if ret_status == Ret.RET_OK:
+    if ret_status == Ret.CODE.RET_OK:
         issue.print_issue()
 
     server.logout()

@@ -54,48 +54,6 @@ TYPE = {
     PrintType.INFO    : "Info"
 }
 
-RETURN_MSG = {
-    Ret.RET_OK                           : "Process succesful",
-    Ret.RET_ERROR                        : "Error occured",
-    Ret.RET_ERROR_ARGPARSE               : "Error while parsing arguments",
-    Ret.RET_ERROR_FILEPATH_INVALID       : "The provided -path doesnt exist",
-    Ret.RET_ERROR_WORNG_FILE_FORMAT      : "Wrong file format for save file provided",
-    Ret.RET_ERROR_ISSUE_NOT_FOUND        : "Jira Issue not found",
-    Ret.RET_ERROR_FILE_OPEN_FAILED       : "opening File failed",
-    Ret.RET_ERROR_NO_USERINFORMATION     : "no user information was provided via cli " + \
-                                           "or stored information file",
-    Ret.RET_ERROR_MISSING_UNSERINFO      : "both -user and -pw option must be provided " + \
-                                           "to store useriformation",
-    Ret.RET_ERROR_MISSING_LOGIN_DATA     : "At least one of the arguments must be provided: " + \
-                                           "<data1> (with --userinfo, --token, --server" + \
-                                           " or --default option) or -delete",
-    Ret.RET_ERROR_MISSING_SERVER_URL     : "No Server url found. PLease add a " + \
-                                           "custom url for your jira server.",
-    Ret.RET_ERROR_MISSING_DATATYPE       : "No datatype for login command given. " + \
-                                           "Provide the Datatype via " +\
-                                           "--userinfo, --token, --server or -- default " + \
-                                           "option with the login command",
-    Ret.RET_ERROR_CREATING_TICKET_FAILED : "creating the ticket on the jira server failed",
-    Ret.RET_ERROR_INVALID_SEARCH         : "search string returned a jira error",
-    Ret.RET_ERROR_JIRA_LOGIN             : "Login to jira server was not possible",
-}
-
-WARN_MSG = {
-    Warnings.WARNING_UNSAVE_CONNECTION      : "No certificate for server " + \
-                                              "authentification found. " + \
-                                              "It's strongly advised, " +\
-                                              "to add a certificate with the login command.",
-    Warnings.WARNING_CSV_OPTION_WRONG       : "File ending from provided file and " + \
-                                              "csv option dont match. " + \
-                                              "File format provided by file or path was used.",
-    Warnings.WARNING_UNKNOWN_FILE_EXTENSION : "The provided file has an unknown file format. " +\
-                                              "A new file with the same " +\
-                                              "name and a file format according to the " +\
-                                              "-csv option will be created.",
-    Warnings.WARNING_INFO_FILE_EXPIRED      : "The stored information has expired " +\
-                                              "and will be deleted",
-}
-
 INFO_TAB = "      "
 ################################################################################
 # Classes
@@ -116,7 +74,7 @@ class Printer:
         """Set verbose mode for all instances of the class."""
         cls._print_verbose = True
 
-    def print_error(self, err_type:PrintType, error:Ret=Ret.RET_OK) -> None:
+    def print_error(self, err_type: PrintType, error: Ret = Ret.CODE.RET_OK) -> None:
         """ Print the exit error.
     
         Args:
@@ -125,10 +83,12 @@ class Printer:
         """
         if err_type is PrintType.WARNING and \
            self._print_verbose:
-            print(COLOR[err_type] + TYPE[err_type] + ": " + Style.RESET_ALL + WARN_MSG[error])
+            print(COLOR[err_type] + TYPE[err_type] + ": " +
+                  Style.RESET_ALL + Warnings.MSG[error])
 
         elif err_type is PrintType.ERROR:
-            print(COLOR[err_type] + TYPE[err_type] + ": " + Style.RESET_ALL + RETURN_MSG[error])
+            print(COLOR[err_type] + TYPE[err_type] + ": " +
+                  Style.RESET_ALL + Ret.MSG[error])
 
     def print_info(self, *args:str) -> None:
         """ Print the information to the console.

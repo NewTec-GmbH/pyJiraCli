@@ -79,21 +79,21 @@ class Server:
             pw (str):       Provided password from the commandline or None.
 
         returns:
-            Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+            Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
-        ret_status = Ret.RET_OK
+        ret_status = Ret.CODE.RET_OK
         _printer = Printer()
         cert_path = self._crypto_h.get_cert_path()
 
         self._server_url = self._get_server_url()
 
         if self._server_url is None:
-            ret_status = Ret.RET_ERROR_MISSING_SERVER_URL
+            ret_status = Ret.CODE.RET_ERROR_MISSING_SERVER_URL
 
         else:
 
             if cert_path is None:
-                _printer.print_error(PrintType.WARNING, Warnings.WARNING_UNSAVE_CONNECTION)
+                _printer.print_error(PrintType.WARNING, Warnings.CODE.WARNING_UNSAVE_CONNECTION)
 
             else:
                 self._cert_path = cert_path
@@ -104,7 +104,7 @@ class Server:
                 # get login information from login module
                 ret_status = self._crypto_h.decrypt_information(DataType.DATATYPE_TOKEN_INFO)
 
-                if ret_status == Ret.RET_OK:
+                if ret_status == Ret.CODE.RET_OK:
                     token = self._crypto_h.get_data(DataMembers.DATA_MEM_1)
 
                     ret_status = self._login_with_token(token)
@@ -112,7 +112,7 @@ class Server:
                 else:
                     ret_status = self._crypto_h.decrypt_information(DataType.DATATYPE_USER_INFO)
 
-                    if ret_status == Ret.RET_OK:
+                    if ret_status == Ret.CODE.RET_OK:
                         user = self._crypto_h.get_data(DataMembers.DATA_MEM_1)
                         pw = self._crypto_h.get_data(DataMembers.DATA_MEM_2)
                         ret_status = self._login_with_password(user, pw)
@@ -120,7 +120,7 @@ class Server:
             else:
                 ret_status = self._login_with_password(user, pw)
 
-            if ret_status == Ret.RET_OK and \
+            if ret_status == Ret.CODE.RET_OK and \
             self._user is not None:
                 _printer.print_info('Login succesful. Logged in as:', self._user)
 
@@ -137,22 +137,22 @@ class Server:
             token (str):    API Token for authentification or None.
 
         Returns:
-            Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+            Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
 
-        ret_status = Ret.RET_OK
+        ret_status = Ret.CODE.RET_OK
         _printer = Printer()
         cert_path = self._crypto_h.get_cert_path()
 
         self._server_url = self._get_server_url()
 
         if self._server_url is None:
-            ret_status = Ret.RET_ERROR_MISSING_SERVER_URL
+            ret_status = Ret.CODE.RET_ERROR_MISSING_SERVER_URL
 
         else:
 
             if cert_path is None:
-                _printer.print_error(PrintType.WARNING, Warnings.WARNING_UNSAVE_CONNECTION)
+                _printer.print_error(PrintType.WARNING, Warnings.CODE.WARNING_UNSAVE_CONNECTION)
 
             else:
                 self._cert_path = cert_path
@@ -164,9 +164,9 @@ class Server:
                 ret_status = self._login_with_token(token)
 
             else:
-                return Ret.RET_ERROR
+                return Ret.CODE.RET_ERROR
 
-            if ret_status == Ret.RET_OK and \
+            if ret_status == Ret.CODE.RET_OK and \
             self._user is not None:
                 _printer.print_info('Login succesful. Logged in as:', self._user)
 
@@ -191,13 +191,13 @@ class Server:
             max_results (int): The maximum number of search results.
 
         Returns:
-            Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+            Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
 
-        ret_status = Ret.RET_OK
+        ret_status = Ret.CODE.RET_OK
 
         if self._jira_obj is None:
-            ret_status = Ret.RET_ERROR
+            ret_status = Ret.CODE.RET_ERROR
 
         else:
             try:
@@ -206,7 +206,7 @@ class Server:
 
             except exceptions.JIRAError as e:
                 print(e.text)
-                ret_status = Ret.RET_ERROR_INVALID_SEARCH
+                ret_status = Ret.CODE.RET_ERROR_INVALID_SEARCH
 
         return ret_status
 
@@ -226,11 +226,11 @@ class Server:
             token (str):    The API token for login.
 
         Returns:
-            Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+            Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
 
         user = None
-        ret_status = Ret.RET_OK
+        ret_status = Ret.CODE.RET_OK
 
         os.environ["SSL_CERT_FILE"] = certifi.where()
 
@@ -255,10 +255,10 @@ class Server:
             else:
                 print(str(e))
 
-            ret_status = Ret.RET_ERROR_JIRA_LOGIN
+            ret_status = Ret.CODE.RET_ERROR_JIRA_LOGIN
 
         if user is None:
-            ret_status = Ret.RET_ERROR_JIRA_LOGIN
+            ret_status = Ret.CODE.RET_ERROR_JIRA_LOGIN
 
         self._user = user
 
@@ -272,10 +272,10 @@ class Server:
             pw (str):       Password for login.
 
         Returns:
-            Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+            Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
 
-        ret_status = Ret.RET_OK
+        ret_status = Ret.CODE.RET_OK
 
         os.environ["SSL_CERT_FILE"] = certifi.where()
 
@@ -299,10 +299,10 @@ class Server:
             else:
                 print(str(e))
 
-            ret_status = Ret.RET_ERROR_JIRA_LOGIN
+            ret_status = Ret.CODE.RET_ERROR_JIRA_LOGIN
 
         if user is None:
-            ret_status = Ret.RET_ERROR_JIRA_LOGIN
+            ret_status = Ret.CODE.RET_ERROR_JIRA_LOGIN
 
         self._user = user
 
@@ -319,11 +319,11 @@ class Server:
 
         ret_status = self._crypto_h.decrypt_information(data_type)
 
-        if ret_status is not Ret.RET_OK:
+        if ret_status is not Ret.CODE.RET_OK:
             data_type = DataType.DATATYPE_SERVER_DEFAULT
             ret_status = self._crypto_h.decrypt_information(data_type)
 
-        if ret_status is Ret.RET_OK:
+        if ret_status is Ret.CODE.RET_OK:
             server_url = self._crypto_h.get_data(DataMembers.DATA_MEM_1)
 
         return server_url
