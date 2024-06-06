@@ -49,11 +49,13 @@ from pyJiraCli.profile import Profile
 from pyJiraCli.printer import Printer, PrintType
 from pyJiraCli.ret import Ret, Warnings
 
+# pylint: disable=E0401
 if os.name == 'nt':
     import msvcrt
 else:
     import tty
     import termios
+# pylint: enable=E0401
 
 ################################################################################
 # Variables
@@ -358,7 +360,8 @@ if os.name == 'nt':
             char = msvcrt.getch()
             if char in {b'\n', b'\r'}:
                 break
-            elif char == b'\x08':  # Backspace
+
+            if char == b'\x08':  # Backspace
                 if len(password) > 0:
                     password = password[:-1]
                     sys.stdout.write('\b \b')
@@ -384,9 +387,10 @@ else:
             password = ""
             while True:
                 char = sys.stdin.read(1)
-                if char == '\n' or char == '\r':
+                if char in ('\n', '\r'):
                     break
-                elif char == '\b' or ord(char) == 127:
+
+                if char == '\b' or ord(char) == 127:
                     if len(password) > 0:
                         password = password[:-1]
                         sys.stdout.write('\b \b')
