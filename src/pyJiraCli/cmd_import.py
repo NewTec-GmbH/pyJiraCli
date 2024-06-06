@@ -81,9 +81,9 @@ def execute(args) -> Ret:
         args (obj):   The command line arguments.
         
     Returns:
-        Ret:   Ret.RET_OK if succesfull, corresponding error code if not
+        Ret:   Ret.CODE.RET_OK if succesfull, corresponding error code if not
     """
-    ret_status = Ret.RET_OK
+    ret_status = Ret.CODE.RET_OK
 
     ret_status =  _cmd_import(args.file, args.user, args.password)
 
@@ -100,9 +100,9 @@ def _cmd_import(input_file:str, user:str, pw:str) -> Ret:
         pw (str):          The Password for login.
         
     Returns:
-        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+        Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
-    ret_status = Ret.RET_OK
+    ret_status = Ret.CODE.RET_OK
 
     issue = JiraIssue()
     server = Server()
@@ -116,31 +116,31 @@ def _cmd_import(input_file:str, user:str, pw:str) -> Ret:
     # check if provided file is viable
     ret_status = file.set_filepath(input_file)
 
-    if ret_status == Ret.RET_OK:
+    if ret_status == Ret.CODE.RET_OK:
         if file.get_file_extension() not in ('.json', '.csv'):
-            ret_status = Ret.RET_ERROR_WORNG_FILE_FORMAT
+            ret_status = Ret.CODE.RET_ERROR_WORNG_FILE_FORMAT
     else:
-        ret_status = Ret.RET_ERROR_FILEPATH_INVALID
+        ret_status = Ret.CODE.RET_ERROR_FILEPATH_INVALID
 
     # if file is viable
-    if ret_status == Ret.RET_OK:
+    if ret_status == Ret.CODE.RET_OK:
 
         ret_status = file.open_file(file_mode='r')
 
-    if ret_status == Ret.RET_OK:
+    if ret_status == Ret.CODE.RET_OK:
         issue_dict = _read_file(file)
 
         issue.import_issue(issue_dict)
 
-    if ret_status == Ret.RET_OK:
+    if ret_status == Ret.CODE.RET_OK:
         ret_status = server.login(user, pw)
 
-        if ret_status == Ret.RET_OK:
+        if ret_status == Ret.CODE.RET_OK:
             jira = server.get_handle()
             issue_key = issue.create_ticket(jira)
 
     if issue_key is None:
-        ret_status = Ret.RET_ERROR_CREATING_TICKET_FAILED
+        ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
 
     else:
         printer.print_info('Your ticket has been created with key:', issue_key)

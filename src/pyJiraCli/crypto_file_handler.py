@@ -147,7 +147,7 @@ class Crypto:
             data_type (DataType):   Which data_type is to be written (userinfo, token, server).
 
         Returns:
-        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+        Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
         # get file paths
         file_path_data, file_path_key = file_paths[data_type]
@@ -159,7 +159,7 @@ class Crypto:
         ret_status = self._file_data.set_filepath(self._homepath + file_path_data)
         ret_status = self._file_key.set_filepath(self._homepath + file_path_key)
 
-        if ret_status == Ret.RET_OK:
+        if ret_status == Ret.CODE.RET_OK:
             # get data structure for user data unencrypted
             data_str = _get_data_str(self._data1, self._data2, expires, data_type)
 
@@ -180,9 +180,9 @@ class Crypto:
 
             except (TypeError, ValueError, InvalidToken) as e:
                 print(str(e))
-                ret_status = Ret.RET_ERROR
+                ret_status = Ret.CODE.RET_ERROR
 
-            if ret_status != Ret.RET_OK:
+            if ret_status != Ret.CODE.RET_OK:
                 self._file_key.delete_file()
                 self._file_data.delete_file()
 
@@ -204,10 +204,10 @@ class Crypto:
                                     (user, token, server, default servers).
 
         Returns:
-        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+        Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
 
-        ret_status = Ret.RET_OK
+        ret_status = Ret.CODE.RET_OK
 
         if data_type in file_paths:
             file_name_data, file_name_key = file_paths[data_type]
@@ -217,9 +217,9 @@ class Crypto:
 
             if not os.path.exists(filepath_data) or \
                not os.path.exists(filepath_key):
-                ret_status = Ret.RET_ERROR_NO_USERINFORMATION
+                ret_status = Ret.CODE.RET_ERROR_NO_USERINFORMATION
 
-        if ret_status == Ret.RET_OK:
+        if ret_status == Ret.CODE.RET_OK:
             ret_status = self._read_encrypted_data(filepath_data,
                                                    filepath_key,
                                                    data_type)
@@ -234,9 +234,9 @@ class Crypto:
             expires (float): Date of expiration of the stored file.
 
         Returns:
-            Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+            Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
-        ret_status = Ret.RET_OK
+        ret_status = Ret.CODE.RET_OK
 
         cert_input_file = File()
         cert_info_file  = File()
@@ -245,24 +245,24 @@ class Crypto:
 
         ret_status = cert_input_file.set_filepath(crt_file_path)
 
-        if ret_status == Ret.RET_OK:
+        if ret_status == Ret.CODE.RET_OK:
             ext = cert_input_file.get_file_extension()
             if ext != ".crt":
-                ret_status = Ret.RET_ERROR_WORNG_FILE_FORMAT
+                ret_status = Ret.CODE.RET_ERROR_WORNG_FILE_FORMAT
 
-        if ret_status == Ret.RET_OK:
+        if ret_status == Ret.CODE.RET_OK:
             ret_status = cert_exp_file.set_filepath(_get_path_to_login_folder() + CERT_EXP_FILE)
 
-        if ret_status == Ret.RET_OK:
+        if ret_status == Ret.CODE.RET_OK:
             ret_status = cert_key_file.set_filepath(_get_path_to_login_folder() + CERT_KEY_FILE)
 
-        if ret_status == Ret.RET_OK:
+        if ret_status == Ret.CODE.RET_OK:
             ret_status = cert_info_file.set_filepath(_get_path_to_login_folder() + CERT_INFO_FILE)
 
-        if ret_status == Ret.RET_OK:
+        if ret_status == Ret.CODE.RET_OK:
             ret_status = cert_input_file.read_file()
 
-        if ret_status == Ret.RET_OK:
+        if ret_status == Ret.CODE.RET_OK:
 
             # delete old files
             cert_info_file.delete_file()
@@ -292,9 +292,9 @@ class Crypto:
 
             except (TypeError, ValueError, InvalidToken) as e:
                 print(str(e))
-                ret_status = Ret.RET_ERROR
+                ret_status = Ret.CODE.RET_ERROR
 
-            if ret_status != Ret.RET_OK:
+            if ret_status != Ret.CODE.RET_OK:
                 cert_info_file.delete_file()
                 cert_exp_file.delete_file()
                 cert_key_file.delete_file()
@@ -315,10 +315,10 @@ class Crypto:
             and return if the process was succesful.
 
         Returns:
-            Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+            Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
         printer = Printer()
-        ret_status = Ret.RET_OK
+        ret_status = Ret.CODE.RET_OK
         expires = None
 
         cert_info_file  = File()
@@ -327,18 +327,18 @@ class Crypto:
 
         ret_status = cert_exp_file.set_filepath(self._homepath + CERT_EXP_FILE)
 
-        if ret_status == Ret.RET_OK:
+        if ret_status == Ret.CODE.RET_OK:
             ret_status = cert_key_file.set_filepath(self._homepath + CERT_KEY_FILE)
 
-        if ret_status == Ret.RET_OK:
+        if ret_status == Ret.CODE.RET_OK:
             ret_status = cert_info_file.set_filepath(self._homepath + CERT_INFO_FILE)
 
-        if ret_status == Ret.RET_OK:
+        if ret_status == Ret.CODE.RET_OK:
             ret_status = cert_info_file.read_file()
             ret_status = cert_exp_file.read_file()
             ret_status = cert_key_file.read_file()
 
-        if ret_status == Ret.RET_OK:
+        if ret_status == Ret.CODE.RET_OK:
             f_reader = Fernet(self._root_key)
 
             try:
@@ -356,7 +356,7 @@ class Crypto:
 
             except InvalidToken as e: # pylint: disable=broad-except
                 print(e)
-                ret_status = Ret.RET_ERROR
+                ret_status = Ret.CODE.RET_ERROR
 
         cert_info_file.close_file()
         cert_exp_file.close_file()
@@ -364,7 +364,7 @@ class Crypto:
 
         if expires is not None and \
            expires <= time.time():
-            printer.print_error(PrintType.WARNING, Warnings.WARNING_INFO_FILE_EXPIRED)
+            printer.print_error(PrintType.WARNING, Warnings.CODE.WARNING_INFO_FILE_EXPIRED)
             printer.print_info("Expired DatatType:", f"{str(DataType.DATATYPE_CERT_INFO)}")
             self.delete(DataType.DATATYPE_CERT_INFO)
 
@@ -378,7 +378,7 @@ class Crypto:
             str: Path to the certificate file.
         """
 
-        ret_status = Ret.RET_OK
+        ret_status = Ret.CODE.RET_OK
 
         file = File()
         cert_data = None
@@ -388,17 +388,17 @@ class Crypto:
         if os.path.exists(folderpath + CERT_INFO_FILE):
             ret_status = self.decrypt_certificate()
         else:
-            ret_status = Ret.RET_ERROR
+            ret_status = Ret.CODE.RET_ERROR
 
-        if ret_status == Ret.RET_OK:
+        if ret_status == Ret.CODE.RET_OK:
             cert_data = self.get_data(DataMembers.DATA_MEM_1)
             ret_status = file.set_filepath(folderpath + CERT_FILE)
 
-        if ret_status == Ret.RET_OK:
+        if ret_status == Ret.CODE.RET_OK:
             ret_status = file.write_file(cert_data)
             file.close_file()
 
-        if ret_status == Ret.RET_OK:
+        if ret_status == Ret.CODE.RET_OK:
             cert_path = folderpath + CERT_FILE
 
         return cert_path
@@ -458,9 +458,9 @@ class Crypto:
             data_type (DataType):   The dataType that shall be decrypted.   
 
         Returns:
-        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+        Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
-        ret_status = Ret.RET_OK
+        ret_status = Ret.CODE.RET_OK
         printer = Printer()
         expires = None
         tmp_file = File()
@@ -469,11 +469,11 @@ class Crypto:
         ret_status = self._file_key.set_filepath(path_key)
         ret_status = tmp_file.set_filepath(self._homepath + TMP_FILE)
 
-        if ret_status == Ret.RET_OK:
+        if ret_status == Ret.CODE.RET_OK:
             ret_status = self._file_key.read_file()
             ret_status = self._file_data.read_file()
 
-        if ret_status == Ret.RET_OK:
+        if ret_status == Ret.CODE.RET_OK:
             f_reader = Fernet(self._root_key)
 
             try:
@@ -492,12 +492,12 @@ class Crypto:
 
             except Exception as e: # pylint: disable=broad-except
                 print(str(e))
-                ret_status = Ret.RET_ERROR
+                ret_status = Ret.CODE.RET_ERROR
 
-        if ret_status == Ret.RET_OK:
+        if ret_status == Ret.CODE.RET_OK:
             ret_status = tmp_file.open_file(file_mode='r')
 
-        if ret_status == Ret.RET_OK:
+        if ret_status == Ret.CODE.RET_OK:
             data = json.load(tmp_file.get_file())
 
             # read data
@@ -510,7 +510,7 @@ class Crypto:
                 expires = float(data["expires"])
 
         else:
-            ret_status = Ret.RET_ERROR_NO_USERINFORMATION
+            ret_status = Ret.CODE.RET_ERROR_NO_USERINFORMATION
 
         self._file_key.close_file()
         self._file_data.close_file()
@@ -519,7 +519,7 @@ class Crypto:
 
         if expires is not None and \
            expires <= time.time():
-            printer.print_error(PrintType.WARNING, Warnings.WARNING_INFO_FILE_EXPIRED)
+            printer.print_error(PrintType.WARNING, Warnings.CODE.WARNING_INFO_FILE_EXPIRED)
             printer.print_info("Expired DatatType:", f"{str(data_type)}")
             self.delete(data_type)
 
