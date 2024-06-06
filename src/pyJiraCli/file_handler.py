@@ -94,6 +94,8 @@ class FileHandler:
         if ret_status == Ret.CODE.RET_OK:
             self._content = self._file.read()
 
+        self.close_file()
+
         return ret_status
 
     def get_file(self) -> object:
@@ -142,6 +144,8 @@ class FileHandler:
 
         if ret_status == Ret.CODE.RET_OK:
             self._file.write(file_input)
+
+        self.close_file()
 
         return  ret_status
 
