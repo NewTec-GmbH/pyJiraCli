@@ -113,7 +113,7 @@ def test_search():
 
 def test_profile():
     """
-    Test the print command of the pyJiraCli.
+    Test the profile command of the pyJiraCli.
     """
 
     # Test the print command with no arguments.

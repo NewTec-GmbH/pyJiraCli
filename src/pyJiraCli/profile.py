@@ -74,15 +74,16 @@ class Profile:
             profile_url:str,
             login_token:str,
             cert_path:str) -> Ret.CODE:
-        """_summary_
+        """ Adds a new profile with the provided details.
 
         Args:
-            profile_name (str): _description_
-            profile_url (str): _description_
-            login_token (str): _description_
+            profile_name (str): The unique name of the profile.
+            profile_url (str): The URL associated with the profile.
+            login_token (str): The login token for profile authentication.
+            cert_path (str): The file path to the profile's server certificate.
 
         Returns:
-            Ret.CODE: _description_
+            Ret.CODE: A status code indicating the result of the operation.
         """
 
         ret_status = Ret.CODE.RET_OK
@@ -127,13 +128,14 @@ class Profile:
         return ret_status
 
     def add_certificate(self, profile_name:str, cert_path:str) -> Ret.CODE:
-        """_summary_
+        """ Adds a server certificate to the specified profile.
 
         Args:
-            cert_path (str): _description_
+            profile_name (str): The name of the profile.
+            cert_path (str): The file path to the certificate.
 
         Returns:
-            Ret.CODE: _description_
+            Ret.CODE: A status code indicating the result of the operation.
         """
         ret_status = Ret.CODE.RET_OK
 
@@ -166,13 +168,14 @@ class Profile:
         return ret_status
 
     def add_token(self, profile_name:str, api_token:str) -> Ret.CODE:
-        """_summary_
+        """ Adds an API token to the specified profile.
 
         Args:
-            cert_path (str): _description_
+            profile_name (str): The name of the profile.
+            api_token (str): The API token for accessing the profile.
 
         Returns:
-            Ret.CODE: _description_
+            Ret.CODE: A status code indicating the result of the operation.
         """
         ret_status = Ret.CODE.RET_OK
 
@@ -202,14 +205,14 @@ class Profile:
         return ret_status
 
     def add_config(self, issue_config_file:str, project_config_file:str) -> Ret.CODE:
-        """_summary_
+        """ Adds configuration settings from specified files to the profile.
 
         Args:
-            issue_config_file (str): _description_
-            project_config_file (str): _description_
+            issue_config_file (str): Path to the file containing issue configuration settings.
+            project_config_file (str): Path to the file containing project configuration settings.
 
         Returns:
-            Ret.CODE: _description_
+            Ret.CODE: Status code indicating success or failure of the configuration addition.
         """
         ret_status = Ret.CODE.RET_OK
 
@@ -220,13 +223,14 @@ class Profile:
         return ret_status
 
     def load(self, profile_name:str) -> Ret.CODE:
-        """_summary_
+        """ Loads the server profile information 
+            for the specified profile.
 
         Args:
-            profile_name (str): _description_
+            profile_name (str): Name of the server profile to load.
 
         Returns:
-            Ret.CODE: _description_
+            Ret.CODE: Status code indicating the success or failure of the load operation.
         """
         ret_status = Ret.CODE.RET_OK
 
@@ -254,12 +258,12 @@ class Profile:
         return ret_status
 
     def get_config_data(self) -> dict:
-        """ This function will format all
+        """ This function will format and return all
             available config data so that it can
             be used by the other modules.
 
         Returns:
-            dict: _description_
+            dict: A dictionary containing all formatted configuration data.
         """
         config_dict = {}
 
@@ -291,26 +295,26 @@ class Profile:
                                "A profile with this name does not exist.")
 
     def get_cert_path(self) -> str:
-        """_summary_
+        """ Retrieves the file path to the server certificate.
 
         Returns:
-            _type_: _description_
+            str: The file path of the server certificate used by the profile.
         """
         return self._profile_cert
 
     def get_server_url(self) -> str:
-        """_summary_
+        """ Retrieves the server URL associated with the profile.
 
         Returns:
-            _type_: _description_
+            str: The server URL used by the profile.
         """
         return self._profile_url
 
     def get_api_token(self) -> str:
-        """_summary_
+        """ Retrieves the API token associated with the profile.
 
         Returns:
-            _type_: _description_
+            str: The API token used by the profile for authentication.
         """
         return self._profile_token
 
@@ -318,7 +322,16 @@ class Profile:
 # Functions
 ################################################################################
 def _add_new_profile(write_dict:dict, profile_path:str, cert_path:str) -> Ret.CODE:
+    """ Adds a new server profile to the configuration.
 
+    Args:
+        write_dict (dict): Dictionary containing profile data to be written.
+        profile_path (str): Path where the profile data will be saved.
+        cert_path (str): Path to the server certificate associated with the profile.
+
+    Returns:
+        Ret.CODE: Status code indicating the success or failure of the profile addition.
+    """
     ret_status = Ret.CODE.RET_OK
     _file = File()
     profile_data = json.dumps(write_dict, indent=4)
@@ -349,7 +362,7 @@ def _add_new_profile(write_dict:dict, profile_path:str, cert_path:str) -> Ret.CO
 
 def _get_path_to_login_folder() -> str:
     """ Returns the path to the pyJiraCli tool data.
-        All tool data (logindata/configs) is stored in the users
+        All tool data (profile/configs) is stored in the users
         home directory.
     
     Returns:

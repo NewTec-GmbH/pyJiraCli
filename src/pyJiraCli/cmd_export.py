@@ -200,10 +200,9 @@ def _export_ticket_to_file(issue_key:str, filepath:str, profile_name:str) -> Ret
         and write the issue data to a csv or json file.
         
     Args:
-        issue_key (str):  The issue key as a string.
-        filepath (str):   The path to the output file.
-        user (str):       User name for login (if provided).
-        pw (str):         Password for login (if provided).  
+        issue_key (str):    The issue key as a string.
+        filepath (str):     The path to the output file.
+        profile_name (str): The server profile that shall be used.
 
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
@@ -246,6 +245,7 @@ def _process_file_argument(arg_file:str, csv:bool) -> Tuple[str, bool]:
 
     Args:
         arg_file (str): The -file option string provided via the console.
+        csv (bool): The -csv option from the command line arguments.
 
     Returns:
         Tuple[str, bool]:   str:  The filename according to the -file option.
