@@ -112,7 +112,7 @@ def add_parser() -> object:
     return parser
 
 
-def main() -> Ret:
+def main() -> Ret.CODE:
     """ The program entry point function.
 
     Returns:

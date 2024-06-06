@@ -66,7 +66,7 @@ def register(subparser) -> object:
 
     return sub_parser_search
 
-def execute(args) -> Ret:
+def execute(args) -> Ret.CODE:
     """ This function servers as entry point for the command 'print'.
         It will be stored as callback for this moduls subparser command.
     
@@ -76,26 +76,25 @@ def execute(args) -> Ret:
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
-    return _cmd_print(args.issueKey, args.user, args.password)
+    return _cmd_print(args.issueKey, args.profile)
 
-def _cmd_print(issue_key:str, user:str, pw:str) -> Ret:
-    """Load the data of the provided issue key and 
+def _cmd_print(issue_key:str, profile_name:str) -> Ret.CODE:
+    """ Load the data of the provided issue key and 
         and print it to the command line.
 
     Args:
-        issue_key (str): the unique issue key in string format
-        user (str): username for login
-        pw (str): password for login
+        issue_key (str): The unique issue key in string format.
 
     Returns:
-        retval.Ret: return status of the module
+        Ret.CODE: The return status of the module.
     """
 # pylint: disable=R0801
     ret_status = Ret.CODE.RET_OK
     issue = JiraIssue()
     server = Server()
 
-    ret_status = server.login(user, pw)
+    ret_status = server.login(profile_name)
+
     if ret_status == Ret.CODE.RET_OK:
         jira = server.get_handle()
         # export issue from jira server

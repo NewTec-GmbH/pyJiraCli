@@ -82,7 +82,7 @@ class JiraIssue:
 
         return key
 
-    def export_issue(self, jira, issue:str) -> Ret:
+    def export_issue(self, jira, issue:str) -> Ret.CODE:
         """ Load the issue from the jira server
             and store its information in the instance
             of the class. 
@@ -92,7 +92,7 @@ class JiraIssue:
             issue (str):   The issue key in string format.
             
         Returns:
-            Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
+            Ret.CODE:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
         ret_status = Ret.CODE.RET_OK
 
@@ -219,7 +219,7 @@ class JiraIssue:
             file_path (str):    The path to the json file. 
             
         Returns:
-            Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
+            Ret.CODE:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
         ret_status = Ret.CODE.RET_OK
 
@@ -235,14 +235,14 @@ class JiraIssue:
 
         return ret_status
 
-    def create_csv(self, file_path) -> Ret:
+    def create_csv(self, file_path) -> Ret.CODE:
         """ Write issue information in class instance to a csv file.
             
         Args: 
             file_path (str):    The path to the csv file. 
             
         Returns:
-            Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
+            Ret.CODE:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
         ret_status = Ret.CODE.RET_OK
 
@@ -263,14 +263,14 @@ class JiraIssue:
 
         return ret_status
 
-    def create_ticket(self, jira) -> Ret:
+    def create_ticket(self, jira) -> Ret.CODE:
         """ Create jira issue on the server with information from class instance.
         
         Args: 
             jira (obj):    The jira obj for restAPi connection with server.
             
         Returns:
-            Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
+            Ret.CODE:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
         issue_key = None
 

@@ -68,7 +68,7 @@ class Ret():
         CODE.RET_OK:                           "Process succesful.",
         CODE.RET_ERROR:                        "Error occured.",
         CODE.RET_ERROR_ARGPARSE:               "Error while parsing arguments.",
-        CODE.RET_ERROR_FILEPATH_INVALID:       "The provided -path doesnt exist.",
+        CODE.RET_ERROR_FILEPATH_INVALID:       "The provided filepath does not exist.",
         CODE.RET_ERROR_WORNG_FILE_FORMAT:      "Wrong file format for save file provided.",
         CODE.RET_ERROR_ISSUE_NOT_FOUND:        "Jira issue not found.",
         CODE.RET_ERROR_FILE_OPEN_FAILED:       "Failed to open file.",
