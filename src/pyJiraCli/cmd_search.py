@@ -83,7 +83,7 @@ def register(subparser) -> object:
 
     return sub_parser_search
 
-def execute(args) -> Ret:
+def execute(args) -> Ret.CODE:
     """ This function servers as entry point for the command 'search'.
         It will be stored as callback for this moduls subparser command.
     
@@ -95,7 +95,7 @@ def execute(args) -> Ret:
     """
     return _cmd_search(args.filter, args.profile, args.max)
 
-def _cmd_search(filter_str:str, server_profile:str, results:int) -> Ret:
+def _cmd_search(filter_str:str, server_profile:str, results:int) -> Ret.CODE:
     """ Search tickets with a provided filter or search string.
     
     Args:

@@ -53,7 +53,7 @@ class FileHandler:
         self._path = None
         self._content = None
 
-    def set_filepath(self, path:str) -> Ret:
+    def set_filepath(self, path:str) -> Ret.CODE:
         """ Set the path for the file contained in this Instance.
 
         Args:
@@ -78,12 +78,12 @@ class FileHandler:
 
         return  ret_status
 
-    def read_file(self) -> Ret:
+    def read_file(self) -> Ret.CODE:
         """ Open the file in read mode and read its content
             to the file instance.
 
         Returns:
-            Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
+            Ret.CODE:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
         ret_status = Ret.CODE.RET_OK
 
@@ -125,7 +125,7 @@ class FileHandler:
         """
         return self._content
 
-    def write_file(self, file_input) -> Ret:
+    def write_file(self, file_input) -> Ret.CODE:
         """ Open the file in write mode
             and write the function argument
             to the file.
@@ -134,7 +134,7 @@ class FileHandler:
             file_input (str): A string that'll be written to the file.
 
         Returns:
-            Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
+            Ret.CODE:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
         ret_status = Ret.CODE.RET_OK
 
@@ -149,7 +149,7 @@ class FileHandler:
 
         return  ret_status
 
-    def open_file(self, file_mode:str) -> Ret:
+    def open_file(self, file_mode:str) -> Ret.CODE:
         """ Open the filepath in this instance
             and save the file obj.
 
@@ -157,7 +157,7 @@ class FileHandler:
             file_mode (str): For reading files 'r' or for writing files 'w'.    
 
         Returns:
-            Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
+            Ret.CODE:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
         ret_status = Ret.CODE.RET_OK
 

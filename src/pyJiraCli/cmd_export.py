@@ -87,7 +87,7 @@ def register(subparser) -> object:
 
     return sub_parser_export
 
-def execute(args) -> Ret:
+def execute(args) -> Ret.CODE:
     """ This function servers as entry point for the command 'export'.
         It will be stored as callback for this moduls subparser command.
     
@@ -100,7 +100,7 @@ def execute(args) -> Ret:
     return _cmd_export(args)
 
 # export command function
-def _cmd_export(args) -> Ret:
+def _cmd_export(args) -> Ret.CODE:
     """ Export a jira ticket to a json or csv file.
 
         The function takes the commandline arguments and extracts the
@@ -195,7 +195,7 @@ def _get_filepath(issue:str, arg_file:str, arg_path:str, csv:bool) -> str:
 
     return file_path
 
-def _export_ticket_to_file(issue_key:str, filepath:str, profile_name:str) -> Ret:
+def _export_ticket_to_file(issue_key:str, filepath:str, profile_name:str) -> Ret.CODE:
     """ Export a jira issue from the server
         and write the issue data to a csv or json file.
         

@@ -81,7 +81,7 @@ class Server:
         """ Logout from the jira session and delete all tmp files.
         """
 
-    def login(self, server_profile:str) -> Ret:
+    def login(self, server_profile:str) -> Ret.CODE:
         """ Login to jira server with user info or login info from 
             stored token or user file.
 
@@ -123,7 +123,7 @@ class Server:
 
         return ret_status
 
-    def try_login(self, url:str, api_token:str, cert_path:str) -> Ret:
+    def try_login(self, url:str, api_token:str, cert_path:str) -> Ret.CODE:
         """ Try to login with new profile information.
 
         Args:
@@ -132,7 +132,7 @@ class Server:
             cert_path (str): _description_
 
         Returns:
-            Ret: _description_
+            Ret.CODE: _description_
         """
 
         ret_status = Ret.CODE.RET_OK
@@ -163,7 +163,7 @@ class Server:
         """
         return self._jira_obj
 
-    def search(self, search_str:str, max_results:int) -> Ret:
+    def search(self, search_str:str, max_results:int) -> Ret.CODE:
         """ Search for jira issues with a search string.
             The maximum of found issues can be set.
 
@@ -172,7 +172,7 @@ class Server:
             max_results (int): The maximum number of search results.
 
         Returns:
-            Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
+            Ret.CODE:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
 
         ret_status = Ret.CODE.RET_OK
@@ -200,14 +200,14 @@ class Server:
         """
         return self._search_result
 
-    def _login_with_token(self, token:str) -> Ret:
+    def _login_with_token(self, token:str) -> Ret.CODE:
         """ Login to jira with API token.
 
         Args:
             token (str):    The API token for login.
 
         Returns:
-            Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
+            Ret.CODE:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
 
         user = None
@@ -217,7 +217,7 @@ class Server:
 
         try:
             if self._cert_path is None:
-                self._jira_obj = JIRA(server= self._server_url, #'https://jira-dev.newtec.zz:8443',
+                self._jira_obj = JIRA(server= self._server_url,
                                       options={'verify' : False},
                                       token_auth=token,
                                       max_retries=self._max_retries,
@@ -260,7 +260,7 @@ class Server:
 
         return ret_status
 
-    def _login_with_password(self, user:str, pw:str) -> Ret:
+    def _login_with_password(self, user:str, pw:str) -> Ret.CODE:
         """ Login to jira with username and password.
 
         Args:
@@ -268,7 +268,7 @@ class Server:
             pw (str):       Password for login.
 
         Returns:
-            Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
+            Ret.CODE:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
 
         ret_status = Ret.CODE.RET_OK
@@ -279,6 +279,7 @@ class Server:
             if self._cert_path is None:
                 self._jira_obj = JIRA(server=self._server_url,
                                       basic_auth=(user, pw),
+                                      options={'verify' : False},
                                       max_retries=self._max_retries,
                                       timeout=self._timeout)
             else:

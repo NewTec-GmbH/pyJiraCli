@@ -73,7 +73,7 @@ class Profile:
             profile_name:str,
             profile_url:str,
             login_token:str,
-            cert_path:str) -> Ret:
+            cert_path:str) -> Ret.CODE:
         """_summary_
 
         Args:
@@ -82,15 +82,15 @@ class Profile:
             login_token (str): _description_
 
         Returns:
-            Ret: _description_
+            Ret.CODE: _description_
         """
 
         ret_status = Ret.CODE.RET_OK
         _printer = Printer()
-        _file = File()
+        add_profile = True
 
         write_dict = {
-            URL_KEY : profile_url,
+            URL_KEY : profile_url
             }
 
         if login_token is None:
@@ -99,8 +99,6 @@ class Profile:
             write_dict[TOKEN_KEY] = login_token
 
         profile_path = _get_path_to_login_folder() + f"{profile_name}\\"
-
-        cont = True
 
         if not os.path.exists(profile_path):
             os.mkdir(profile_path)
@@ -114,49 +112,96 @@ class Profile:
                 if os.path.exists(profile_path + CERT_FILE):
                     os.remove(profile_path + CERT_FILE)
             else:
-                cont = False
+                add_profile = False
 
-        if cont:
-            profile_data = json.dumps(write_dict, indent=4)
-
-            ret_status =_file.set_filepath(profile_path + DATA_FILE)
+        if add_profile:
+            ret_status = _add_new_profile(write_dict, profile_path, cert_path)
 
             if ret_status == Ret.CODE.RET_OK:
-                _file.write_file(profile_data)
-                _file.hide_file()
+                _printer.print_info("A new profile was succesfully created. Profile name:",
+                                    profile_name)
 
-            if cert_path is not None and \
-               os.path.exists(cert_path):
-                ret_status =_file.set_filepath(cert_path)
-
-                if ret_status == Ret.CODE.RET_OK:
-                    ret_status = _file.read_file()
-
-                if ret_status == Ret.CODE.RET_OK:
-                    cert_data = _file.get_file_content()
-
-                ret_status =_file.set_filepath(profile_path + CERT_FILE)
-
-                if ret_status == Ret.CODE.RET_OK:
-                    _file.write_file(cert_data)
-                    _file.hide_file()
         else:
             _printer.print_info("Adding profile canceled.")
 
         return ret_status
 
-    def add_certificate(self, profile_name:str, cert_path:str) -> Ret:
+    def add_certificate(self, profile_name:str, cert_path:str) -> Ret.CODE:
         """_summary_
 
         Args:
             cert_path (str): _description_
 
         Returns:
-            Ret: _description_
+            Ret.CODE: _description_
         """
-        pass
+        ret_status = Ret.CODE.RET_OK
 
-    def add_config(self, issue_config_file:str, project_config_file:str) -> Ret:
+        _file = File()
+        _printer = Printer()
+        profile_path = _get_path_to_login_folder() + f"{profile_name}\\"
+
+        if os.path.exists(cert_path):
+            ret_status =_file.set_filepath(cert_path)
+        else:
+            ret_status = Ret.CODE.RET_ERROR_FILEPATH_INVALID
+
+        if ret_status == Ret.CODE.RET_OK:
+            ret_status = _file.read_file()
+
+        if ret_status == Ret.CODE.RET_OK:
+            cert_data = _file.get_file_content()
+            ret_status =_file.set_filepath(profile_path + CERT_FILE)
+
+        if ret_status == Ret.CODE.RET_OK:
+            if os.path.exists(profile_path + CERT_FILE):
+                os.remove(profile_path + CERT_FILE)
+
+            _file.write_file(cert_data)
+            _file.hide_file()
+
+            _printer.print_info("Succesfully added a certificate to profile:",
+                               profile_name)
+
+        return ret_status
+
+    def add_token(self, profile_name:str, api_token:str) -> Ret.CODE:
+        """_summary_
+
+        Args:
+            cert_path (str): _description_
+
+        Returns:
+            Ret.CODE: _description_
+        """
+        ret_status = Ret.CODE.RET_OK
+
+        _file = File()
+        _printer = Printer()
+        profile_path = _get_path_to_login_folder() + f"{profile_name}\\"
+
+        self.load(profile_name)
+
+        write_dict = {
+            URL_KEY   : self._profile_url,
+            TOKEN_KEY : api_token
+        }
+
+        os.remove(profile_path + DATA_FILE)
+
+        profile_data = json.dumps(write_dict, indent=4)
+
+        ret_status =_file.set_filepath(profile_path + DATA_FILE)
+
+        if ret_status == Ret.CODE.RET_OK:
+            _file.write_file(profile_data)
+            _file.hide_file()
+
+            _printer.print_info("Added an API token to profile:", profile_name)
+
+        return ret_status
+
+    def add_config(self, issue_config_file:str, project_config_file:str) -> Ret.CODE:
         """_summary_
 
         Args:
@@ -164,18 +209,24 @@ class Profile:
             project_config_file (str): _description_
 
         Returns:
-            Ret: _description_
+            Ret.CODE: _description_
         """
-        pass
+        ret_status = Ret.CODE.RET_OK
 
-    def load(self, profile_name:str) -> Ret:
+        # pseudo code to remove unused-argument error
+        # until the function is implemented properly
+        print(f"{issue_config_file}, {project_config_file}")
+
+        return ret_status
+
+    def load(self, profile_name:str) -> Ret.CODE:
         """_summary_
 
         Args:
             profile_name (str): _description_
 
         Returns:
-            Ret: _description_
+            Ret.CODE: _description_
         """
         ret_status = Ret.CODE.RET_OK
 
@@ -210,7 +261,11 @@ class Profile:
         Returns:
             dict: _description_
         """
-        pass
+        config_dict = {}
+
+        # code goes here
+
+        return config_dict
 
     def delete(self, profile_name:str) -> None:
         """_summary_
@@ -218,7 +273,22 @@ class Profile:
         Args:
             profile_name (str): _description_
         """
-        pass
+        _printer = Printer()
+        profile_path = _get_path_to_login_folder() + f"{profile_name}\\"
+
+        if os.path.exists(profile_path):
+            os.remove(profile_path + DATA_FILE)
+
+            if os.path.exists(profile_path + CERT_FILE):
+                os.remove(profile_path + CERT_FILE)
+
+            os.rmdir(profile_path)
+
+            _printer.print_info("Succesfully removed profile:", profile_name)
+
+        else:
+            _printer.print_info("Can't delete profile:", profile_name,
+                               "A profile with this name does not exist.")
 
     def get_cert_path(self) -> str:
         """_summary_
@@ -247,6 +317,36 @@ class Profile:
 ################################################################################
 # Functions
 ################################################################################
+def _add_new_profile(write_dict:dict, profile_path:str, cert_path:str) -> Ret.CODE:
+
+    ret_status = Ret.CODE.RET_OK
+    _file = File()
+    profile_data = json.dumps(write_dict, indent=4)
+
+    ret_status =_file.set_filepath(profile_path + DATA_FILE)
+
+    if ret_status == Ret.CODE.RET_OK:
+        _file.write_file(profile_data)
+        _file.hide_file()
+
+    if cert_path is not None and \
+       os.path.exists(cert_path):
+        ret_status =_file.set_filepath(cert_path)
+
+        if ret_status == Ret.CODE.RET_OK:
+            ret_status = _file.read_file()
+
+        if ret_status == Ret.CODE.RET_OK:
+            cert_data = _file.get_file_content()
+
+        ret_status =_file.set_filepath(profile_path + CERT_FILE)
+
+        if ret_status == Ret.CODE.RET_OK:
+            _file.write_file(cert_data)
+            _file.hide_file()
+
+    return ret_status
+
 def _get_path_to_login_folder() -> str:
     """ Returns the path to the pyJiraCli tool data.
         All tool data (logindata/configs) is stored in the users

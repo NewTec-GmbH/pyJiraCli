@@ -96,22 +96,21 @@ def register(subparser) -> object:
     option_grp.add_argument('--add',
                            '-a',
                             action="store_true",
-                            help="The server url for the profile.")
+                            help="Add a new server profile.")
 
     option_grp.add_argument('--remove',
                            '-r',
                             action="store_true",
-                            help="The server url for the profile.")
+                            help="Delete an existing server profile.")
 
-    option_grp.add_argument('--confiq',
-                           '-c',
+    option_grp.add_argument('--update',
+                           '-u',
                             action="store_true",
-                            help="The server url for the profile.")
-
+                            help="Update an existing server profile with new data.")
 
     return sub_parser_profile
 
-def execute(args) -> Ret:
+def execute(args) -> Ret.CODE:
     """ This function servers as entry point for the command 'print'.
         It will be stored as callback for this moduls subparser command.
     
@@ -123,7 +122,7 @@ def execute(args) -> Ret:
     """
     return _cmd_profile(args)
 
-def _cmd_profile(args) -> Ret:
+def _cmd_profile(args) -> Ret.CODE:
     """Load the data of the provided issue key and 
         and print it to the command line.
 
@@ -145,7 +144,7 @@ def _cmd_profile(args) -> Ret:
         ret_status = _remove_profile(args.profile_name)
 
     else:
-        ret_status = _configure_profile(args)
+        ret_status = _update_profile(args)
 
     return ret_status
 
@@ -175,10 +174,31 @@ def _add_profile(args):
 
 def _remove_profile(profile_name:str):
     ret_status = Ret.CODE.RET_OK
-    print(f"remove Profile {profile_name}")
+
+    Profile().delete(profile_name)
+
     return ret_status
 
-def _configure_profile(args):
+def _update_profile(args):
     ret_status = Ret.CODE.RET_OK
-    print(f"configure Profile {args.profile_name}")
+
+    _profile = Profile()
+    _server = Server()
+
+    ret_status = _profile.load(args.profile_name)
+
+    if ret_status == Ret.CODE.RET_OK:
+        # profile exists
+
+        if args.cert is not None:
+            ret_status = _profile.add_certificate(args.profile_name, args.cert)
+
+        if args.token is not None:
+            ret_status = _server.try_login(_profile.get_server_url(),
+                                           args.token,
+                                           _profile.get_cert_path())
+
+            if ret_status == Ret.CODE.RET_OK:
+                ret_status = _profile.add_token(args.profile_name, args.token)
+
     return ret_status

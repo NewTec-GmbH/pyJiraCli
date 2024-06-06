@@ -73,7 +73,7 @@ def register(subparser) -> object:
 
     return sub_parser_import
 
-def execute(args) -> Ret:
+def execute(args) -> Ret.CODE:
     """ This function servers as entry point for the command 'import'.
         It will be stored as callback for this moduls subparser command.
     
@@ -85,11 +85,11 @@ def execute(args) -> Ret:
     """
     ret_status = Ret.CODE.RET_OK
 
-    ret_status =  _cmd_import(args.file, args.user, args.password)
+    ret_status =  _cmd_import(args.file, args.profile)
 
     return ret_status
 
-def _cmd_import(input_file:str, user:str, pw:str) -> Ret:
+def _cmd_import(input_file:str, profile_name:str) -> Ret.CODE:
     """ Import a jira issue from a json or csv file.
         Create a jira issue on the server with the data
         read from the input file.
@@ -133,7 +133,7 @@ def _cmd_import(input_file:str, user:str, pw:str) -> Ret:
         issue.import_issue(issue_dict)
 
     if ret_status == Ret.CODE.RET_OK:
-        ret_status = server.login(user, pw)
+        ret_status = server.login(profile_name)
 
         if ret_status == Ret.CODE.RET_OK:
             jira = server.get_handle()
