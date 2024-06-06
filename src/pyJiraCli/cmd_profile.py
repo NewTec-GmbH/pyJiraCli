@@ -111,28 +111,26 @@ def register(subparser) -> object:
     return sub_parser_profile
 
 def execute(args) -> Ret.CODE:
-    """ This function servers as entry point for the command 'print'.
+    """ This function servers as entry point for the command 'profile'.
         It will be stored as callback for this moduls subparser command.
     
     Args: 
         args (obj): The command line arguments.
         
     Returns:
-        Ret:   Returns Ret.RET_OK if successful or else the corresponding error code.
+        Ret.CODE:   Returns Ret.RET_OK if successful or else the corresponding error code.
     """
     return _cmd_profile(args)
 
 def _cmd_profile(args) -> Ret.CODE:
-    """Load the data of the provided issue key and 
-        and print it to the command line.
+    """ Process the 'profile' command and its 
+        commandline arguments.
 
     Args:
-        issue_key (str): the unique issue key in string format
-        user (str): username for login
-        pw (str): password for login
+        args (obj): The commandline arguments.
 
     Returns:
-        retval.Ret: return status of the module
+        Ret.CODE: The return status of the module.
     """
 
     ret_status = Ret.CODE.RET_OK
@@ -148,9 +146,15 @@ def _cmd_profile(args) -> Ret.CODE:
 
     return ret_status
 
+def _add_profile(args) -> Ret.CODE:
+    """ Adds a new profile to the configuration using provided arguments.
 
+    Args:
+        args (obj): Object containing the commandline arguments for profile addition.
 
-def _add_profile(args):
+    Returns:
+        Ret.CODE: Status code indicating the success or failure of the profile addition.
+    """
     ret_status = Ret.CODE.RET_OK
 
     _server = Server()
@@ -172,14 +176,27 @@ def _add_profile(args):
 
     return ret_status
 
-def _remove_profile(profile_name:str):
+def _remove_profile(profile_name:str) -> None:
+    """ Removes a profile from the profile folder by name.
+
+    Args:
+        profile_name (str): Name of the profile to be removed.
+    """
     ret_status = Ret.CODE.RET_OK
 
     Profile().delete(profile_name)
 
     return ret_status
 
-def _update_profile(args):
+def _update_profile(args) -> Ret.CODE:
+    """Updates an existing profile in the configuration using provided arguments.
+
+    Args:
+        args (obj):  Object containing the commandline arguments for the profile update.
+
+    Returns:
+        Ret.CODE: Status code indicating the success or failure of the profile update.
+    """
     ret_status = Ret.CODE.RET_OK
 
     _profile = Profile()

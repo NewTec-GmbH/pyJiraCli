@@ -79,6 +79,7 @@ def execute(args) -> Ret.CODE:
     
     Args: 
         args (obj):   The command line arguments.
+        profile_name (str): The server profile that shall be used.
         
     Returns:
         Ret:   Ret.CODE.RET_OK if succesfull, corresponding error code if not
@@ -96,8 +97,7 @@ def _cmd_import(input_file:str, profile_name:str) -> Ret.CODE:
     
     Args:
         input_file (str):  The filepath to the input file.
-        user (str):        The Username for login.
-        pw (str):          The Password for login.
+        
         
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.

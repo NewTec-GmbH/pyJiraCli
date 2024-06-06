@@ -84,6 +84,7 @@ def _cmd_print(issue_key:str, profile_name:str) -> Ret.CODE:
 
     Args:
         issue_key (str): The unique issue key in string format.
+        profile_name (str): The server profile that shall be used.
 
     Returns:
         Ret.CODE: The return status of the module.

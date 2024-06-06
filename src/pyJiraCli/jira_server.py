@@ -35,7 +35,6 @@
 import os
 import sys
 
-# from getpass import getpass
 from typing import Tuple
 
 import certifi
@@ -83,13 +82,12 @@ class Server:
         """ Logout from the jira session and delete all tmp files.
         """
 
-    def login(self, server_profile:str) -> Ret.CODE:
+    def login(self, profile_name:str) -> Ret.CODE:
         """ Login to jira server with user info or login info from 
             stored token or user file.
 
         Args:
-            user (str):     Provided username from the commandline or None.
-            pw (str):       Provided password from the commandline or None.
+            profile_name (str): The server profile that shall be used.
 
         returns:
             Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
@@ -98,7 +96,7 @@ class Server:
         _printer = Printer()
         _profile = Profile()
 
-        ret_status = _profile.load(server_profile)
+        ret_status = _profile.load(profile_name)
 
         if ret_status == Ret.CODE.RET_OK:
             self._cert_path = _profile.get_cert_path()
@@ -126,15 +124,15 @@ class Server:
         return ret_status
 
     def try_login(self, url:str, api_token:str, cert_path:str) -> Ret.CODE:
-        """ Try to login with new profile information.
+        """ Attempts to log in with the provided information.
 
         Args:
-            url (str): _description_
-            api_token (str): _description_
-            cert_path (str): _description_
+            url (str): The URL of the server to log in to.
+            api_token (str): The API token used for authentication.
+            cert_path (str): The path to the server certificate.
 
         Returns:
-            Ret.CODE: _description_
+            Ret.CODE: Status code indicating the success or failure of the login attempt.
         """
 
         ret_status = Ret.CODE.RET_OK
@@ -322,17 +320,6 @@ class Server:
 ################################################################################
 # Functions
 ################################################################################
-#def _get_user_input() -> Tuple[str, str]:
-#    """Prompt the user to enter a username and a password.
-#    The password input is masked and not shown on the console.
-#
-#    Returns:
-#        Tuple[str, str]: A tuple containing the username and the password.
-#    """
-#    username = input("Enter your username: ")
-#    password = getpass("Enter your password: ")
-#    return username, password
-
 def _get_user_input() -> Tuple[str, str]:
     """Prompt the user to enter a username and a password.
     The password input is masked with '*' characters.

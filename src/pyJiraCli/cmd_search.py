@@ -95,13 +95,13 @@ def execute(args) -> Ret.CODE:
     """
     return _cmd_search(args.filter, args.profile, args.max)
 
-def _cmd_search(filter_str:str, server_profile:str, results:int) -> Ret.CODE:
+def _cmd_search(filter_str:str, profile_name:str, results:int) -> Ret.CODE:
     """ Search tickets with a provided filter or search string.
     
     Args:
         filter_str (str):   String containing the search parameters.
-        user (str):         Username for login.
-        pw (str)            Password for login.
+        profile_name (str): The server profile that shall be used.
+        
     
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
@@ -113,7 +113,7 @@ def _cmd_search(filter_str:str, server_profile:str, results:int) -> Ret.CODE:
     if results is None:
         results=50
 
-    ret_status = server.login(server_profile)
+    ret_status = server.login(profile_name)
 
     if ret_status == Ret.CODE.RET_OK:
         ret_status = server.search(filter_str, results)
