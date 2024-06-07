@@ -44,7 +44,7 @@ from jira import JIRA, exceptions
 from requests import exceptions as reqex
 from urllib3 import exceptions as urlex
 
-from pyJiraCli.profile import Profile
+from pyJiraCli.profile_handler import ProfileHandler
 from pyJiraCli.printer import Printer, PrintType
 from pyJiraCli.ret import Ret, Warnings
 
@@ -94,7 +94,7 @@ class Server:
         """
         ret_status = Ret.CODE.RET_OK
         _printer = Printer()
-        _profile = Profile()
+        _profile = ProfileHandler()
 
         ret_status = _profile.load(profile_name)
 

@@ -56,8 +56,8 @@ FILE_ATTRIBUTE_HIDDEN = 0x02
 ################################################################################
 # Classes
 ################################################################################
-class Profile:
-    """ The profile class handles all 
+class ProfileHandler:
+    """ The ProfileHandler class handles all 
         processes regarding server profiles.
         This includes adding, deleting or configuring
         Profile data. 
