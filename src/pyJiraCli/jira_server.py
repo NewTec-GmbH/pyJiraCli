@@ -54,8 +54,13 @@ from pyJiraCli.ret import Ret, Warnings
 ################################################################################
 class Server:
     """This class handles connection to the jira server.
+
+    Args:
+        timeout (float): The timeout for the requests in seconds. Default is 10 seconds.
+        Shorter timeout can result in failed requests,
+        depending on the speed of the server and the size of the request.
     """
-    def __init__(self):
+    def __init__(self, timeout: float = 10):
         self._crypto_h = Crypto()
         self._server_url = None
         self._jira_obj = None
@@ -63,10 +68,7 @@ class Server:
         self._cert_path = None
         self._user = None
         self._max_retries = 0
-
-        # Timeout of the requests in seconds. Shorter timeout can result in failed requests,
-        # depending on the speed of the server and the size of the request.
-        self._timeout = 10
+        self._timeout = timeout
 
         urllib3.disable_warnings()
 
