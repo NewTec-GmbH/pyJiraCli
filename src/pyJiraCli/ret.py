@@ -57,36 +57,30 @@ class Ret():
         RET_ERROR_ISSUE_NOT_FOUND        = 5
         RET_ERROR_FILE_OPEN_FAILED       = 6
         RET_ERROR_NO_USERINFORMATION     = 7
-        RET_ERROR_MISSING_UNSERINFO      = 8
-        RET_ERROR_MISSING_LOGIN_DATA     = 9
-        RET_ERROR_MISSING_SERVER_URL     = 10
-        RET_ERROR_MISSING_DATATYPE       = 11
-        RET_ERROR_CREATING_TICKET_FAILED = 12
-        RET_ERROR_INVALID_SEARCH         = 13
-        RET_ERROR_JIRA_LOGIN             = 14
+        RET_ERROR_PROFILE_NOT_FOUND      = 8
+        RET_ERROR_NO_SERVER_URL          = 9
+        RET_ERROR_CREATING_TICKET_FAILED = 10
+        RET_ERROR_INVALID_SEARCH         = 11
+        RET_ERROR_INVALID_URL            = 12
+        RET_ERROR_JIRA_LOGIN             = 13
 
     MSG = {
-        CODE.RET_OK: "Process succesful.",
-        CODE.RET_ERROR: "Error occured.",
-        CODE.RET_ERROR_ARGPARSE: "Error while parsing arguments.",
-        CODE.RET_ERROR_FILEPATH_INVALID: "The provided -path doesnt exist.",
-        CODE.RET_ERROR_WORNG_FILE_FORMAT: "Wrong file format for save file provided.",
-        CODE.RET_ERROR_ISSUE_NOT_FOUND: "Jira issue not found.",
-        CODE.RET_ERROR_FILE_OPEN_FAILED: "Failed to open file.",
-        CODE.RET_ERROR_NO_USERINFORMATION: "No user information was provided \
-            or stored information file.",
-        CODE.RET_ERROR_MISSING_UNSERINFO: "Both --user and --password options \
-            must be provided to store user information.",
-        CODE.RET_ERROR_MISSING_LOGIN_DATA: "At least one of the arguments must be provided: \
-            <data1> (with --userinfo, --token, --server or --default option) or -delete",
-        CODE.RET_ERROR_MISSING_SERVER_URL: "No Server url found. \
-            Please add a custom url for your jira server.",
-        CODE.RET_ERROR_MISSING_DATATYPE: "No datatype for login command given. \
-            Provide the Datatype via --userinfo, \
-            --token, --server or -- default option with the login command",
+        CODE.RET_OK:                           "Process succesful.",
+        CODE.RET_ERROR:                        "Error occured.",
+        CODE.RET_ERROR_ARGPARSE:               "Error while parsing arguments.",
+        CODE.RET_ERROR_FILEPATH_INVALID:       "The provided filepath does not exist.",
+        CODE.RET_ERROR_WORNG_FILE_FORMAT:      "Wrong file format for save file provided.",
+        CODE.RET_ERROR_ISSUE_NOT_FOUND:        "Jira issue not found.",
+        CODE.RET_ERROR_FILE_OPEN_FAILED:       "Failed to open file.",
+        CODE.RET_ERROR_NO_USERINFORMATION:     "No user information was provided \
+                                                or stored information file.",
+        CODE.RET_ERROR_PROFILE_NOT_FOUND:      "The server profile does not exist.",
+        CODE.RET_ERROR_NO_SERVER_URL:          "To add a new profile, the server url must \
+                                                be provided with the --url option",
         CODE.RET_ERROR_CREATING_TICKET_FAILED: "creating the ticket on the jira server failed",
-        CODE.RET_ERROR_INVALID_SEARCH: "search string returned a jira error",
-        CODE.RET_ERROR_JIRA_LOGIN: "Login to jira server was not possible",
+        CODE.RET_ERROR_INVALID_SEARCH:         "search string returned a jira error",
+        CODE.RET_ERROR_INVALID_URL:            "The provided server url is invalid",
+        CODE.RET_ERROR_JIRA_LOGIN:             "Login to jira server was not possible",
     }
 
 
@@ -100,16 +94,24 @@ class Warnings():
         WARNING_CSV_OPTION_WRONG       = 1
         WARNING_UNKNOWN_FILE_EXTENSION = 2
         WARNING_INFO_FILE_EXPIRED      = 3
+        WARNING_TOKEN_RECOMMENDED      = 4
 
     MSG = {
-        CODE.WARNING_UNSAVE_CONNECTION: "No certificate for server authentification found. \
-            It's strongly advised, to add a certificate with the login command.",
-        CODE.WARNING_CSV_OPTION_WRONG: "File ending from provided file and csv option dont match. \
-            File format provided by file or path was used.",
-        CODE.WARNING_UNKNOWN_FILE_EXTENSION: "The provided file has an unknown file format. \
-            A new file with the same name and \
-            a file format according to the --csv option will be created.",
-        CODE.WARNING_INFO_FILE_EXPIRED: "The stored information has expired and will be deleted",
+        CODE.WARNING_UNSAVE_CONNECTION:      "No certificate for server authentification found." + \
+                                             " It's strongly advised, to add a certificate for " + \
+                                             "your server profile.",
+        CODE.WARNING_CSV_OPTION_WRONG:       "File ending from provided file " + \
+                                             "and csv option dont match. " + \
+                                             "File format provided by file or path was used.",
+        CODE.WARNING_UNKNOWN_FILE_EXTENSION: "The provided file has an unknown file format." + \
+                                             "A new file with the same name and " + \
+                                             "a file format according to the " + \
+                                             "--csv option will be created.",
+        CODE.WARNING_INFO_FILE_EXPIRED:      "The stored information has expired " +\
+                                             "and will be deleted",
+        CODE.WARNING_TOKEN_RECOMMENDED:      "No api token was found in this server profile. " + \
+                                             "Its recommended to add a token to your server " +\
+                                             "profile."
     }
 
 ################################################################################

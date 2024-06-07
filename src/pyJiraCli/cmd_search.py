@@ -68,22 +68,22 @@ def register(subparser) -> object:
         obj:    the commmand parser of this module
     """
     # subparser for the 'search' command
-    sb_search = subparser.add_parser('search',
+    sub_parser_search = subparser.add_parser('search',
                                       help="Search for the Jira server for issues \
                                             using the specified filter string.")
 
-    sb_search.add_argument('filter',
+    sub_parser_search.add_argument('filter',
                             type=str,
                             help="Filter string to search for. Must be in JQL format.")
 
-    sb_search.add_argument('--max',
+    sub_parser_search.add_argument('--max',
                             type=int,
                             metavar='<MAX>',
                             help="Maximum number of issues that may be found. Default is 50.")
 
-    return sb_search
+    return sub_parser_search
 
-def execute(args) -> Ret:
+def execute(args) -> Ret.CODE:
     """ This function servers as entry point for the command 'search'.
         It will be stored as callback for this moduls subparser command.
     
@@ -93,15 +93,15 @@ def execute(args) -> Ret:
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
-    return _cmd_search(args.filter, args.user, args.password, args.max)
+    return _cmd_search(args.filter, args.profile, args.max)
 
-def _cmd_search(filter_str:str, user:str, pw:str, results:int) -> Ret:
+def _cmd_search(filter_str:str, profile_name:str, results:int) -> Ret.CODE:
     """ Search tickets with a provided filter or search string.
     
     Args:
         filter_str (str):   String containing the search parameters.
-        user (str):         Username for login.
-        pw (str)            Password for login.
+        profile_name (str): The server profile that shall be used.
+        
     
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
@@ -113,7 +113,7 @@ def _cmd_search(filter_str:str, user:str, pw:str, results:int) -> Ret:
     if results is None:
         results=50
 
-    ret_status = server.login(user, pw)
+    ret_status = server.login(profile_name)
 
     if ret_status == Ret.CODE.RET_OK:
         ret_status = server.search(filter_str, results)

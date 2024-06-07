@@ -64,40 +64,40 @@ def register(subparser) -> object:
     Returns:
         obj:  The commmand parser object of this module.
     """
-    sb_import = subparser.add_parser('import',
+    sub_parser_import = subparser.add_parser('import',
                                       help="Import a Jira Issue from a JSON or a CSV file.")
 
-    sb_import.add_argument('file',
+    sub_parser_import.add_argument('file',
                             type=str,
                             help="Path to the input file.")
 
-    return sb_import
+    return sub_parser_import
 
-def execute(args) -> Ret:
+def execute(args) -> Ret.CODE:
     """ This function servers as entry point for the command 'import'.
         It will be stored as callback for this moduls subparser command.
     
     Args: 
         args (obj):   The command line arguments.
+        profile_name (str): The server profile that shall be used.
         
     Returns:
         Ret:   Ret.CODE.RET_OK if succesfull, corresponding error code if not
     """
     ret_status = Ret.CODE.RET_OK
 
-    ret_status =  _cmd_import(args.file, args.user, args.password)
+    ret_status =  _cmd_import(args.file, args.profile)
 
     return ret_status
 
-def _cmd_import(input_file:str, user:str, pw:str) -> Ret:
+def _cmd_import(input_file:str, profile_name:str) -> Ret.CODE:
     """ Import a jira issue from a json or csv file.
         Create a jira issue on the server with the data
         read from the input file.
     
     Args:
         input_file (str):  The filepath to the input file.
-        user (str):        The Username for login.
-        pw (str):          The Password for login.
+        
         
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
@@ -133,7 +133,7 @@ def _cmd_import(input_file:str, user:str, pw:str) -> Ret:
         issue.import_issue(issue_dict)
 
     if ret_status == Ret.CODE.RET_OK:
-        ret_status = server.login(user, pw)
+        ret_status = server.login(profile_name)
 
         if ret_status == Ret.CODE.RET_OK:
             jira = server.get_handle()
