@@ -63,8 +63,10 @@ class Server:
         self._cert_path = None
         self._user = None
         self._max_retries = 0
-        self._timeout = 1 # Unknow unit. Not specified in Jira library. Probably seconds.
-        # Results in around 2 seconds for a timeout.
+
+        # Timeout of the requests in seconds. Shorter timeout can result in failed requests,
+        # depending on the speed of the server and the size of the request.
+        self._timeout = 10
 
         urllib3.disable_warnings()
 
