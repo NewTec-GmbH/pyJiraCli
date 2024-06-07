@@ -33,7 +33,10 @@
 # Imports
 ################################################################################
 import os
+import sys
+
 from typing import Tuple
+
 import certifi
 import urllib3
 
@@ -41,9 +44,17 @@ from jira import JIRA, exceptions
 from requests import exceptions as reqex
 from urllib3 import exceptions as urlex
 
-from pyJiraCli.crypto_file_handler import Crypto, DataType, DataMembers
+from pyJiraCli.profile_handler import ProfileHandler
 from pyJiraCli.printer import Printer, PrintType
 from pyJiraCli.ret import Ret, Warnings
+
+# pylint: disable=E0401
+if os.name == 'nt':
+    import msvcrt
+else:
+    import tty
+    import termios
+# pylint: enable=E0401
 
 ################################################################################
 # Variables
@@ -60,12 +71,12 @@ class Server:
         Shorter timeout can result in failed requests,
         depending on the speed of the server and the size of the request.
     """
+
     def __init__(self, timeout: float = 10):
-        self._crypto_h = Crypto()
-        self._server_url = None
         self._jira_obj = None
         self._search_result = None
         self._cert_path = None
+        self._server_url = None
         self._user = None
         self._max_retries = 0
         self._timeout = timeout
@@ -75,57 +86,41 @@ class Server:
     def logout(self) -> None:
         """ Logout from the jira session and delete all tmp files.
         """
-        self._crypto_h.delete_cert_path()
 
-    def login(self, user:str, pw:str) -> Ret:
+    def login(self, profile_name:str) -> Ret.CODE:
         """ Login to jira server with user info or login info from 
             stored token or user file.
 
         Args:
-            user (str):     Provided username from the commandline or None.
-            pw (str):       Provided password from the commandline or None.
+            profile_name (str): The server profile that shall be used.
 
         returns:
             Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
         ret_status = Ret.CODE.RET_OK
         _printer = Printer()
-        cert_path = self._crypto_h.get_cert_path()
+        _profile = ProfileHandler()
 
-        self._server_url = self._get_server_url()
+        ret_status = _profile.load(profile_name)
 
-        if self._server_url is None:
-            ret_status = Ret.CODE.RET_ERROR_MISSING_SERVER_URL
+        if ret_status == Ret.CODE.RET_OK:
+            self._cert_path = _profile.get_cert_path()
+            self._server_url = _profile.get_server_url()
+            api_token = _profile.get_api_token()
 
-        else:
-
-            if cert_path is None:
+            if self._cert_path is None:
                 _printer.print_error(PrintType.WARNING, Warnings.CODE.WARNING_UNSAVE_CONNECTION)
-
-            else:
-                self._cert_path = cert_path
 
             _printer.print_info('Loggin in to:', self._server_url)
 
-            if user is None or pw is None:
-                # get login information from login module
-                ret_status = self._crypto_h.decrypt_information(DataType.DATATYPE_TOKEN_INFO)
+            if api_token is None:
+                # promt user to enter username and password
+                user, password = _get_user_input()
 
-                if ret_status == Ret.CODE.RET_OK:
-                    token = self._crypto_h.get_data(DataMembers.DATA_MEM_1)
-
-                    ret_status = self._login_with_token(token)
-
-                else:
-                    ret_status = self._crypto_h.decrypt_information(DataType.DATATYPE_USER_INFO)
-
-                    if ret_status == Ret.CODE.RET_OK:
-                        user = self._crypto_h.get_data(DataMembers.DATA_MEM_1)
-                        pw = self._crypto_h.get_data(DataMembers.DATA_MEM_2)
-                        ret_status = self._login_with_password(user, pw)
+                ret_status = self._login_with_password(user, password)
 
             else:
-                ret_status = self._login_with_password(user, pw)
+                ret_status = self._login_with_token(api_token)
 
             if ret_status == Ret.CODE.RET_OK and \
             self._user is not None:
@@ -133,51 +128,35 @@ class Server:
 
         return ret_status
 
-    def try_login(self, user:str=None, pw:str=None, token:str=None) -> Ret:
-        """ Try to login to jira.
-            Dont return the jira obj, only return OK if the login 
-            was succesful.
+    def try_login(self, url:str, api_token:str, cert_path:str) -> Ret.CODE:
+        """ Attempts to log in with the provided information.
 
         Args:
-            user (str):     Username or email for login or None.
-            pw (str):       Password for login or None.
-            token (str):    API Token for authentification or None.
+            url (str): The URL of the server to log in to.
+            api_token (str): The API token used for authentication.
+            cert_path (str): The path to the server certificate.
 
         Returns:
-            Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
+            Ret.CODE: Status code indicating the success or failure of the login attempt.
         """
 
         ret_status = Ret.CODE.RET_OK
         _printer = Printer()
-        cert_path = self._crypto_h.get_cert_path()
 
-        self._server_url = self._get_server_url()
+        self._cert_path = cert_path
+        self._server_url = url
 
-        if self._server_url is None:
-            ret_status = Ret.CODE.RET_ERROR_MISSING_SERVER_URL
+        if self._cert_path is None:
+            _printer.print_error(PrintType.WARNING, Warnings.CODE.WARNING_UNSAVE_CONNECTION)
+
+        if api_token is None:
+            # promt user to enter username and password
+            user, password = _get_user_input()
+
+            ret_status = self._login_with_password(user, password)
 
         else:
-
-            if cert_path is None:
-                _printer.print_error(PrintType.WARNING, Warnings.CODE.WARNING_UNSAVE_CONNECTION)
-
-            else:
-                self._cert_path = cert_path
-
-            if token is None:
-                ret_status = self._login_with_password(user, pw)
-
-            elif pw is None:
-                ret_status = self._login_with_token(token)
-
-            else:
-                return Ret.CODE.RET_ERROR
-
-            if ret_status == Ret.CODE.RET_OK and \
-            self._user is not None:
-                _printer.print_info('Login succesful. Logged in as:', self._user)
-
-            self._crypto_h.delete_cert_path()
+            ret_status = self._login_with_token(api_token)
 
         return ret_status
 
@@ -189,7 +168,7 @@ class Server:
         """
         return self._jira_obj
 
-    def search(self, search_str:str, max_results:int) -> Ret:
+    def search(self, search_str:str, max_results:int) -> Ret.CODE:
         """ Search for jira issues with a search string.
             The maximum of found issues can be set.
 
@@ -198,7 +177,7 @@ class Server:
             max_results (int): The maximum number of search results.
 
         Returns:
-            Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
+            Ret.CODE:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
 
         ret_status = Ret.CODE.RET_OK
@@ -226,14 +205,14 @@ class Server:
         """
         return self._search_result
 
-    def _login_with_token(self, token:str) -> Ret:
+    def _login_with_token(self, token:str) -> Ret.CODE:
         """ Login to jira with API token.
 
         Args:
             token (str):    The API token for login.
 
         Returns:
-            Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
+            Ret.CODE:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
 
         user = None
@@ -243,7 +222,7 @@ class Server:
 
         try:
             if self._cert_path is None:
-                self._jira_obj = JIRA(server= self._server_url, #'https://jira-dev.newtec.zz:8443',
+                self._jira_obj = JIRA(server= self._server_url,
                                       options={'verify' : False},
                                       token_auth=token,
                                       max_retries=self._max_retries,
@@ -259,14 +238,25 @@ class Server:
 
             self._jira_obj.verify_ssl = False
 
-        except (exceptions.JIRAError, reqex.ConnectionError, urlex.MaxRetryError) as e:
+        except (exceptions.JIRAError,
+                urlex.MaxRetryError,
+                reqex.ConnectionError,
+                reqex.MissingSchema,
+                reqex.InvalidSchema,
+                reqex.InvalidURL) as e:
             #print error
+            ret_status = Ret.CODE.RET_ERROR_JIRA_LOGIN
+
             if isinstance(e, exceptions.JIRAError):
                 print(e.text)
+
+            elif isinstance(e, (reqex.InvalidSchema,
+                                reqex.MissingSchema,
+                                reqex.InvalidURL)):
+                ret_status = Ret.CODE.RET_ERROR_INVALID_URL
+
             else:
                 print(str(e))
-
-            ret_status = Ret.CODE.RET_ERROR_JIRA_LOGIN
 
         if user is None:
             ret_status = Ret.CODE.RET_ERROR_JIRA_LOGIN
@@ -275,7 +265,7 @@ class Server:
 
         return ret_status
 
-    def _login_with_password(self, user:str, pw:str) -> Ret:
+    def _login_with_password(self, user:str, pw:str) -> Ret.CODE:
         """ Login to jira with username and password.
 
         Args:
@@ -283,7 +273,7 @@ class Server:
             pw (str):       Password for login.
 
         Returns:
-            Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
+            Ret.CODE:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
 
         ret_status = Ret.CODE.RET_OK
@@ -294,6 +284,7 @@ class Server:
             if self._cert_path is None:
                 self._jira_obj = JIRA(server=self._server_url,
                                       basic_auth=(user, pw),
+                                      options={'verify' : False},
                                       max_retries=self._max_retries,
                                       timeout=self._timeout)
             else:
@@ -307,42 +298,99 @@ class Server:
 
             self._jira_obj.verify_ssl = False
 
-        except (exceptions.JIRAError, reqex.ConnectionError, urlex.MaxRetryError) as e:
+        except (exceptions.JIRAError,
+                urlex.MaxRetryError,
+                reqex.ConnectionError,
+                reqex.MissingSchema,
+                reqex.InvalidSchema,
+                reqex.InvalidURL) as e:
             #print error
+            ret_status = Ret.CODE.RET_ERROR_JIRA_LOGIN
+
             if isinstance(e, exceptions.JIRAError):
                 print(e.text)
+
+            elif isinstance(e, (reqex.InvalidSchema,
+                                reqex.MissingSchema,
+                                reqex.InvalidURL)):
+                ret_status = Ret.CODE.RET_ERROR_INVALID_URL
+
             else:
                 print(str(e))
-
-            ret_status = Ret.CODE.RET_ERROR_JIRA_LOGIN
-
-        if user is None:
-            ret_status = Ret.CODE.RET_ERROR_JIRA_LOGIN
 
         self._user = user
 
         return ret_status
 
-    def _get_server_url(self) -> Tuple[str, None]:
-        """ Get the server url from the encrypted files.
-
-        Returns:
-            Tuple[str, None]: The server url or None.
-        """
-        data_type = DataType.DATATYPE_SERVER
-        server_url = None
-
-        ret_status = self._crypto_h.decrypt_information(data_type)
-
-        if ret_status is not Ret.CODE.RET_OK:
-            data_type = DataType.DATATYPE_SERVER_DEFAULT
-            ret_status = self._crypto_h.decrypt_information(data_type)
-
-        if ret_status is Ret.CODE.RET_OK:
-            server_url = self._crypto_h.get_data(DataMembers.DATA_MEM_1)
-
-        return server_url
-
 ################################################################################
 # Functions
 ################################################################################
+def _get_user_input() -> Tuple[str, str]:
+    """Prompt the user to enter a username and a password.
+    The password input is masked with '*' characters.
+
+    Returns:
+        Tuple[str, str]: A tuple containing the username and the password.
+    """
+    username = input("Enter your username: ")
+
+    print("Enter your password: ", end="", flush=True)
+    password = _get_password()
+
+    return username, password
+
+if os.name == 'nt':
+    def _get_password() -> str:
+        """Prompt the user to enter a password with '*' masking for Windows.
+
+        Returns:
+            str: The entered password.
+        """
+
+        password = ""
+        while True:
+            char = msvcrt.getch()
+            if char in {b'\n', b'\r'}:
+                break
+
+            if char == b'\x08':  # Backspace
+                if len(password) > 0:
+                    password = password[:-1]
+                    sys.stdout.write('\b \b')
+            else:
+                password += char.decode('utf-8')
+                sys.stdout.write('*')
+            sys.stdout.flush()
+        print()
+        return password
+
+else:
+    def _get_password() -> str:
+        """Prompt the user to enter a password with '*' masking for Unix-based systems.
+
+        Returns:
+            str: The entered password.
+        """
+
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        try:
+            tty.setraw(fd)
+            password = ""
+            while True:
+                char = sys.stdin.read(1)
+                if char in ('\n', '\r'):
+                    break
+
+                if char == '\b' or ord(char) == 127:
+                    if len(password) > 0:
+                        password = password[:-1]
+                        sys.stdout.write('\b \b')
+                else:
+                    password += char
+                    sys.stdout.write('*')
+                sys.stdout.flush()
+            print()
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+        return password
