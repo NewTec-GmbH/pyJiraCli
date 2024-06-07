@@ -36,7 +36,7 @@
 # Imports
 ################################################################################
 from pyJiraCli.jira_server import Server
-from pyJiraCli.profile import Profile
+from pyJiraCli.profile_handler import ProfileHandler
 from pyJiraCli.ret import Ret
 ################################################################################
 # Variables
@@ -158,7 +158,7 @@ def _add_profile(args) -> Ret.CODE:
     ret_status = Ret.CODE.RET_OK
 
     _server = Server()
-    _profile = Profile()
+    _profile = ProfileHandler()
 
     if args.url is None:
         ret_status = Ret.CODE.RET_ERROR_NO_SERVER_URL
@@ -184,7 +184,7 @@ def _remove_profile(profile_name:str) -> None:
     """
     ret_status = Ret.CODE.RET_OK
 
-    Profile().delete(profile_name)
+    ProfileHandler().delete(profile_name)
 
     return ret_status
 
@@ -199,7 +199,7 @@ def _update_profile(args) -> Ret.CODE:
     """
     ret_status = Ret.CODE.RET_OK
 
-    _profile = Profile()
+    _profile = ProfileHandler()
     _server = Server()
 
     ret_status = _profile.load(args.profile_name)
