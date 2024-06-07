@@ -39,10 +39,10 @@ import json
 import csv
 import ast
 
-from pyJiraCli.jira_issue import JiraIssue, _const
+from pyJiraCli.jira_issue import _const
 from pyJiraCli.jira_server import Server
 from pyJiraCli.file_handler import FileHandler as File
-from pyJiraCli.printer import Printer
+from pyJiraCli.printer import Printer, PrintType
 from pyJiraCli.ret import Ret
 ################################################################################
 # Variables
@@ -90,7 +90,8 @@ def execute(args) -> Ret.CODE:
 
     return ret_status
 
-def _cmd_import(input_file:str, profile_name:str) -> Ret.CODE:
+
+def _cmd_import(input_file: str, profile_name: str) -> Ret.CODE:
     """ Import a jira issue from a json or csv file.
         Create a jira issue on the server with the data
         read from the input file.
@@ -102,49 +103,139 @@ def _cmd_import(input_file:str, profile_name:str) -> Ret.CODE:
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
-    ret_status = Ret.CODE.RET_OK
-
-    issue = JiraIssue()
     server = Server()
     printer = Printer()
     file = File()
-
     issue_dict = {}
-    issue_key = None
 
-
-    # check if provided file is viable
+    # Locate file.
     ret_status = file.set_filepath(input_file)
 
     if ret_status == Ret.CODE.RET_OK:
-        if file.get_file_extension() not in ('.json', '.csv'):
+        # Check if file is a json file and open it.
+        if file.get_file_extension() != '.json':
             ret_status = Ret.CODE.RET_ERROR_WORNG_FILE_FORMAT
-    else:
-        ret_status = Ret.CODE.RET_ERROR_FILEPATH_INVALID
-
-    # if file is viable
-    if ret_status == Ret.CODE.RET_OK:
-
-        ret_status = file.open_file(file_mode='r')
+        else:
+            ret_status = file.open_file(file_mode='r')
 
     if ret_status == Ret.CODE.RET_OK:
+        # Read in the data from the file.
         issue_dict = _read_file(file)
 
-        issue.import_issue(issue_dict)
-
-    if ret_status == Ret.CODE.RET_OK:
+        # Connect to Jira Server
         ret_status = server.login(profile_name)
 
+    if ret_status == Ret.CODE.RET_OK:
+        # Get the Jira handle to use the Jira API directly.
+        jira = server.get_handle()
+
+        # Check if the project key is specified.
+        project_key = issue_dict.get('projectKey', {}).get('key')
+
+        if project_key is None:
+            ret_status = Ret.CODE.RET_ERROR
+            printer.print_error(
+                PrintType.ERROR, "Project key must be specified.")
+
+    if ret_status == Ret.CODE.RET_OK:
+        issues_list = []
+        sub_issues_list = []
+        id_cross_ref_dict = {}
+
+        # Check if the issues are sub-issues or not.
+        for issue in issue_dict.get('issues', []):
+
+            # Contains a parent key.
+            if "parent" in issue:
+                # Is a sub-issue.
+                sub_issues_list.append(issue)
+            else:
+                # Is a normal issue.
+                issues_list.append(issue)
+
+        # Create the issues.
+        for issue in issues_list:
+            # External ID must be specified to create the issue.
+            external_id = issue.get('externalId')
+
+            if external_id is None:
+                ret_status = Ret.CODE.RET_ERROR
+                printer.print_error(
+                    PrintType.ERROR, "External ID must be specified.")
+                break
+
+            if external_id in id_cross_ref_dict:
+                ret_status = Ret.CODE.RET_ERROR
+                printer.print_error(
+                    PrintType.ERROR, f"External ID {external_id} is not unique.")
+                break
+
+            # Remove the external ID from the issue dictionary, but store it for later reference.
+            issue.pop('externalId', None)
+
+            # Set the project key.
+            issue['project'] = issue_dict.get('projectKey')
+
+            # Create the issue.
+            created_issue = jira.create_issue(issue)
+
+            if created_issue is None:
+                ret_status = Ret.CODE.RET_ERROR
+                # "Issue could not be created."
+                break
+
+            # Store the external ID and the created issue key in a dictionary for later reference.
+            id_cross_ref_dict[external_id] = created_issue.key
+
+            printer.print_info(f"Created issue {created_issue.key}.")
+
+        # Check if the issues were created successfully.
         if ret_status == Ret.CODE.RET_OK:
-            jira = server.get_handle()
-            issue_key = issue.create_ticket(jira)
 
-    if issue_key is None:
-        ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
+            # Create the sub-issues.
+            for issue in sub_issues_list:
+                # Remove external id from the issue dictionary.
+                issue.pop('externalId', None)
 
-    else:
-        printer.print_info('Your ticket has been created with key:', issue_key)
+                # Set the project key.
+                issue['project'] = issue_dict.get('projectKey')
 
+                # Check if the parent key is specified.
+                if issue.get('parent').get('key') is None:
+                    parent_external_id = issue.get('parent').get('externalId')
+
+                    if parent_external_id is None:
+                        ret_status = Ret.CODE.RET_ERROR
+                        printer.print_error(
+                            PrintType.ERROR, "Parent key or external ID must be specified.")
+                        break
+
+                    if parent_external_id not in id_cross_ref_dict:
+                        ret_status = Ret.CODE.RET_ERROR
+                        printer.print_error(
+                            PrintType.ERROR, f"Parent external ID\
+                                  {parent_external_id} does not exist.")
+                        break
+
+                    # Set the parent key.
+                    issue['parent']["key"] = id_cross_ref_dict[parent_external_id]
+
+                # Create the sub-issue.
+                created_issue = jira.create_issue(issue)
+
+                # Remove the external ID from the parent issue dictionary in case its present.
+                issue['parent'].pop('externalId', None)
+
+                if created_issue is None:
+                    ret_status = Ret.CODE.RET_ERROR
+                    # "Sub-issue could not be created."
+                    break
+
+                printer.print_info(
+                    f"Created sub-issue {created_issue.key} with\
+                          parent {issue.get('parent').get('key')}.")
+
+    # Logout from the server.
     server.logout()
 
     return ret_status
