@@ -7,7 +7,7 @@ name = "pyJiraCli"
 version = "1.2.0"
 description = "A CLI tool to import and export Jira Issues between server and json files."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 authors = [
     { name = "Timo Heitzmann", email = "heitzmann_timo@web.de" }
 ]
@@ -15,7 +15,6 @@ license = {text = "BSD 3-Clause"}
 classifiers = [
     "License :: OSI Approved :: BSD 3-Clause",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10"
 ]

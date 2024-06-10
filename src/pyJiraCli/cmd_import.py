@@ -37,6 +37,9 @@
 ################################################################################
 import json
 
+import argparse
+from jira.client import JIRA
+
 from pyJiraCli.jira_server import Server
 from pyJiraCli.file_handler import FileHandler as File
 from pyJiraCli.printer import Printer, PrintType
@@ -54,7 +57,7 @@ from pyJiraCli.ret import Ret
 ################################################################################
 
 
-def register(subparser) -> object:
+def register(subparser) -> argparse.ArgumentParser:
     """ Register subparser commands for the import module.
 
     Args:
@@ -63,8 +66,8 @@ def register(subparser) -> object:
     Returns:
         obj:  The commmand parser object of this module.
     """
-    sub_parser_import = subparser.add_parser('import',
-                                             help="Import a Jira Issue from a JSON file.")
+    sub_parser_import: argparse.ArgumentParser = subparser.add_parser('import',
+                                        help="Import a Jira Issue from a JSON file.")
 
     sub_parser_import.add_argument('file',
                                    type=str,
@@ -88,7 +91,7 @@ def execute(args) -> Ret.CODE:
     return _cmd_import(args.file, args.profile)
 
 
-def _separate_issue_types(issue_dict: dict) -> tuple:
+def _separate_issue_types(issue_dict: dict) -> tuple[list, list]:
     """ Separate the sub-issues from the normal issues.
 
     Args:
@@ -113,7 +116,10 @@ def _separate_issue_types(issue_dict: dict) -> tuple:
     return issues_list, sub_issues_list
 
 
-def _create_issues(jira, printer, issue_dict, issues_list):
+def _create_issues(jira: JIRA,
+                   printer: Printer,
+                   issue_dict: dict,
+                   issues_list: list[dict]) -> tuple[Ret.CODE, dict]:
     """ Create the issues on the Jira server.
 
     Args:
@@ -165,7 +171,11 @@ def _create_issues(jira, printer, issue_dict, issues_list):
     return ret_status, id_cross_ref_dict
 
 
-def _create_sub_issues(jira, printer, issue_dict, sub_issues_list, id_cross_ref_dict):
+def _create_sub_issues(jira: JIRA,
+                       printer: Printer,
+                       issue_dict: dict,
+                       sub_issues_list: list[dict],
+                       id_cross_ref_dict: dict) -> Ret.CODE:
     """ Create the sub-issues on the Jira server.
 
     Args:
@@ -297,7 +307,7 @@ def _cmd_import(input_file: str, profile_name: str) -> Ret.CODE:
     return ret_status
 
 
-def _read_file(input_file: str) -> tuple:
+def _read_file(input_file: str) -> tuple[Ret.CODE, dict]:
     """ Read in the data from a JSON file.
 
     Args:

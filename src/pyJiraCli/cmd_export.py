@@ -35,8 +35,9 @@
 ################################################################################
 # Imports
 ################################################################################
-import json
 import os
+import json
+import argparse
 
 from pyJiraCli.jira_server import Server
 from pyJiraCli.file_handler import FileHandler as File
@@ -53,7 +54,7 @@ LOG = Printer()
 ################################################################################
 # Functions
 ################################################################################
-def register(subparser) -> object:
+def register(subparser) -> argparse.ArgumentParser:
     """ Register the subparser commands for the export module.
         
     Args:
@@ -63,7 +64,7 @@ def register(subparser) -> object:
         obj:    The commmand parser obj of this module.
     """
 
-    sub_parser_export = subparser.add_parser('export',
+    sub_parser_export: argparse.ArgumentParser = subparser.add_parser('export',
                                      help="Export a ticket from a Jira Server to a JSON file.")
 
     sub_parser_export.add_argument('issue',
