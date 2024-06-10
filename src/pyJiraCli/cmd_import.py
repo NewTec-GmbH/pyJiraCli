@@ -152,7 +152,7 @@ def _create_issues(jira, printer, issue_dict, issues_list):
         created_issue = jira.create_issue(issue)
 
         if created_issue is None:
-            ret_status = Ret.CODE.RET_ERROR
+            ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
             printer.print_error(
                 PrintType.ERROR, f"Issue {external_id} could not be created.")
             break
@@ -224,7 +224,7 @@ def _create_sub_issues(jira, printer, issue_dict, sub_issues_list, id_cross_ref_
         created_issue = jira.create_issue(issue)
 
         if created_issue is None:
-            ret_status = Ret.CODE.RET_ERROR
+            ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
             printer.print_error(
                 PrintType.ERROR, f"Sub-issue {external_id} could not be created.")
             break
