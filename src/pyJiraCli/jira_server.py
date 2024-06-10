@@ -1,4 +1,4 @@
-"""jira server connection module"""
+"""Jira server connection module"""
 
 # BSD 3-Clause License
 #
@@ -35,8 +35,6 @@
 import os
 import sys
 
-from typing import Tuple
-
 import certifi
 import urllib3
 
@@ -64,7 +62,7 @@ else:
 # Classes
 ################################################################################
 class Server:
-    """This class handles connection to the jira server.
+    """This class handles connection to the Jira server.
 
     Args:
         timeout (float): The timeout for the requests in seconds. Default is 10 seconds.
@@ -84,7 +82,7 @@ class Server:
         urllib3.disable_warnings()
 
     def login(self, profile_name:str) -> Ret.CODE:
-        """ Login to jira server with user info or login info from 
+        """ Login to Jira server with user info or login info from 
             stored token or user file.
 
         Args:
@@ -156,7 +154,7 @@ class Server:
 
         return ret_status
 
-    def get_handle(self) -> object:
+    def get_handle(self) -> JIRA:
         """ Return the handle to the jira rest api.
 
         Returns:
@@ -321,12 +319,12 @@ class Server:
 ################################################################################
 # Functions
 ################################################################################
-def _get_user_input() -> Tuple[str, str]:
+def _get_user_input() -> tuple[str, str]:
     """Prompt the user to enter a username and a password.
     The password input is masked with '*' characters.
 
     Returns:
-        Tuple[str, str]: A tuple containing the username and the password.
+        tuple[str, str]: A tuple containing the username and the password.
     """
     username = input("Enter your username: ")
 
