@@ -145,6 +145,8 @@ def _cmd_import(input_file:str, profile_name:str) -> Ret.CODE:
     else:
         printer.print_info('Your ticket has been created with key:', issue_key)
 
+    server.logout()
+
     return ret_status
 
 

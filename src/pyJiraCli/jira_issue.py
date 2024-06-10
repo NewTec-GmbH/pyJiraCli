@@ -69,20 +69,6 @@ class JiraIssue:
             else:
                 self._issue_dictionary[field] = None
 
-    def reset(self) -> None:
-        """ Reset the data in this Class instance.
-        """
-
-        self._file_h = File()
-        self._issue_dictionary = {}
-        self._issue = None
-
-        for field in _const.ISSUE_FIELDS:
-            if field in _const.LIST_FIELDS:
-                self._issue_dictionary[field] = []
-            else:
-                self._issue_dictionary[field] = None
-
     def get_key(self) -> str:
         """ Return the issue key of current issue.
         
@@ -95,23 +81,6 @@ class JiraIssue:
             key = self._issue_dictionary['key']
 
         return key
-
-    def get_issue_dict(self) -> dict:
-        """ Return the current issue information
-            stored in the instance dictionary.
-
-        Returns:
-            dict: The issue dictionary.
-        """
-        return self._issue_dictionary
-
-    def load_issue(self, new_issue:object) -> None:
-        """ Load a new issue directly into the class.
-
-        Args:
-            new_issue (object): The new issue object.
-        """
-        self._issue = new_issue
 
     def export_issue(self, jira, issue:str) -> Ret.CODE:
         """ Load the issue from the jira server

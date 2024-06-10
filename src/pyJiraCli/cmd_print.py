@@ -105,4 +105,6 @@ def _cmd_print(issue_key:str, profile_name:str) -> Ret.CODE:
     if ret_status == Ret.CODE.RET_OK:
         issue.print_issue()
 
+    server.logout()
+
     return ret_status

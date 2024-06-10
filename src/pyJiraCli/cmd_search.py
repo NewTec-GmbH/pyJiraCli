@@ -37,7 +37,6 @@
 import json
 
 from pyJiraCli.jira_server import Server
-from pyJiraCli.jira_issue import JiraIssue as Issue
 from pyJiraCli.file_handler import FileHandler as File
 from pyJiraCli.printer import Printer
 from pyJiraCli.ret import Ret
@@ -87,8 +86,9 @@ def register(subparser) -> object:
 
     sub_parser_search.add_argument('--save',
                             type=str,
-                            metavar='<FILE>',
-                            help="Save all found Issues and the search parameter in a json file.")
+                            metavar='<PATH TO FILE>',
+                            help="Absolute filepath or filepath relative " + \
+                                 "to the current work directory to a json file.")
 
     return sub_parser_search
 
@@ -111,9 +111,9 @@ def _cmd_search(filter_str:str, profile_name:str, results:int, save_file:str) ->
         filter_str (str):   String containing the search parameters.
         profile_name (str): The server profile that shall be used.
         results (int):      The maximum number of search results.
-        save_file (str):    The file where the save result will be stored. 
+        save_file (str):    The aboslute filepath or a relative filepath to the current
+                            work directory to a json file, where the search will be stored. 
         
-    
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
@@ -168,7 +168,7 @@ def _print_table(issues:list):
         print(f"{issue.fields.creator.name:<{HEADER_COL_WIDTH['Creator']}}", end="\n")
 
 
-def _save_search(save_file:str, found_issues:list, search_option:dict) -> Ret.CODE:
+def _save_search(save_file:str, found_issues:list, search_dict:dict) -> Ret.CODE:
     """_summary_
 
     Args:
@@ -184,21 +184,11 @@ def _save_search(save_file:str, found_issues:list, search_option:dict) -> Ret.CO
 
     file = File()
     _printer = Printer()
-    issue_handler = Issue()
-    issue_dict = {}
 
     for issue in found_issues:
+        search_dict['issues'] = issue.raw
 
-        issue_handler.load_issue(issue)
-
-        issue_handler.process_issue()
-
-        issue_dict[issue.key] = issue_handler.get_issue_dict()
-        search_option['issues'] = issue_dict
-
-        issue_handler.reset()
-
-    write_data = json.dumps(search_option, indent=4)
+    write_data = json.dumps(search_dict, indent=4)
     ret_status = file.set_filepath(save_file)
 
     if ret_status == Ret.CODE.RET_OK:
