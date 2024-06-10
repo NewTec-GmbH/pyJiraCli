@@ -70,7 +70,7 @@ _CMD_MODULS = [
 ################################################################################
 
 
-def add_parser() -> object:
+def add_parser() -> argparse.ArgumentParser:
     """ Add parser for command line arguments and
         set the execute function of each 
         cmd module as callback for the subparser command.
