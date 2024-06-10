@@ -88,7 +88,7 @@ def register(subparser) -> object:
                             type=str,
                             metavar='<PATH TO FILE>',
                             help="Absolute filepath or filepath relative " + \
-                                 "to the current work directory to a json file.")
+                                 "to the current work directory to a JSON file.")
 
     return sub_parser_search
 
@@ -111,8 +111,8 @@ def _cmd_search(filter_str:str, profile_name:str, results:int, save_file:str) ->
         filter_str (str):   String containing the search parameters.
         profile_name (str): The server profile that shall be used.
         results (int):      The maximum number of search results.
-        save_file (str):    The aboslute filepath or a relative filepath to the current
-                            work directory to a json file, where the search will be stored. 
+        save_file (str):    The absolute filepath or a relative filepath to the current
+                            work directory to a JSON file, where the search will be stored. 
         
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
@@ -172,12 +172,11 @@ def _print_table(issues:list) -> None:
 
 
 def _save_search(save_file:str, search_dict:dict) -> Ret.CODE:
-    """_summary_
+    """ Save the search result to a JSON file.
 
     Args:
-        save_file (str): _description_
-        found_issues (list): _description_
-        search_option (dict): _description_
+        save_file (str): The filepath to the JSON file.
+        search_dict (dict): The dictionay with the search data.
 
     Returns:
         Ret.CODE: _description_

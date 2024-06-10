@@ -8,7 +8,7 @@ actor filesystem as fs
 package Usescases{
 usecase UC_help as "print command overview to console"
 usecase UC_login as "set login information"
-usecase UC_import as "create ticket from\n json file"
+usecase UC_import as "create ticket from\n JSON file"
 usecase UC_export as "create .json file from ticket"
 usecase UC_search as "search Tickets with\nstring parameters/filters"
 usecase UC_details as "print Ticket details"
