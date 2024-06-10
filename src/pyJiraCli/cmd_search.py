@@ -34,7 +34,10 @@
 ################################################################################
 # Imports
 ################################################################################
+import json
+
 from pyJiraCli.jira_server import Server
+from pyJiraCli.file_handler import FileHandler as File
 from pyJiraCli.printer import Printer
 from pyJiraCli.ret import Ret
 ################################################################################
@@ -81,6 +84,12 @@ def register(subparser) -> object:
                             metavar='<MAX>',
                             help="Maximum number of issues that may be found. Default is 50.")
 
+    sub_parser_search.add_argument('--save',
+                            type=str,
+                            metavar='<PATH TO FILE>',
+                            help="Absolute filepath or filepath relative " + \
+                                 "to the current work directory to a JSON file.")
+
     return sub_parser_search
 
 def execute(args) -> Ret.CODE:
@@ -93,16 +102,18 @@ def execute(args) -> Ret.CODE:
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
-    return _cmd_search(args.filter, args.profile, args.max)
+    return _cmd_search(args.filter, args.profile, args.max, args.save)
 
-def _cmd_search(filter_str:str, profile_name:str, results:int) -> Ret.CODE:
+def _cmd_search(filter_str:str, profile_name:str, results:int, save_file:str) -> Ret.CODE:
     """ Search tickets with a provided filter or search string.
     
     Args:
         filter_str (str):   String containing the search parameters.
         profile_name (str): The server profile that shall be used.
+        results (int):      The maximum number of search results.
+        save_file (str):    The absolute filepath or a relative filepath to the current
+                            work directory to a JSON file, where the search will be stored. 
         
-    
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
@@ -123,11 +134,26 @@ def _cmd_search(filter_str:str, profile_name:str, results:int) -> Ret.CODE:
         printer.print_info('Search string:', filter_str)
         printer.print_info('Found Issues:', str(len(found_issues)))
 
-        _print_table(found_issues)
+        if save_file is not None:
+
+            search_dict = {
+                'profile' : profile_name,
+                'search'  : filter_str,
+                'max'     : results,
+                'found'   : len(found_issues)
+            }
+
+            for issue in found_issues:
+                search_dict['issues'] = issue.raw
+
+            ret_status = _save_search(save_file, search_dict)
+
+        else:
+            _print_table(found_issues)
 
     return ret_status
 
-def _print_table(issues:list):
+def _print_table(issues:list) -> None:
     """ Print a quick overview vor all issues in the list.
 
     Args:
@@ -143,3 +169,31 @@ def _print_table(issues:list):
         print(f"{issue.fields.summary[:HEADER_COL_WIDTH['Summary'] - 2]:<{HEADER_COL_WIDTH['Summary']}}", end="") # pylint: disable=line-too-long
         print(f"{issue.fields.created[:10]:<{HEADER_COL_WIDTH['Created']}}", end="")
         print(f"{issue.fields.creator.name:<{HEADER_COL_WIDTH['Creator']}}", end="\n")
+
+
+def _save_search(save_file:str, search_dict:dict) -> Ret.CODE:
+    """ Save the search result to a JSON file.
+
+    Args:
+        save_file (str): The filepath to the JSON file.
+        search_dict (dict): The dictionay with the search data.
+
+    Returns:
+        Ret.CODE: _description_
+    """
+    ret_status = Ret.CODE.RET_OK
+
+    file = File()
+    _printer = Printer()
+
+    write_data = json.dumps(search_dict, indent=4)
+
+    ret_status = file.set_filepath(save_file)
+
+    if ret_status == Ret.CODE.RET_OK:
+        ret_status = file.write_file(write_data)
+
+    if ret_status == Ret.CODE.RET_OK:
+        _printer.print_info("Search was saved in file:", save_file)
+
+    return ret_status
