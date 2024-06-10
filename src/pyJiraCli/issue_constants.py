@@ -47,14 +47,6 @@ ISSUE_TYPES = {
     '8' : 'QMeldung'
 }
 
-ISSUE_PRIORITIES = {
-    '1' : 'Blocker',
-    '2' : 'Critical',
-    '3' : 'Major (Default)',
-    '4' : 'Low',
-    '5' : 'Non-sentable'
-}
-
 # all available issue fields
 ISSUE_FIELDS = [
             'key',              
