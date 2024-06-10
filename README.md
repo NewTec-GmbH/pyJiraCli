@@ -10,12 +10,11 @@ pyJiraCli is a command-line tool designed for handling Jira tickets efficiently.
 * [Overview](#overview)
 * [Usage](#usage)
 * [Commands](#commands)
-  * [Delete](#delete)
   * [Export](#export)
   * [Import](#import)
-  * [Login](#login)
   * [Search](#search)
   * [Print](#print)
+  * [Profile](#profile)
 * [Add a command](#add-a-command)
 * [Examples](#examples)
   * [JSON example file](#json-example-file)
@@ -57,16 +56,13 @@ positional arguments:
     export              export jira issue to json file
     import              Import a Jira Issue from a JSON or a CSV file.
     search              Search for the Jira server for issues using the specified filter string.
-    login               Save the login information into an encrypted file for easier use.
-    delete              delete login information
     print               Print the Jira Issue details to the console.
+    profile             Print the Jira Issue details to the console.
 
 options:
   -h, --help            show this help message and exit
-  --user <username>, -u <username>
-                        Jira username, if not provided with login command.
-  --password <password>, -p <password>
-                        Jira password, if not provided with login command.
+  --profile <server profile>
+                        The name of the server profile which shall be used for this process
   --version, -v         show program's version number and exit
   --verbose             Print full command details before executing the command. Enables logs of type INFO and WARNING.
 
@@ -76,38 +72,6 @@ Copyright (c) 2024 NewTec GmbH - BSD 3-Clause - Find the project on GitHub: docu
 ## Commands
 
 All added command modules must provide an "execute()" and a "register()" function.
-
-### Delete
-
-Delete the saved login data. See [login](#login) for more details.
-
-```cmd
-pyJiraCli delete --help
-```
-
-Output:
-
-```cmd
-usage: pyJiraCli delete [-h] [--default] [--userinfo] [--server] [--token] [--cert]
-
-options:
-  -h, --help      show this help message and exit
-
-data type to delete:
-  --default, -d   Delete the server URL of the default server.
-  --userinfo, -i  Delete the user information (username and password).
-  --server, -s    Delete the server URL of the secondary server.
-  --token, -t     Delete the API token for Jira server.
-  --cert, -c      Delete the authentification certificate for Jira server.
-```
-
-Example:
-
-```cmd
-pyJiraCli delete -i 
-```
-
-This command deletes the saved user info.
 
 ### Export
 
@@ -170,75 +134,6 @@ pyJiraCli import important_issue.json
 
 This creates an issue on the Jira server using the metadata specified in `important_issue.json`.
 
-### Login
-
-Save the login data to an encrypted file for easier use.
-
-Following combinations are accepted:
-
-* username and password.
-* email and API token.
-
-To store the email address use option --user.
-
-Two server addresses can be stored, either as the default or a secondary server. The server cannot be set in the same command as the user credentials.
-
-An expiration date can be set using the `--expiration` option, and its modifiers.
-
-```cmd
-pyJiraCli login --help
-```
-
-Output:
-
-```cmd
-usage: pyJiraCli login [-h] [--expiration <time>] [--min | --day | --month] (--default | --userinfo | --server | --token | --cert) <data1> [<data2>]
-
-options:
-  -h, --help           show this help message and exit
-  --expiration <time>  Time after which the stored login info will expire. Default value = 60 days
-
-data:
-  <data1>              <username, token, url>
-  <data2>              optional <password>
-
-Expiration time options:
-  Only one option can be used for setting the expiration time.
-
-  --min                Expiration time in minutes.
-  --day                Expiration time in days.
-  --month              Expiration time in months.
-
-Datatype options:
-  Only one option can be used to specify the datatype.
-
-  --default, -d        The server URL of the default server.
-  --userinfo, -i       The user information (username and password).
-  --server, -s         The server URL of the secondary server.
-  --token, -t          The API token for Jira server.
-  --cert, -c           The authentification certificate for Jira server.
-```
-
-Examples:
-
-Set the default server URL
-
-```cmd
-pyJiraCli login --default https://my.jira.server/
-```
-
-Set the secondary server URL:
-
-```cmd
-pyJiraCli login --server https://my.other.jira.server/
-```
-
-Set your API token:
-
-```cmd
-pyJiraCli login --token <xxxxxxxxxxxxxxx> # 
-```
-
 ### Search
 
 Search the Jira server for issues using the specified filter string. The string must be in JQL (Jira Query Language) format.
@@ -298,6 +193,60 @@ pyJiraCli print ISSUE-2291
 ```
 
 The output depends on the fields configured by the Jira server.
+
+### Profile
+
+Add, delete or update server profiles. At least one server profile is needed to use the pyJiraCli tool.
+
+The profile contains following data:
+  - name: A Unique profile name by which you can reference your profile. (required)
+  - url: The server url where your jira server is located. (required)
+  - token: An api token to allow for faster access. (optional)
+  - certificate: A server certificate for your company/jira instance. (opional)
+
+When adding a profile, the profile name and the server url are required. 
+The token and certificate are optional and can also be added later on, 
+with the --update option.
+
+```cmd
+pyJiraCli profile --help
+```
+
+Output:
+
+```cmd
+usage: pyJiraCli profile [-h] [--url <profile url>] [--token <api token>] [--cert <certificate path>] (--add | --remove | --update) <profile name>
+
+options:
+  -h, --help            show this help message and exit
+
+Profile Data:
+  <profile name>        The Name under which the profile will be saved.
+  --url <profile url>   The server url for the profile.
+  --token <api token>   The api token for login with this server profile
+  --cert <certificate path>
+                        The server url for the profile.
+
+profile operations:
+  Only one operation type can be processed at a time.
+
+  --add, -a             Add a new server profile.
+  --remove, -r          Delete an existing server profile.
+  --update, -u          Update an existing server profile with new data.
+```
+
+Example:
+
+```cmd
+pyJiraCli profile new_profile --url https://my-jira-instance.com --token This-Is-an-Example-Token --cert C:\\Path\\To\\Certificate.crt --add
+```
+or
+```cmd
+pyJiraCli profile new_profile --url https://my-jira-instance.com --add
+pyJiraCli profile new_profile --token This-Is-an-Example-Token --cert C:\\Path\\To\\Certificate.crt --update
+```
+
+This will create a new profile with the name "new_profile" and saves all possible profile information.
 
 ## Add a command
 
