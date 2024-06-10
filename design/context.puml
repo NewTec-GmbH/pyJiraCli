@@ -29,8 +29,8 @@ file "jira Issue" as jira_issue
 
 
 database filesystem {
-file "profile data" as log_data
-file "json/csv file" as file
+file "login data" as log_data
+file "JSON/csv file" as file
 }
 
 main .down.> import : <<flow>>
@@ -52,7 +52,7 @@ end note
 
 note bottom of file
     the ticket data is stored
-    in a json or csv file
+    in a JSON or csv file
 end note
 
 note top of key
@@ -75,7 +75,7 @@ note top of filter
 end note
 
 note top of i_file
-    json or csv file
+    JSON or csv file
     with jira ticket
     information
 end note

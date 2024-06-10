@@ -1,6 +1,6 @@
 """ Command to export tickets from jira.
     Issues will be loaded from the server
-    and written to a json or csv file.
+    and written to a JSON or csv file.
     The file location or file can be provided.
 """
 # BSD 3-Clause License
@@ -101,7 +101,7 @@ def execute(args) -> Ret.CODE:
 
 # export command function
 def _cmd_export(args) -> Ret.CODE:
-    """ Export a jira ticket to a json or csv file.
+    """ Export a jira ticket to a JSON or csv file.
 
         The function takes the commandline arguments and extracts the
         provided filepath from -path -file and -csv option.
@@ -112,7 +112,7 @@ def _cmd_export(args) -> Ret.CODE:
         If the issue is valid, the issue data will be read from the server and stored
         in an instance of the JiraIssue class.
 
-        Lastly the data will be written and stored in a json or csv file 
+        Lastly the data will be written and stored in a JSON or csv file 
         depending on if the -csv option was set or not.
     
     Args:
@@ -197,7 +197,7 @@ def _get_filepath(issue:str, arg_file:str, arg_path:str, csv:bool) -> str:
 
 def _export_ticket_to_file(issue_key:str, filepath:str, profile_name:str) -> Ret.CODE:
     """ Export a jira issue from the server
-        and write the issue data to a csv or json file.
+        and write the issue data to a csv or JSON file.
         
     Args:
         issue_key (str):    The issue key as a string.
@@ -232,7 +232,7 @@ def _export_ticket_to_file(issue_key:str, filepath:str, profile_name:str) -> Ret
             ret_status = issue.create_csv(filepath)
 
         else:
-            # export file to json format
+            # export file to JSON format
             ret_status = issue.create_json(filepath)
 
     return ret_status
