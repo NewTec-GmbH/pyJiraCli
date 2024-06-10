@@ -35,6 +35,7 @@
 # Imports
 ################################################################################
 import json
+import argparse
 
 from pyJiraCli.jira_server import Server
 from pyJiraCli.file_handler import FileHandler as File
@@ -61,7 +62,7 @@ HEADER_COL_WIDTH = {
 ################################################################################
 # Functions
 ################################################################################
-def register(subparser) -> object:
+def register(subparser) -> argparse.ArgumentParser:
     """ Register subparser commands for the login module.
         
     Args:
@@ -71,7 +72,7 @@ def register(subparser) -> object:
         obj:    the commmand parser of this module
     """
     # subparser for the 'search' command
-    sub_parser_search = subparser.add_parser('search',
+    sub_parser_search : argparse.ArgumentParser = subparser.add_parser('search',
                                       help="Search for the Jira server for issues \
                                             using the specified filter string.")
 

@@ -167,7 +167,7 @@ class FileHandler:
         """
         return self._content
 
-    def write_file(self, file_input) -> Ret.CODE:
+    def write_file(self, file_input:str) -> Ret.CODE:
         """ Open the file in write mode
             and write the function argument
             to the file.
