@@ -18,7 +18,6 @@ pyJiraCli is a command-line tool designed for handling Jira tickets efficiently.
 * [Add a command](#add-a-command)
 * [Examples](#examples)
   * [JSON example file](#json-example-file)
-  * [CSV example file](#csv-example-file)
 * [Used Libraries](#used-libraries)
 * [Issues, Ideas And Bugs](#issues-ideas-and-bugs)
 * [License](#license)
@@ -84,7 +83,7 @@ pyJiraCli export --help
 Output:
 
 ```cmd
-usage: pyJiraCli export [-h] [--path <folder_path>] [--filename <filename>] [--csv] issue
+usage: pyJiraCli export [-h] [--path <folder_path>] [--filename <filename>] issue
 
 positional arguments:
   issue                 Jira issue key
@@ -94,7 +93,6 @@ options:
   --path <folder_path>  Destination folder for the output file. Folder must exist.
   --filename <filename>
                         Name of the output file. Default is the issue key.
-  --csv                 Save data in CSV file format.
 ```
 
 Example:
@@ -364,9 +362,8 @@ class Ret(IntEnum):
 class Warnings(IntEnum):
     """ Th Warnings of the modules."""
     WARNING_UNSAVE_CONNECTION      = 0
-    WARNING_CSV_OPTION_WRONG       = 1
-    WARNING_UNKNOWN_FILE_EXTENSION = 2
-    WARNING_INFO_FILE_EXPIRED      = 3
+    WARNING_UNKNOWN_FILE_EXTENSION = 1
+    WARNING_TOKEN_RECOMMENDED      = 2
 
 ```
 
@@ -388,20 +385,6 @@ class Warnings(IntEnum):
     "duedate" : "08-23-2024",
     "assignee" : "somebody else",
 }
-```
-
-  In further versions this might change with the possibilty for the user to provide file templates on how JSON or CSV files shall be read and written
-
-### CSV example file
-
-With version v1 the genereated CSV files will have following format:
-
-```ticket.csv```
-
-```csv
-"issue_key"; "project"; "duedate"; "assignee"
-
-"ISSUE-TEST-1043", "ISSUE-TEST", "08-23-2024", "sombody else"
 ```
 
   In further versions this might change with the possibilty for the user to provide file templates on how JSON or CSV files shall be read and written

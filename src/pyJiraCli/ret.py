@@ -91,24 +91,16 @@ class Warnings():
     class CODE(IntEnum):
         """ Th Warnings of the modules."""
         WARNING_UNSAVE_CONNECTION      = 0
-        WARNING_CSV_OPTION_WRONG       = 1
-        WARNING_UNKNOWN_FILE_EXTENSION = 2
-        WARNING_INFO_FILE_EXPIRED      = 3
-        WARNING_TOKEN_RECOMMENDED      = 4
+        WARNING_UNKNOWN_FILE_EXTENSION = 1
+        WARNING_TOKEN_RECOMMENDED      = 2
 
     MSG = {
         CODE.WARNING_UNSAVE_CONNECTION:      "No certificate for server authentification found." + \
                                              " It's strongly advised, to add a certificate for " + \
                                              "your server profile.",
-        CODE.WARNING_CSV_OPTION_WRONG:       "File ending from provided file " + \
-                                             "and csv option dont match. " + \
-                                             "File format provided by file or path was used.",
-        CODE.WARNING_UNKNOWN_FILE_EXTENSION: "The provided file has an unknown file format." + \
+        CODE.WARNING_UNKNOWN_FILE_EXTENSION: "The provided file has an unknown file format. " + \
                                              "A new file with the same name and " + \
-                                             "a file format according to the " + \
-                                             "--csv option will be created.",
-        CODE.WARNING_INFO_FILE_EXPIRED:      "The stored information has expired " +\
-                                             "and will be deleted",
+                                             "JSON file will be created.",
         CODE.WARNING_TOKEN_RECOMMENDED:      "No api token was found in this server profile. " + \
                                              "Its recommended to add a token to your server " +\
                                              "profile."

@@ -51,6 +51,7 @@ class FileHandler:
         self._file = None
         self._ext  = None
         self._path = None
+        self._parent_path = None
         self._content = None
 
     def set_filepath(self, path:str) -> Ret.CODE:
@@ -63,15 +64,40 @@ class FileHandler:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
         ret_status = Ret.CODE.RET_OK
-        folder_path = path.split(os.path.sep)[:-1]
-        folder_path = os.path.sep.join(folder_path)
 
-        if os.path.exists(path) or os.path.exists(folder_path):
-            self._path = path
+        path_comps = path.split('/')
 
-            if os.path.isfile(path):
-                # check for file extension
-                self._ext = os.path.splitext(path)[-1]
+        if len(path_comps) == 1:
+            path_comps = path.split('\\')
+
+        if len(path_comps) == 1:
+            path_comps = [*os.path.split(os.getcwd()), path_comps[0]]
+
+        if path_comps[0] == '.':
+            root_path_comps = os.path.split(os.getcwd())
+            path_comps = [*root_path_comps, *path_comps[1:]]
+
+        # remove eventual empty path components
+        if '' in path_comps:
+            path_comps.remove('')
+
+        if path_comps[0][-1] == ':':
+            # check if the first component is a drive name
+            path_comps[0] += '\\'
+
+        formatted_path = os.path.join(*path_comps)
+        parent_path = os.path.join(*path_comps[:-1])
+
+        if os.path.exists(formatted_path) or \
+           os.path.exists(parent_path):
+            self._ext = os.path.splitext(formatted_path)[-1]
+            self._path = formatted_path
+            self._parent_path = parent_path
+
+            if os.path.isdir(formatted_path):
+                self._ext = None
+                self._path = formatted_path
+                self._parent_path = formatted_path
 
         else:
             ret_status = Ret.CODE.RET_ERROR_FILEPATH_INVALID
@@ -115,6 +141,22 @@ class FileHandler:
             str: The file extension.
         """
         return self._ext
+
+    def get_path(self) -> str:
+        """ Return the path as a string.
+
+        Returns:
+            str: The existing filepath or parent folder path.
+        """
+        return self._path
+
+    def get_parent_path(self) -> str:
+        """ Return the parent path as a string.
+
+        Returns:
+            str: The existing parent folder path.
+        """
+        return self._parent_path
 
     def get_file_content(self) -> str:
         """ Return the file content
