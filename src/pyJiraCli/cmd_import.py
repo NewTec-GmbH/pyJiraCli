@@ -1,5 +1,5 @@
 """ Command for the import function.
-    Imports ticket information from a json or csv file
+    Imports ticket information from a JSON or csv file
     and writes the imported data to a jira ticket.
 """
 
@@ -91,7 +91,7 @@ def execute(args) -> Ret.CODE:
     return ret_status
 
 def _cmd_import(input_file:str, profile_name:str) -> Ret.CODE:
-    """ Import a jira issue from a json or csv file.
+    """ Import a jira issue from a JSON or csv file.
         Create a jira issue on the server with the data
         read from the input file.
     
@@ -149,7 +149,7 @@ def _cmd_import(input_file:str, profile_name:str) -> Ret.CODE:
 
 
 def _read_file(file:File) -> dict:
-    """ Read in the data from a json or csv file.
+    """ Read in the data from a JSON or csv file.
 
     Args:
         file (FileHandler): The file handler obj for the input file.
