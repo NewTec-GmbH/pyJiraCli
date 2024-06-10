@@ -156,7 +156,7 @@ class Server:
 
         return ret_status
 
-    def get_handle(self) -> object:
+    def get_handle(self) -> JIRA:
         """ Return the handle to the jira rest api.
 
         Returns:
