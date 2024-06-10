@@ -1,6 +1,6 @@
 """ Command to export tickets from jira.
     Issues will be loaded from the server
-    and written to a JSON or csv file.
+    and written to a JSON file.
     The file location or file can be provided.
 """
 # BSD 3-Clause License
@@ -35,9 +35,8 @@
 ################################################################################
 # Imports
 ################################################################################
-import os
 import json
-from typing import Tuple
+import os
 
 from pyJiraCli.jira_server import Server
 from pyJiraCli.file_handler import FileHandler as File
@@ -46,7 +45,7 @@ from pyJiraCli.ret import Ret, Warnings
 ################################################################################
 # Variables
 ################################################################################
-printer = Printer()
+LOG = Printer()
 ################################################################################
 # Classes
 ################################################################################
@@ -71,20 +70,14 @@ def register(subparser) -> object:
                            type=str,
                            help="Jira issue key")
 
-    sub_parser_export.add_argument('--path',
+    sub_parser_export.add_argument('--file',
                            type=str,
-                           metavar='<folder_path>',
-                           help="Destination folder for the output file. \
-                                Folder must exist.")
-
-    sub_parser_export.add_argument('--filename',
-                           type=str,
-                           metavar='<filename>',
-                           help="Name of the output file. Default is the issue key.")
-
-    sub_parser_export.add_argument('--csv',
-                           action='store_true',
-                           help="Save data in CSV file format.")
+                           metavar='<path to file>',
+                           help="Absolute file path or filepath relativ " + \
+                                "to the current working directory. " + \
+                                "The file format must be JSON. "  \
+                                "If a different file format is provided, " + \
+                                "the file extension will be replaced.")
 
     return sub_parser_export
 
@@ -102,16 +95,15 @@ def execute(args) -> Ret.CODE:
 
 # export command function
 def _cmd_export(args) -> Ret.CODE:
-    """ Export a jira ticket to a JSON or csv file.
+    """ Export a jira ticket to a JSON file.
 
         The function takes the commandline arguments and extracts the
-        provided filepath from -path -file and -csv option.
+        provided filepath from -path and -file option.
 
         If the option -file (filename) is not provided, the function will 
         take the issue key as filename.
 
-        The data will be written and stored in a JSON or csv file 
-        depending on if the -csv option was set or not.
+        The data will be written and stored in a JSON file.
     
     Args:
         args (obj): The command line arguments.
@@ -122,84 +114,28 @@ def _cmd_export(args) -> Ret.CODE:
 
     ret_status = Ret.CODE.RET_OK
 
-    filepath = _get_filepath(args.issue,
-                             args.filename,
-                             args.path,
-                             args.csv)
-    if filepath is None:
+    file = _process_file_argument(args.issue,
+                                      args.file)
+    if file is None:
         ret_status = Ret.CODE.RET_ERROR_FILEPATH_INVALID
 
     else:
         ret_status = _export_ticket_to_file(args.issue,
-                                            filepath,
+                                            file,
                                             args.profile)
 
     if ret_status == Ret.CODE.RET_OK:
-        printer.print_info('File saved at:', filepath)
+        LOG.print_info('File saved at:', file.get_path())
 
     return ret_status
 
-
-def _get_filepath(issue:str, arg_file:str, arg_path:str, csv:bool) -> str:
-    """ Put together the output file path.
-        If no filename was provided with file option, 
-        the issue key will be used as filename.
-        The file extension (json/csv) will be set according to csv option.
-       
-    Args:
-        issue (str):     The issue key (used as filename if no name or file provided).
-        arg_file (str):  The -file argument from the command line.
-        arg_path (str):  The -path argument from the dommand line.
-        csv (bool):      Flag, if true save the file in csv format.
-
-    Returns:
-        str:   Path where the ticket file will be stored or None.
-    """
-    file_path = None
-
-    if arg_file is None:
-        filename = issue
-    else:
-        filename, csv = _process_file_argument(arg_file, csv)
-
-    if arg_path is None:
-        # save file in project folder
-
-        path_comps = filename.split('/')
-
-        if len(path_comps) == 1:
-            path_comps = filename.split('\\')
-
-        if len(path_comps) > 1:
-            if -1 == path_comps[0].find('\\'):
-                path_comps[0] += '\\'
-
-            file_path = os.path.join(*path_comps)
-
-            if csv:
-                file_path = f'{file_path}.csv'
-            else:
-                file_path = f'{file_path}.json'
-
-        else:
-            if csv:
-                file_path = f'.\\{filename}.csv'
-            else:
-                file_path = f'.\\{filename}.json'
-
-    else:
-        # check if provided path or file is viable
-        file_path = _process_path_argument(arg_path, filename, arg_file, csv)
-
-    return file_path
-
-def _export_ticket_to_file(issue_key:str, filepath:str, profile_name:str) -> Ret.CODE:
+def _export_ticket_to_file(issue_key:str, file:File, profile_name:str) -> Ret.CODE:
     """ Export a jira issue from the server
-        and write the issue data to a csv or JSON file.
+        and write the issue data to a JSON file.
         
     Args:
         issue_key (str):    The issue key as a string.
-        filepath (str):     The path to the output file.
+        file (File):        The file object for the output file.
         profile_name (str): The server profile that shall be used.
 
     Returns:
@@ -208,7 +144,6 @@ def _export_ticket_to_file(issue_key:str, filepath:str, profile_name:str) -> Ret
 # pylint: disable=R0801
     ret_status = Ret.CODE.RET_OK
     server = Server()
-    file = File()
 
     # login to server, get jira handle obj
     ret_status = server.login(profile_name)
@@ -218,22 +153,7 @@ def _export_ticket_to_file(issue_key:str, filepath:str, profile_name:str) -> Ret
 
         if ret_status == Ret.CODE.RET_OK:
             issue = server.get_search_result().pop().raw
-# pylint: enable=R0801
 
-    csv = False
-
-    if os.path.splitext(filepath)[-1] == '.csv':
-        csv = True
-
-    if ret_status == Ret.CODE.RET_OK:
-        if csv:
-            # export fiel to csv format
-            # csv support will be remove with next bugfix update
-            pass
-
-        else:
-            # export file to JSON format
-            ret_status = file.set_filepath(filepath)
             write_data = json.dumps(issue, indent=4)
 
             if ret_status == Ret.CODE.RET_OK:
@@ -241,140 +161,48 @@ def _export_ticket_to_file(issue_key:str, filepath:str, profile_name:str) -> Ret
 
     return ret_status
 
-def _process_file_argument(arg_file:str, csv:bool) -> Tuple[str, bool]:
+def _process_file_argument(issue_key:str ,arg_file:str) -> File:
     """ Get the filename. Handle possible extension errors 
         with the filename provided via the -file option.
         If a path to a file was supplied, the path will be kept.
         The returned filename will be without extension.
 
     Args:
-        arg_file (str): The -file option string provided via the console.
-        csv (bool): The -csv option from the command line arguments.
+        issue_key (str): The current issue key. 
+        arg_file (str):  The -file option string provided via the console.
 
     Returns:
-        Tuple[str, bool]:   str:  The filename according to the -file option.
+        File:   The filename according to the -file option.
                                   The extension will be added later.
-                            bool: The new csv flag, The flag can change,
-                                  if it doesnt match the provided filename.
     """
-    # check for file extension
-    ext = os.path.splitext(arg_file)[-1]
+    ret_status = Ret.CODE.RET_OK
+    file = File()
 
-    if len(ext) == 0:
-        filename = arg_file
+    if arg_file is None:
+        ret_status = file.set_filepath(f".\\{issue_key}.json")
 
     else:
-        if ext == '.json' and csv:
-            printer.print_error(PrintType.WARNING, Warnings.CODE.WARNING_CSV_OPTION_WRONG )
-            csv = False
+        ret_status = file.set_filepath(arg_file)
 
-        elif ext == '.csv' and not csv:
-            printer.print_error(PrintType.WARNING, Warnings.CODE.WARNING_CSV_OPTION_WRONG )
-            csv = True
+        if ret_status == Ret.CODE.RET_OK:
+            ext = file.get_file_extension()
 
-        elif ext[0] == '.' and \
-             ext not in ('.json', '.csv'):
-            printer.print_error(PrintType.WARNING, Warnings.CODE.WARNING_UNKNOWN_FILE_EXTENSION)
+            if ext is None:
+                ret_status = file.set_filepath(os.path.join(file.get_parent_path(),
+                                                            f'{issue_key}.json'))
 
-    filename = arg_file.replace(ext, '')
+            elif ext != '.json':
+                LOG.print_error(PrintType.WARNING, Warnings.CODE.WARNING_UNKNOWN_FILE_EXTENSION)
 
-    return filename, csv
+                path, ext = os.path.splitext(file.get_path())
 
+                ret_status = file.set_filepath(path + '.json')
 
-def _process_path_argument(arg_path:str, filename:str, arg_file:str, csv:bool) -> str:
-    """ Get the path to the output file with 
-        the provided -file and -path options.
-        If the -file argument provides a path too, 
-        the path from the -path option will be used,
-        in combination with the filename from the
-        -file option. 
-
-    Args:
-        arg_path (str): The path provided by the -path option.
-        filename (str): the filename that was returned by _process_file_argument().
-        arg_file (str): The file provided by the -file option.
-        csv (bool): The csv flag entered with the -csv option.
-
-    Returns:
-        str: The final path where the output file will be stored. 
-    """
-    if os.path.exists(arg_path):
-
-        # check if its a path to a file or a folderss
-        if os.path.isfile(arg_path):
-            file_path = _handle_path_to_file(arg_path, filename, arg_file, csv)
-
-        else:
-            # folder to save files was provided
-            if csv:
-                file_path = os.path.join(arg_path, f'{filename}.csv')
             else:
-                file_path = os.path.join(arg_path, f'{filename}.json')
+                # file or the parent directory exist and the file has the proper file format
+                pass
 
-        file_path_comps = file_path.split('/')
+        if ret_status != Ret.CODE.RET_OK:
+            file = None
 
-        if len(file_path_comps) > 1:
-
-            if -1 == file_path_comps[0].find('\\'):
-                file_path_comps[0] += '\\'
-                file_path = os.path.join(*file_path_comps)
-
-    else:
-        file_path = None
-
-    return file_path
-
-def _handle_path_to_file(arg_path:str, filename:str, arg_file:str, csv:bool) -> str:
-    """ Process the final filepath if both the -path argument contains a file.
-        If the file is viable and no filename was provided via the -file argument, 
-        the file will from -path will be used.
-        If a filename is supplied with -file, the filename in the -path folder
-        will be replaced with the filename from the
-        -file argument.
-
-    Args:
-        arg_path (str): The path provided by the -path option.
-        filename (str): the filename that was returned by _process_file_argument().
-        arg_file (str): The file provided by the -file option.
-        csv (bool): The csv flag entered with the -csv option.
-
-    Returns:
-        str: Returns the final filepath after the command arguments have been processed.
-    """
-
-    # check for file extension
-    ext = os.path.splitext(arg_path)[-1]
-
-    file_path = None
-
-    if ext == '.json' and csv or \
-       ext == '.csv' and not csv:
-        printer.print_error(PrintType.WARNING, Warnings.CODE.WARNING_CSV_OPTION_WRONG)
-        file_path = arg_path
-        csv = ext == '.csv'
-
-    if ext not in ('.json', '.csv'):
-        printer.print_error(PrintType.WARNING, Warnings.CODE.WARNING_UNKNOWN_FILE_EXTENSION)
-        arg_path.replace(ext, '')
-
-        if csv:
-            file_path = os.path.join(arg_path, f'{filename}.csv')
-        else:
-            file_path = os.path.join(arg_path, f'{filename}.json')
-
-    else:
-        file_path = arg_path
-
-    if arg_file is not None:
-        path_comps = arg_path.split('/')
-
-        if len(path_comps) > 1:
-            if -1 == path_comps[0].find('\\'):
-                path_comps[0] += '\\'
-
-            if csv:
-                file_path = os.path.join(*path_comps[:-1], f'{filename}.csv')
-            else:
-                file_path = os.path.join(*path_comps[:-1], f'{filename}.json')
-
-    return file_path
+    return file
