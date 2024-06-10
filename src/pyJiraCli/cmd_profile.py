@@ -35,6 +35,8 @@
 ################################################################################
 # Imports
 ################################################################################
+import argparse
+
 from pyJiraCli.jira_server import Server
 from pyJiraCli.profile_handler import ProfileHandler
 from pyJiraCli.ret import Ret
@@ -49,7 +51,7 @@ from pyJiraCli.ret import Ret
 ################################################################################
 # Functions
 ################################################################################
-def register(subparser) -> object:
+def register(subparser) -> argparse.ArgumentParser:
     """ Register subparser commands for the print module.
         
     Args:
@@ -59,7 +61,7 @@ def register(subparser) -> object:
         obj:    The commmand parser object of this module.
     """
 
-    sub_parser_profile = subparser.add_parser('profile',
+    sub_parser_profile:argparse.ArgumentParser = subparser.add_parser('profile',
                                       help="Print the Jira Issue details to the console.")
 
     login_group = sub_parser_profile.add_argument_group("Profile Data")
@@ -176,11 +178,14 @@ def _add_profile(args) -> Ret.CODE:
 
     return ret_status
 
-def _remove_profile(profile_name:str) -> None:
+def _remove_profile(profile_name:str) -> Ret.CODE:
     """ Removes a profile from the profile folder by name.
 
     Args:
         profile_name (str): Name of the profile to be removed.
+
+    Returns:
+        Ret.CODE: Status code indicating the success or failure of the profile removal.
     """
     ret_status = Ret.CODE.RET_OK
 
