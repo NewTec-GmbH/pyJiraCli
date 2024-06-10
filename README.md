@@ -132,7 +132,9 @@ Example:
 pyJiraCli import important_issue.json
 ```
 
-This creates an issue on the Jira server using the metadata specified in `important_issue.json`.
+This creates an issue on the Jira server using the data specified in `important_issue.json`.
+
+More examples can be found in [the examples folder](./examples/import_issues/README.md).
 
 ### Search
 

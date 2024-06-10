@@ -1,0 +1,30 @@
+{
+  "projectKey":{
+    "key":"NEWPROJECT"
+  },
+  "issues":[
+    {
+      "externalId":"1",
+      "issuetype":{
+        "id": "1",
+        "name":"Bug"
+      },
+      "summary":"Fix tool documentation.",
+      "labels" : ["label1", "label2"]
+    },
+    {
+      "externalId":"2",
+      "issuetype":{
+        "id": "2"
+      },
+      "summary":"Perform initial project actions"
+    },
+    {
+      "externalId":"3",
+      "issuetype":{
+        "name":"Task"
+      },
+      "summary":"Remove unused code"
+    }
+  ]
+}
