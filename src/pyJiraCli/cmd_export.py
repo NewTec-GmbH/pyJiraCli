@@ -208,7 +208,6 @@ def _export_ticket_to_file(issue_key:str, filepath:str, profile_name:str) -> Ret
 # pylint: disable=R0801
     ret_status = Ret.CODE.RET_OK
     server = Server()
-    file = File()
 
     # login to server, get jira handle obj
     ret_status = server.login(profile_name)
@@ -232,6 +231,8 @@ def _export_ticket_to_file(issue_key:str, filepath:str, profile_name:str) -> Ret
             pass
 
         else:
+            file = File()
+            
             # export file to JSON format
             ret_status = file.set_filepath(filepath)
             write_data = json.dumps(issue, indent=4)
