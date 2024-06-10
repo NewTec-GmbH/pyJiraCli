@@ -34,7 +34,11 @@
 ################################################################################
 # Imports
 ################################################################################
+import json
+
 from pyJiraCli.jira_server import Server
+from pyJiraCli.jira_issue import JiraIssue as Issue
+from pyJiraCli.file_handler import FileHandler as File
 from pyJiraCli.printer import Printer
 from pyJiraCli.ret import Ret
 ################################################################################
@@ -81,6 +85,11 @@ def register(subparser) -> object:
                             metavar='<MAX>',
                             help="Maximum number of issues that may be found. Default is 50.")
 
+    sub_parser_search.add_argument('--save',
+                            type=str,
+                            metavar='<FILE>',
+                            help="Save all found Issues and the search parameter in a json file.")
+
     return sub_parser_search
 
 def execute(args) -> Ret.CODE:
@@ -93,14 +102,16 @@ def execute(args) -> Ret.CODE:
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
-    return _cmd_search(args.filter, args.profile, args.max)
+    return _cmd_search(args.filter, args.profile, args.max, args.save)
 
-def _cmd_search(filter_str:str, profile_name:str, results:int) -> Ret.CODE:
+def _cmd_search(filter_str:str, profile_name:str, results:int, save_file:str) -> Ret.CODE:
     """ Search tickets with a provided filter or search string.
     
     Args:
         filter_str (str):   String containing the search parameters.
         profile_name (str): The server profile that shall be used.
+        results (int):      The maximum number of search results.
+        save_file (str):    The file where the save result will be stored. 
         
     
     Returns:
@@ -123,9 +134,19 @@ def _cmd_search(filter_str:str, profile_name:str, results:int) -> Ret.CODE:
         printer.print_info('Search string:', filter_str)
         printer.print_info('Found Issues:', str(len(found_issues)))
 
-        _print_table(found_issues)
+        if save_file is not None:
 
-    server.logout()
+            search_dict = {
+                'profile' : profile_name,
+                'search'  : filter_str,
+                'max'     : results,
+                'found'   : len(found_issues)
+            }
+
+            ret_status = _save_search(save_file, found_issues, search_dict)
+
+        else:
+            _print_table(found_issues)
 
     return ret_status
 
@@ -145,3 +166,44 @@ def _print_table(issues:list):
         print(f"{issue.fields.summary[:HEADER_COL_WIDTH['Summary'] - 2]:<{HEADER_COL_WIDTH['Summary']}}", end="") # pylint: disable=line-too-long
         print(f"{issue.fields.created[:10]:<{HEADER_COL_WIDTH['Created']}}", end="")
         print(f"{issue.fields.creator.name:<{HEADER_COL_WIDTH['Creator']}}", end="\n")
+
+
+def _save_search(save_file:str, found_issues:list, search_option:dict) -> Ret.CODE:
+    """_summary_
+
+    Args:
+        save_file (str): _description_
+        found_issues (list): _description_
+        server (Server): _description_
+        search_option (dict): _description_
+
+    Returns:
+        Ret.CODE: _description_
+    """
+    ret_status = Ret.CODE.RET_OK
+
+    file = File()
+    _printer = Printer()
+    issue_handler = Issue()
+    issue_dict = {}
+
+    for issue in found_issues:
+
+        issue_handler.load_issue(issue)
+
+        issue_handler.process_issue()
+
+        issue_dict[issue.key] = issue_handler.get_issue_dict()
+        search_option['issues'] = issue_dict
+
+        issue_handler.reset()
+
+    write_data = json.dumps(search_option, indent=4)
+    ret_status = file.set_filepath(save_file)
+
+    if ret_status == Ret.CODE.RET_OK:
+        ret_status = file.write_file(write_data)
+
+        _printer.print_info("Search was saved in file:", save_file)
+
+    return ret_status
