@@ -36,7 +36,8 @@
 # Imports
 ################################################################################
 import os
-from typing import Tuple
+
+import argparse
 
 from pyJiraCli.jira_issue import JiraIssue
 from pyJiraCli.jira_server import Server
@@ -53,7 +54,7 @@ printer = Printer()
 ################################################################################
 # Functions
 ################################################################################
-def register(subparser) -> object:
+def register(subparser) -> argparse.ArgumentParser:
     """ Register the subparser commands for the export module.
         
     Args:
@@ -63,7 +64,7 @@ def register(subparser) -> object:
         obj:    The commmand parser obj of this module.
     """
 
-    sub_parser_export = subparser.add_parser('export',
+    sub_parser_export: argparse.ArgumentParser = subparser.add_parser('export',
                                      help="Export a ticket from a Jira Server to a JSON file.")
 
     sub_parser_export.add_argument('issue',
@@ -237,7 +238,7 @@ def _export_ticket_to_file(issue_key:str, filepath:str, profile_name:str) -> Ret
 
     return ret_status
 
-def _process_file_argument(arg_file:str, csv:bool) -> Tuple[str, bool]:
+def _process_file_argument(arg_file:str, csv:bool) -> tuple[str, bool]:
     """ Get the filename. Handle possible extension errors 
         with the filename provided via the -file option.
         If a path to a file was supplied, the path will be kept.
