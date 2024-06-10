@@ -36,11 +36,11 @@
 # Imports
 ################################################################################
 import os
-
+import json
 import argparse
 
-from pyJiraCli.jira_issue import JiraIssue
 from pyJiraCli.jira_server import Server
+from pyJiraCli.file_handler import FileHandler as File
 from pyJiraCli.printer import Printer, PrintType
 from pyJiraCli.ret import Ret, Warnings
 ################################################################################
@@ -110,10 +110,7 @@ def _cmd_export(args) -> Ret.CODE:
         If the option -file (filename) is not provided, the function will 
         take the issue key as filename.
 
-        If the issue is valid, the issue data will be read from the server and stored
-        in an instance of the JiraIssue class.
-
-        Lastly the data will be written and stored in a JSON or csv file 
+        The data will be written and stored in a JSON or csv file 
         depending on if the -csv option was set or not.
     
     Args:
@@ -210,16 +207,16 @@ def _export_ticket_to_file(issue_key:str, filepath:str, profile_name:str) -> Ret
     """
 # pylint: disable=R0801
     ret_status = Ret.CODE.RET_OK
-    issue = JiraIssue()
     server = Server()
 
     # login to server, get jira handle obj
     ret_status = server.login(profile_name)
 
     if ret_status == Ret.CODE.RET_OK:
-        jira = server.get_handle()
-        # export issue from jira server
-        ret_status = issue.export_issue(jira, issue_key)
+        ret_status = server.search(f"key = {issue_key}", max_results=1)
+
+        if ret_status == Ret.CODE.RET_OK:
+            issue = server.get_search_result().pop().raw
 # pylint: enable=R0801
 
     csv = False
@@ -230,11 +227,18 @@ def _export_ticket_to_file(issue_key:str, filepath:str, profile_name:str) -> Ret
     if ret_status == Ret.CODE.RET_OK:
         if csv:
             # export fiel to csv format
-            ret_status = issue.create_csv(filepath)
+            # csv support will be remove with next bugfix update
+            pass
 
         else:
+            file = File()
+
             # export file to JSON format
-            ret_status = issue.create_json(filepath)
+            ret_status = file.set_filepath(filepath)
+            write_data = json.dumps(issue, indent=4)
+
+            if ret_status == Ret.CODE.RET_OK:
+                ret_status = file.write_file(write_data)
 
     return ret_status
 

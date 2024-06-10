@@ -34,9 +34,9 @@
 # Imports
 ################################################################################
 import argparse
+import json
 
 from pyJiraCli.jira_server import Server
-from pyJiraCli.jira_issue import JiraIssue
 from pyJiraCli.ret import Ret
 ################################################################################
 # Variables
@@ -91,20 +91,17 @@ def _cmd_print(issue_key:str, profile_name:str) -> Ret.CODE:
     Returns:
         Ret.CODE: The return status of the module.
     """
-# pylint: disable=R0801
     ret_status = Ret.CODE.RET_OK
-    issue = JiraIssue()
     server = Server()
 
     ret_status = server.login(profile_name)
 
     if ret_status == Ret.CODE.RET_OK:
-        jira = server.get_handle()
-        # export issue from jira server
-        ret_status = issue.export_issue(jira, issue_key)
-# pylint: enable=R0801
+        ret_status = server.search(f"key = {issue_key}", max_results=1)
 
     if ret_status == Ret.CODE.RET_OK:
-        issue.print_issue()
+        issue = server.get_search_result().pop().raw
+        issue_data = json.dumps(issue, indent=4)
+        print(issue_data)
 
     return ret_status
