@@ -33,6 +33,7 @@
 ################################################################################
 # Imports
 ################################################################################
+import argparse
 import json
 
 from pyJiraCli.jira_server import Server
@@ -48,7 +49,7 @@ from pyJiraCli.ret import Ret
 ################################################################################
 # Functions
 ################################################################################
-def register(subparser) -> object:
+def register(subparser) -> argparse.ArgumentParser:
     """ Register subparser commands for the print module.
         
     Args:
@@ -58,7 +59,7 @@ def register(subparser) -> object:
         obj:    The commmand parser object of this module.
     """
 
-    sub_parser_search = subparser.add_parser('print',
+    sub_parser_search : argparse.ArgumentParser = subparser.add_parser('print',
                                       help="Print the Jira Issue details to the console.")
 
     sub_parser_search.add_argument('issueKey',
