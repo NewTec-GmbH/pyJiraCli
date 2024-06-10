@@ -7,24 +7,23 @@ actor filesystem as fs
 
 package Usescases{
 usecase UC_help as "print command overview to console"
-usecase UC_login as "set login information"
-usecase UC_import as "create ticket from\n JSON file"
+usecase UC_import as "create ticket from\n json file"
 usecase UC_export as "create .json file from ticket"
 usecase UC_search as "search Tickets with\nstring parameters/filters"
-usecase UC_details as "print Ticket details"
+usecase UC_print as "print Ticket details"
+usecase UC_profile as "Store login information for\n server profiles"
 }
 
 note ".json files will be grouped into folder by input parameters\nif no destination is provided the files will be stored in the project folder\nUser can specify a location where the folder/issue shall be saved\nevery issue is saved in a single json file" as N_export
-note "login information will be stored locally encoded in a hidden file\nif no login information is provided with the set_login command,\nfor every action the login must be provided in the command line" as N_login
-note "jira search parameters can be provided on the console\nall found issues will be listed on the console with issue name and key" as N_search
+note "jira search parameters can be provided on the console\nall found issues will be listed on the Bconsole with issue name and key" as N_search
 note "a quick overview will be printed on the console\na single issue key must be provided" as N_details
-
+note "store profile information in a tool folder\n in the users home directory" as N_profile
 user --> UC_help : 'help'
-user --> UC_login : 'set_login'
 user --> UC_import : 'import'
 user --> UC_search : 'search'
 user --> UC_export : 'export'
-user --> UC_details : 'print'
+user --> UC_print : 'print'
+user --> UC_profile : 'profile'
 
 UC_export --> server : load issue data
 UC_export --> fs : create .json file 
@@ -33,7 +32,7 @@ UC_import --> server : create new issue
 UC_import --> fs : load .json file
 
 UC_export -- N_export
-UC_login -- N_login
 UC_search -- N_search
-UC_details -- N_details
+UC_print -- N_details
+UC_profile -- N_profile
 @enduml

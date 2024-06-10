@@ -5,21 +5,21 @@ skinparam Linetype ortho
 file "issue key" as key
 file "input file" as i_file
 file "search string" as filter
-file "login data" as input_login
+file "profile data" as input_profile
 
 package "pyJiraCli"{
     [main] as main
 
     [cmd_import] as import
     [cmd_export] as export
-    [cmd_login]  as login
+    [cmd_profile]  as profile
     [cmd_print]  as print
     [cmd_search] as search
 }
 
 key .down...> export        : <<flow>>
 key .down...> print         : <<flow>>
-input_login .down...> login : <<flow>>
+input_profile .down...> profile : <<flow>>
 filter .down...> search     : <<flow>>
 i_file .down...> import     : <<flow>>
 
@@ -35,11 +35,11 @@ file "JSON/csv file" as file
 
 main .down.> import : <<flow>>
 main .down.> export : <<flow>>
-main .down.> login  : <<flow>>
+main .down.> profile  : <<flow>>
 main .down.> print  : <<flow>>
 main .down.> search : <<flow>>
 
-login ...down.> log_data    : <<flow>>\n<<store/delete>>    
+profile ...down.> log_data    : <<flow>>\n<<store/delete>>    
 export ...down.> file       : <<flow>>\n<<create>>
 import ....> jira_issue : <<flow>>\n<<create>>
 
@@ -60,11 +60,12 @@ note top of key
     an existing jira issue
 end note
 
-note top of input_login
-    username, password, API token 
-    or a server url can be provided
-    to the login command, to store
-    the information in a file
+note top of input_profile
+    the server url, a user api token
+    and a server certificate are stored
+    in a profile folder
+    the profile is reference
+    by a unique name
 end note
 
 note top of filter
