@@ -143,14 +143,17 @@ def _cmd_search(filter_str:str, profile_name:str, results:int, save_file:str) ->
                 'found'   : len(found_issues)
             }
 
-            ret_status = _save_search(save_file, found_issues, search_dict)
+            for issue in found_issues:
+                search_dict['issues'] = issue.raw
+
+            ret_status = _save_search(save_file, search_dict)
 
         else:
             _print_table(found_issues)
 
     return ret_status
 
-def _print_table(issues:list):
+def _print_table(issues:list) -> None:
     """ Print a quick overview vor all issues in the list.
 
     Args:
@@ -168,13 +171,12 @@ def _print_table(issues:list):
         print(f"{issue.fields.creator.name:<{HEADER_COL_WIDTH['Creator']}}", end="\n")
 
 
-def _save_search(save_file:str, found_issues:list, search_dict:dict) -> Ret.CODE:
+def _save_search(save_file:str, search_dict:dict) -> Ret.CODE:
     """_summary_
 
     Args:
         save_file (str): _description_
         found_issues (list): _description_
-        server (Server): _description_
         search_option (dict): _description_
 
     Returns:
@@ -185,10 +187,8 @@ def _save_search(save_file:str, found_issues:list, search_dict:dict) -> Ret.CODE
     file = File()
     _printer = Printer()
 
-    for issue in found_issues:
-        search_dict['issues'] = issue.raw
-
     write_data = json.dumps(search_dict, indent=4)
+
     ret_status = file.set_filepath(save_file)
 
     if ret_status == Ret.CODE.RET_OK:
