@@ -194,6 +194,7 @@ def _save_search(save_file:str, found_issues:list, search_dict:dict) -> Ret.CODE
     if ret_status == Ret.CODE.RET_OK:
         ret_status = file.write_file(write_data)
 
+    if ret_status == Ret.CODE.RET_OK:
         _printer.print_info("Search was saved in file:", save_file)
 
     return ret_status
