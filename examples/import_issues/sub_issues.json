@@ -1,0 +1,36 @@
+{
+  "projectKey":{
+    "key":"NEWPROJECT"
+  },
+  "issues":[
+    {
+      "externalId":"1",
+      "issuetype":{
+        "id": "1",
+        "name":"Bug"
+      },
+      "summary":"Fix tool documentation.",
+      "labels" : ["label1", "label2"]
+    },
+    {
+      "externalId":"2",
+      "issuetype":{
+        "name":"Sub-task"
+      },
+      "summary":"Fix command documentation.",
+      "parent": {
+        "externalId": "1"
+      }
+    },
+    {
+      "externalId":"3",
+      "issuetype":{
+        "id": "5"
+      },
+      "summary":"Fix argument documentation.",
+      "parent": {
+        "externalId": "1"
+      }
+    }
+  ]
+}
