@@ -1,6 +1,6 @@
 """Jira issue Class.
    this Class contains all issue information
-   provides functions to load issues from json and csv files or 
+   provides functions to load issues from JSON and csv files or 
    from server with prodived issue key
    imported issues can be stored in json and csv files or written back to 
    the server
@@ -55,7 +55,7 @@ DATA_FIELD_COL_WIDTH = 100
 ################################################################################
 class JiraIssue:
     """ Class contains all jira ticket information
-        and methods to convert between json/csv files
+        and methods to convert between JSON/csv files
         and server issues.
     """
     def __init__(self) -> None:
@@ -104,7 +104,7 @@ class JiraIssue:
             ret_status = Ret.CODE.RET_ERROR_ISSUE_NOT_FOUND
 
         if ret_status == Ret.CODE.RET_OK:
-            self.process_issue()
+            self._process_issue()
 
         return ret_status
 
@@ -119,7 +119,7 @@ class JiraIssue:
             dictionary (dict): A python dictionary conatining jira issue info.
         """
 
-        # get issue information from json or csv file
+        # get issue information from JSON or csv file
         for field in dictionary:
             if field in _const.ISSUE_FIELDS:
                 self._issue_dictionary[field] = dictionary[field]
@@ -213,17 +213,17 @@ class JiraIssue:
         return printable_lines
 
     def create_json(self, file_path):
-        """ write issue information in class instance to a json file
+        """ write issue information in class instance to a JSON file
             
         Args: 
-            file_path (str):    The path to the json file. 
+            file_path (str):    The path to the JSON file. 
             
         Returns:
             Ret.CODE:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
         ret_status = Ret.CODE.RET_OK
 
-        # serialize json object
+        # serialize JSON object
         json_object = json.dumps(self._issue_dictionary, indent=4)
 
         ret_status = self._file_h.set_filepath(file_path)
@@ -284,7 +284,7 @@ class JiraIssue:
 
         return issue_key
 
-    def process_issue(self) -> None:
+    def _process_issue(self) -> None:
         """ Process data in the self._issue member and
             transfer it to the issue_dictionary of this Instance.
         """
