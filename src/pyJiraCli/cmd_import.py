@@ -1,6 +1,6 @@
 """ Command for the import function.
-    Imports ticket information from a json or csv file
-    and writes the imported data to a jira ticket.
+    Imports ticket information from a JSON file
+    and writes the imported data to a Jira ticket.
 """
 
 # BSD 3-Clause License
@@ -85,7 +85,7 @@ def execute(args) -> Ret.CODE:
         Ret:   Ret.CODE.RET_OK if succesfull, corresponding error code if not
     """
 
-    return  _cmd_import(args.file, args.profile)
+    return _cmd_import(args.file, args.profile)
 
 
 def _separate_issue_types(issue_dict: dict) -> tuple:
@@ -298,7 +298,7 @@ def _cmd_import(input_file: str, profile_name: str) -> Ret.CODE:
 
 
 def _read_file(input_file: str) -> tuple:
-    """ Read in the data from a json file.
+    """ Read in the data from a JSON file.
 
     Args:
         file (str): The filepath to the input file.
@@ -313,7 +313,7 @@ def _read_file(input_file: str) -> tuple:
     ret_status = file.set_filepath(input_file)
 
     if Ret.CODE.RET_OK == ret_status:
-        # Check if file is a json file and open it.
+        # Check if file is a JSON file and open it.
         if file.get_file_extension() != '.json':
             ret_status = Ret.CODE.RET_ERROR_WORNG_FILE_FORMAT
         elif Ret.CODE.RET_OK != file.open_file(file_mode='r'):
