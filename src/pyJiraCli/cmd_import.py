@@ -1,6 +1,6 @@
 """ Command for the import function.
-    Imports ticket information from a json or csv file
-    and writes the imported data to a jira ticket.
+    Imports ticket information from a JSON file
+    and writes the imported data to a Jira ticket.
 """
 
 # BSD 3-Clause License
@@ -36,13 +36,10 @@
 # Imports
 ################################################################################
 import json
-import csv
-import ast
 
-from pyJiraCli.jira_issue import JiraIssue, _const
 from pyJiraCli.jira_server import Server
 from pyJiraCli.file_handler import FileHandler as File
-from pyJiraCli.printer import Printer
+from pyJiraCli.printer import Printer, PrintType
 from pyJiraCli.ret import Ret
 ################################################################################
 # Variables
@@ -55,129 +52,275 @@ from pyJiraCli.ret import Ret
 ################################################################################
 # Functions
 ################################################################################
+
+
 def register(subparser) -> object:
     """ Register subparser commands for the import module.
-        
+
     Args:
         subparser (obj):  The command subparser object provided via __main__.py.
-        
+
     Returns:
         obj:  The commmand parser object of this module.
     """
     sub_parser_import = subparser.add_parser('import',
-                                      help="Import a Jira Issue from a JSON or a CSV file.")
+                                             help="Import a Jira Issue from a JSON file.")
 
     sub_parser_import.add_argument('file',
-                            type=str,
-                            help="Path to the input file.")
+                                   type=str,
+                                   help="Path to the input file.")
 
     return sub_parser_import
+
 
 def execute(args) -> Ret.CODE:
     """ This function servers as entry point for the command 'import'.
         It will be stored as callback for this moduls subparser command.
-    
+
     Args: 
         args (obj):   The command line arguments.
         profile_name (str): The server profile that shall be used.
-        
+
     Returns:
         Ret:   Ret.CODE.RET_OK if succesfull, corresponding error code if not
     """
-    ret_status = Ret.CODE.RET_OK
 
-    ret_status =  _cmd_import(args.file, args.profile)
+    return _cmd_import(args.file, args.profile)
 
-    return ret_status
 
-def _cmd_import(input_file:str, profile_name:str) -> Ret.CODE:
-    """ Import a jira issue from a json or csv file.
-        Create a jira issue on the server with the data
-        read from the input file.
-    
+def _separate_issue_types(issue_dict: dict) -> tuple:
+    """ Separate the sub-issues from the normal issues.
+
     Args:
-        input_file (str):  The filepath to the input file.
-        
-        
+        issue_dict (dict):  The dictionary containing all the issues.
+
+    Returns:
+        tuple:  A tuple of Lists containing the main issues and the sub-issues.
+    """
+    issues_list = []
+    sub_issues_list = []
+
+    for issue in issue_dict.get('issues', []):
+
+        # Contains a parent key.
+        if "parent" in issue:
+            # Is a sub-issue.
+            sub_issues_list.append(issue)
+        else:
+            # Is a normal issue.
+            issues_list.append(issue)
+
+    return issues_list, sub_issues_list
+
+
+def _create_issues(jira, printer, issue_dict, issues_list):
+    """ Create the issues on the Jira server.
+
+    Args:
+        jira (obj): The Jira handle.
+        printer (obj): The printer object.
+        issue_dict (dict): The dictionary containing all the issues.
+        issues_list (list): The list of normal issues.
+
+    Returns:
+        tuple: A tuple of the return status and the ID cross-reference dictionary.
+    """
+    ret_status = Ret.CODE.RET_OK
+    id_cross_ref_dict = {}
+
+    # Create the issues.
+    for issue in issues_list:
+        # Remove the external ID from the issue dictionary, but store it for later reference.
+        external_id = issue.pop('externalId', None)
+
+        if external_id is None:
+            ret_status = Ret.CODE.RET_ERROR
+            printer.print_error(
+                PrintType.ERROR, "External ID must be specified.")
+            break
+
+        if external_id in id_cross_ref_dict:
+            ret_status = Ret.CODE.RET_ERROR
+            printer.print_error(
+                PrintType.ERROR, f"External ID {external_id} is not unique.")
+            break
+
+        # Set the project key.
+        issue['project'] = issue_dict.get('projectKey')
+
+        # Create the issue.
+        created_issue = jira.create_issue(issue)
+
+        if created_issue is None:
+            ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
+            printer.print_error(
+                PrintType.ERROR, f"Issue {external_id} could not be created.")
+            break
+
+        # Store the external ID and the created issue key in a dictionary for later reference.
+        id_cross_ref_dict[external_id] = created_issue.key
+
+        printer.print_info(f"Created issue {created_issue.key}.")
+
+    return ret_status, id_cross_ref_dict
+
+
+def _create_sub_issues(jira, printer, issue_dict, sub_issues_list, id_cross_ref_dict):
+    """ Create the sub-issues on the Jira server.
+
+    Args:
+        jira (obj): The Jira handle.
+        printer (obj): The printer object.
+        issue_dict (dict): The dictionary containing all the issues.
+        sub_issues_list (list): The list of sub-issues.
+        id_cross_ref_dict (dict): The dictionary containing the cross-reference 
+        between external IDs and issue keys.
+
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
+
     ret_status = Ret.CODE.RET_OK
 
-    issue = JiraIssue()
-    server = Server()
-    printer = Printer()
-    file = File()
+    # Create the sub-issues.
+    for issue in sub_issues_list:
+        # Remove external id from the issue dictionary.
+        external_id = issue.pop('externalId', None)
 
-    issue_dict = {}
-    issue_key = None
+        # Set the project key.
+        issue['project'] = issue_dict.get('projectKey')
 
+        # Check if the parent issue key is specified,
+        # in case the sub-issue belongs to an issue that was manually created before.
+        if issue.get('parent').get('key') is None:
 
-    # check if provided file is viable
-    ret_status = file.set_filepath(input_file)
+            # Check if the parent external ID is specified,
+            # in case the sub-issue belongs to an issue that was created in this import process.
+            parent_external_id = issue.get('parent').get('externalId')
 
-    if ret_status == Ret.CODE.RET_OK:
-        if file.get_file_extension() not in ('.json', '.csv'):
-            ret_status = Ret.CODE.RET_ERROR_WORNG_FILE_FORMAT
-    else:
-        ret_status = Ret.CODE.RET_ERROR_FILEPATH_INVALID
+            if parent_external_id is None:
+                # Both parent key and external ID are missing.
+                ret_status = Ret.CODE.RET_ERROR
+                printer.print_error(
+                    PrintType.ERROR, "Parent key or external ID must be specified.")
+                break
 
-    # if file is viable
-    if ret_status == Ret.CODE.RET_OK:
+            if parent_external_id not in id_cross_ref_dict:
+                # Parent external ID does not exist.
+                ret_status = Ret.CODE.RET_ERROR
+                printer.print_error(
+                    PrintType.ERROR, f"Parent external ID\
+                            {parent_external_id} does not exist.")
+                break
 
-        ret_status = file.open_file(file_mode='r')
+            # Set the parent key from the cross reference dictionary,
+            # as the issue was created by _create_issues() function.
+            issue['parent']["key"] = id_cross_ref_dict[parent_external_id]
 
-    if ret_status == Ret.CODE.RET_OK:
-        issue_dict = _read_file(file)
+        # Remove the external ID from the parent issue dictionary in case its present.
+        issue['parent'].pop('externalId', None)
 
-        issue.import_issue(issue_dict)
+        # Create the sub-issue.
+        created_issue = jira.create_issue(issue)
 
-    if ret_status == Ret.CODE.RET_OK:
-        ret_status = server.login(profile_name)
+        if created_issue is None:
+            ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
+            printer.print_error(
+                PrintType.ERROR, f"Sub-issue {external_id} could not be created.")
+            break
 
-        if ret_status == Ret.CODE.RET_OK:
-            jira = server.get_handle()
-            issue_key = issue.create_ticket(jira)
-
-    if issue_key is None:
-        ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
-
-    else:
-        printer.print_info('Your ticket has been created with key:', issue_key)
-
-    server.logout()
+        printer.print_info(
+            f"Created sub-issue {created_issue.key} with parent {issue.get('parent').get('key')}.")
 
     return ret_status
 
 
-def _read_file(file:File) -> dict:
-    """ Read in the data from a json or csv file.
+def _cmd_import(input_file: str, profile_name: str) -> Ret.CODE:
+    """ Import a jira issue from a JSON file.
+        Create a jira issue on the server with the data
+        read from the input file.
 
     Args:
-        file (FileHandler): The file handler obj for the input file.
-    
+        input_file (str):  The filepath to the input file.
+        profile_name (str): The server profile that shall be used.
+
+
     Returns:
-        dict:  The dictionary with file informations.   
+        Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
-    if file.get_file_extension() == '.json':
-        issue_dict = json.load(file.get_file())
+    server = Server()
+    printer = Printer()
+    issue_dict = {}
 
-    else:
-        csv_reader = csv.DictReader(file.get_file(), delimiter=';')
+    # Read the data from the file.
+    ret_status, issue_dict = _read_file(input_file)
 
-        for row in csv_reader:
-            issue_dict = row
+    if Ret.CODE.RET_OK == ret_status:
+        # Connect to Jira Server
+        ret_status = server.login(profile_name)
 
-        for field, data in issue_dict.items():
-            if data == '':
-                issue_dict[field] = None
+    if Ret.CODE.RET_OK == ret_status:
+        # Get the Jira handle to use the Jira API directly.
+        jira = server.get_handle()
 
-            elif data == '[]':
-                issue_dict[field] = []
+        # Check if the project key is specified.
+        project_key = issue_dict.get('projectKey', {}).get('key')
 
-            elif field in _const.LIST_FIELDS:
-                issue_dict[field] = ast.literal_eval(data)
+        if project_key is None:
+            ret_status = Ret.CODE.RET_ERROR
+            printer.print_error(
+                PrintType.ERROR, "Project key must be specified.")
 
-    file.close_file()
+    if Ret.CODE.RET_OK == ret_status:
+        issues_list = []
+        sub_issues_list = []
+        id_cross_ref_dict = {}
 
-    return issue_dict
+        # Separate the sub-issues from the normal issues.
+        issues_list, sub_issues_list = _separate_issue_types(issue_dict)
+
+        # Create the normal issues.
+        ret_status, id_cross_ref_dict = _create_issues(jira,
+                                                       printer,
+                                                       issue_dict,
+                                                       issues_list)
+
+        # Check if the issues were created successfully.
+        if Ret.CODE.RET_OK == ret_status:
+            # Create the sub issues.
+            ret_status = _create_sub_issues(jira,
+                                            printer,
+                                            issue_dict,
+                                            sub_issues_list,
+                                            id_cross_ref_dict)
+
+    return ret_status
+
+
+def _read_file(input_file: str) -> tuple:
+    """ Read in the data from a JSON file.
+
+    Args:
+        file (str): The filepath to the input file.
+
+    Returns:
+        tuple:  A tuple of the return status and the issue dictionary from the file.
+    """
+    issue_dict = {}
+    file = File()
+
+    # Locate file.
+    ret_status = file.set_filepath(input_file)
+
+    if Ret.CODE.RET_OK == ret_status:
+        # Check if file is a JSON file and open it.
+        if file.get_file_extension() != '.json':
+            ret_status = Ret.CODE.RET_ERROR_WORNG_FILE_FORMAT
+        elif Ret.CODE.RET_OK != file.open_file(file_mode='r'):
+            ret_status = Ret.CODE.RET_ERROR_FILE_OPEN_FAILED
+        else:
+            issue_dict = json.load(file.get_file())
+            file.close_file()
+            ret_status = Ret.CODE.RET_OK
+
+    return ret_status, issue_dict
