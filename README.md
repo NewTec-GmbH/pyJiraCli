@@ -54,7 +54,7 @@ A CLI tool to import and export Jira issues between server and JSON or CSV files
 
 positional arguments:
   {export,import,search,login,delete,print}
-    export              export jira issue to json file
+    export              export jira issue to JSON file
     import              Import a Jira Issue from a JSON or a CSV file.
     search              Search for the Jira server for issues using the specified filter string.
     login               Save the login information into an encrypted file for easier use.
