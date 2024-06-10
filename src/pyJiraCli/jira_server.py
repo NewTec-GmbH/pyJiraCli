@@ -83,10 +83,6 @@ class Server:
 
         urllib3.disable_warnings()
 
-    def logout(self) -> None:
-        """ Logout from the jira session and delete all tmp files.
-        """
-
     def login(self, profile_name:str) -> Ret.CODE:
         """ Login to jira server with user info or login info from 
             stored token or user file.
