@@ -125,8 +125,6 @@ def _cmd_search(filter_str:str, profile_name:str, results:int) -> Ret.CODE:
 
         _print_table(found_issues)
 
-    server.logout()
-
     return ret_status
 
 def _print_table(issues:list):
