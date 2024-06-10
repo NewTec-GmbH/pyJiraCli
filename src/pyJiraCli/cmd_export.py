@@ -232,7 +232,7 @@ def _export_ticket_to_file(issue_key:str, filepath:str, profile_name:str) -> Ret
 
         else:
             file = File()
-            
+
             # export file to JSON format
             ret_status = file.set_filepath(filepath)
             write_data = json.dumps(issue, indent=4)
