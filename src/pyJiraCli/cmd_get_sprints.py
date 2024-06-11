@@ -1,4 +1,4 @@
-""" Command for the gte_sprints function.
+""" Command for the get_sprints function.
     Retrieve sprint data for a specific board and store
     it in a JSON file."""
 # BSD 3-Clause License
@@ -150,17 +150,23 @@ def _get_sprints(board_name:str, profile_name:str) -> dict:
     if ret_status == Ret.CODE.RET_OK:
         jira = server.get_handle()
 
+        # get all boards the current user has access to
         jira_boards = jira.boards()
 
         current_board = None
 
+        # search all boards for the one we're looking for
         for board in jira_boards:
             if board.name == board_name:
+
+                # get the board data
                 current_board  = board
                 break
 
-    if ret_status == Ret.CODE.RET_OK and \
-       current_board is not None:
+    if ( ret_status == Ret.CODE.RET_OK ) and \
+       ( current_board is not None ):
+
+        write_dict[BOARD_KEY] = current_board.name
 
         sprints = jira.sprints(current_board.id)
 
@@ -169,10 +175,8 @@ def _get_sprints(board_name:str, profile_name:str) -> dict:
             *[sprint.name for sprint in sprints]
             )
 
-        write_dict = {
-            'board' : current_board.name,
-            'sprints' : [sprint.raw for sprint in sprints]
-        }
+        if len(sprints) > 0:
+            write_dict[SPRINTS_KEY] = [sprint.raw for sprint in sprints]
 
     return write_dict
    
