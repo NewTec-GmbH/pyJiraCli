@@ -1,6 +1,6 @@
 # pyJiraCli <!-- omit in toc -->
 
-pyJiraCli is a command-line tool designed for handling Jira tickets efficiently. With pyJiraCli, you can import/export tickets to JSON/CSV files, create tickets on the server using JSON/CSV files and search for tickets based on a search string.
+pyJiraCli is a command-line tool designed for handling Jira tickets efficiently. With pyJiraCli, you can import/export tickets to JSON files, create tickets on the server using JSON files and search for tickets based on a search string.
 
 [![License](https://img.shields.io/badge/license-bsd-3.svg)](https://choosealicense.com/licenses/bsd-3-clause/)
 [![Repo Status](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
@@ -48,12 +48,12 @@ Output:
 ```cmd
 usage: pyJiraCli [-h] [--user <username>] [--password <password>] [--version] [--verbose] {export,import,search,login,delete,print} ...
 
-A CLI tool to import and export Jira issues between server and JSON or CSV files.
+A CLI tool to import and export Jira issues between server and JSON files.
 
 positional arguments:
   {export,import,search,login,delete,print}
     export              export jira issue to JSON file
-    import              Import a Jira Issue from a JSON or a CSV file.
+    import              Import a Jira Issue from a JSON file.
     search              Search for the Jira server for issues using the specified filter string.
     print               Print the Jira Issue details to the console.
     profile             Print the Jira Issue details to the console.
@@ -74,7 +74,7 @@ All added command modules must provide an "execute()" and a "register()" functio
 
 ### Export
 
-Export a ticket from a Jira Server to a JSON or CSV file
+Export a ticket from a Jira Server to a JSON file
 
 ```cmd
 pyJiraCli export --help
@@ -105,7 +105,7 @@ This creates the file `./issues/important_issue.json`.
 
 ### Import
 
-Import a ticket from a JSON or CSV file.
+Import a ticket from a JSON file.
 Creates a Jira issue on the server with the ticket data specified in the file.
 
 ```cmd
@@ -387,7 +387,7 @@ class Warnings(IntEnum):
 }
 ```
 
-  In further versions this might change with the possibilty for the user to provide file templates on how JSON or CSV files shall be read and written
+  In further versions this might change with the possibilty for the user to provide file templates on how JSON files shall be read and written
 
 ## Used Libraries
 
