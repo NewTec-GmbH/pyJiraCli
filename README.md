@@ -202,7 +202,7 @@ The profile contains following data:
   - name: A Unique profile name by which you can reference your profile. (required)
   - url: The server url where your jira server is located. (required)
   - token: An api token to allow for faster access. (optional)
-  - certificate: A server certificate for your company/jira instance. (opional)
+  - certificate: A server certificate for your company/jira instance. (optional)
 
 When adding a profile, the profile name and the server url are required. 
 The token and certificate are optional and can also be added later on, 
@@ -250,7 +250,7 @@ This will create a new profile with the name "new_profile" and saves all possibl
 
 ## Add a command
 
-In order to add a new command to the programm, the following steps must be taken:
+In order to add a new command to the program, the following steps must be taken:
 
 1. A file for the command must be created: `src/cmd_<command_name>.py`
 
@@ -281,13 +281,13 @@ def register(subparser):
                           action="store_true",
                           help="store 'True'' in args.bool_option if the option \
                                 is set on the commandline \
-                                otehrwise store 'False'")
+                                otherwise store 'False'")
     
     # make sure to return the command parser
     return sub_parser_cmd
 
 def execute(args):
-  ''' execute function, your module enty point will be here
+  ''' execute function, your module entry point will be here
       returns the module exit code: 
       retval.Ret.CODE.RET_OK'''
     ret_status = Ret.CODE.RET_OK
@@ -374,7 +374,7 @@ class Warnings(IntEnum):
 
 ### JSON example file
 
-  With version v1 the genereated JSON files will have following format:
+  With version v1 the generated JSON files will have following format:
 
 ```ticket.json```
 
@@ -387,7 +387,7 @@ class Warnings(IntEnum):
 }
 ```
 
-  In further versions this might change with the possibilty for the user to provide file templates on how JSON files shall be read and written
+  In further versions this might change with the possibility for the user to provide file templates on how JSON files shall be read and written
 
 ## Used Libraries
 

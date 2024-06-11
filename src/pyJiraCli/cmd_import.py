@@ -64,7 +64,7 @@ def register(subparser) -> argparse.ArgumentParser:
         subparser (obj):  The command subparser object provided via __main__.py.
 
     Returns:
-        obj:  The commmand parser object of this module.
+        obj:  The command parser object of this module.
     """
     sub_parser_import: argparse.ArgumentParser = subparser.add_parser('import',
                                         help="Import a Jira Issue from a JSON file.")
@@ -78,14 +78,14 @@ def register(subparser) -> argparse.ArgumentParser:
 
 def execute(args) -> Ret.CODE:
     """ This function servers as entry point for the command 'import'.
-        It will be stored as callback for this moduls subparser command.
+        It will be stored as callback for this modules subparser command.
 
     Args: 
         args (obj):   The command line arguments.
         profile_name (str): The server profile that shall be used.
 
     Returns:
-        Ret:   Ret.CODE.RET_OK if succesfull, corresponding error code if not
+        Ret:   Ret.CODE.RET_OK if successful, corresponding error code if not
     """
 
     return _cmd_import(args.file, args.profile)

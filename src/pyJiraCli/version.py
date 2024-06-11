@@ -60,7 +60,7 @@ def init_from_metadata():
     Requires that the package was installed.
 
     Returns:
-        list: Tool related informations
+        list: Tool related information
     """
 
     my_metadata = meta.metadata('pyJiraCli')
@@ -78,7 +78,7 @@ def init_from_toml():
     Tried if package wasn't installed.
 
     Returns:
-        list: Tool related informations
+        list: Tool related information
     """
 
     dist_dir = pathlib.Path(__file__).resolve().parents[2]
