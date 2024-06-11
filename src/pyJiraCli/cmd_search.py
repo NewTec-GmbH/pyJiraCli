@@ -144,8 +144,12 @@ def _cmd_search(filter_str:str, profile_name:str, results:int, save_file:str) ->
                 'found'   : len(found_issues)
             }
 
+            issue_list = []
+
             for issue in found_issues:
-                search_dict['issues'] = issue.raw
+                issue_list.append(issue.raw)
+
+            search_dict['issues'] = issue_list
 
             ret_status = _save_search(save_file, search_dict)
 
