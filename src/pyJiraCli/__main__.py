@@ -83,7 +83,7 @@ def add_parser() -> argparse.ArgumentParser:
     """
     parser = argparse.ArgumentParser(prog='pyJiraCli',
                                      description="A CLI tool to import and export Jira issues \
-                                                  between server and JSON or CSV files.",
+                                                  between server and JSON files.",
                                      epilog="Copyright (c) 2024 NewTec GmbH - " +
                                      __license__ +
                                      " - Find the project on GitHub: " + __repository__)
