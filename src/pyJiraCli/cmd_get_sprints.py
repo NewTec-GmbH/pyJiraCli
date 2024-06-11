@@ -33,8 +33,8 @@
 ################################################################################
 # Imports
 ################################################################################
-import argparse
 import json
+import argparse
 
 from pyJiraCli.printer import Printer, PrintType
 from pyJiraCli.file_handler import FileHandler as File
