@@ -1,6 +1,6 @@
-""" Command for the print function.
-    prints the ticket information for a provided issue key
-    onto the console."""
+""" Command for the gte_sprints function.
+    Retrieve sprint data for a specific board and store
+    it in a JSON file."""
 # BSD 3-Clause License
 #
 # Copyright (c) 2024, NewTec GmbH
@@ -95,12 +95,14 @@ def execute(args) -> Ret.CODE:
     return _cmd_get_sprints(args.board, args.profile, args.file)
 
 def _cmd_get_sprints(board_name:str, profile_name:str, filepath:str) -> Ret.CODE:
-    """ Load the data of the provided issue key and 
-        and print it to the command line.
+    """ Load the sprints in the board and store the data in a 
+        JSON file.
 
     Args:
-        issue_key (str): The unique issue key in string format.
+        board_name (str): The unique board name in string format.
         profile_name (str): The server profile that shall be used.
+        filepath (str): The absolute filepath or a relative filepath to
+                        the current working directory.
 
     Returns:
         Ret.CODE: The return status of the module.
@@ -128,14 +130,14 @@ def _cmd_get_sprints(board_name:str, profile_name:str, filepath:str) -> Ret.CODE
     return ret_status
 
 def _get_sprints(board_name:str, profile_name:str) -> dict:
-    """_summary_
+    """ Retrieve sprint information for a given board and profile.
 
     Args:
-        board_name (str): _description_
-        profile_name (str): _description_
+        board_name (str): The name of the board to retrieve sprint information from.
+        profile_name (str): The name of the server profile.
 
     Returns:
-        dict: _description_
+        dict: A dictionary containing sprint information for the specified board and profile.
     """
 
     server = Server()
