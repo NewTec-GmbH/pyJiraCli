@@ -36,17 +36,12 @@
 import json
 import argparse
 
-from pyJiraCli.printer import Printer
-from pyJiraCli.file_handler import FileHandler as File
 from pyJiraCli.jira_server import Server
 from pyJiraCli.ret import Ret
 ################################################################################
 # Variables
 ################################################################################
-BOARD_KEY = 'board'
-SPRINTS_KEY = 'sprints'
 
-printer = Printer()
 ################################################################################
 # Classes
 ################################################################################
@@ -55,7 +50,7 @@ printer = Printer()
 # Functions
 ################################################################################
 def register(subparser) -> argparse.ArgumentParser:
-    """ Register subparser commands for the get_sprints module.
+    """ Register subparser commands for the print module.
         
     Args:
         subparser (obj):   The command subparser object provided via __main__.py.
@@ -64,23 +59,14 @@ def register(subparser) -> argparse.ArgumentParser:
         obj:    The commmand parser object of this module.
     """
 
-    sub_parser_get_sprints : argparse.ArgumentParser = \
-        subparser.add_parser('get_sprints',
-                             help="Get all sprints in a board and \
-                             save the sprint data into a JSON file.")
+    sub_parser_search : argparse.ArgumentParser = subparser.add_parser('print',
+                                      help="Print the Jira Issue details to the console.")
 
-    sub_parser_get_sprints.add_argument('board',
-                                        type=str,
-                                        help="The board for which the sprints shall be stored.")
+    sub_parser_search.add_argument('issueKey',
+                            type=str,
+                            help="The Jira Issue Key of the Issue to print.")
 
-    sub_parser_get_sprints.add_argument('--file',
-                                   type=str,
-                                   metavar='<path to file>',
-                                   help="Absolute file path or filepath relativ " + \
-                                        "to the current working directory. " + \
-                                        "The file format must be JSON. ")
-
-    return sub_parser_get_sprints
+    return sub_parser_search
 
 def execute(args) -> Ret.CODE:
     """ This function servers as entry point for the command 'print'.
@@ -92,9 +78,9 @@ def execute(args) -> Ret.CODE:
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
-    return _cmd_get_sprints(args.board, args.profile, args.file)
+    return _cmd_print(args.issueKey, args.profile)
 
-def _cmd_get_sprints(board_name:str, profile_name:str, filepath:str) -> Ret.CODE:
+def _cmd_print(issue_key:str, profile_name:str) -> Ret.CODE:
     """ Load the data of the provided issue key and 
         and print it to the command line.
 
@@ -105,72 +91,17 @@ def _cmd_get_sprints(board_name:str, profile_name:str, filepath:str) -> Ret.CODE
     Returns:
         Ret.CODE: The return status of the module.
     """
-    ret_status = Ret.CODE.RET_ERROR
-
-    file = File()
-
-    write_dict = _get_sprints(board_name, profile_name)
-
-    if BOARD_KEY in write_dict:
-        write_data = json.dumps(write_dict)
-
-        ret_status = file.process_file_argument(f"{write_data[BOARD_KEY]}_Sprints.json",filepath)
-
-    else:
-        ret_status = Ret.CODE.RET_ERROR_BOARD_NOT_FOUND
-
-    if ret_status == Ret.CODE.RET_OK:
-
-        if ret_status == Ret.CODE.RET_OK:
-            ret_status = file.write_file(write_data)
-
-
-    return ret_status
-
-def _get_sprints(board_name:str, profile_name:str) -> dict:
-    """_summary_
-
-    Args:
-        board_name (str): _description_
-        profile_name (str): _description_
-
-    Returns:
-        dict: _description_
-    """
-
+    ret_status = Ret.CODE.RET_OK
     server = Server()
-    jira = None
-
-    write_dict = {}
 
     ret_status = server.login(profile_name)
 
     if ret_status == Ret.CODE.RET_OK:
-        jira = server.get_handle()
+        ret_status = server.search(f"key = {issue_key}", max_results=1)
 
-        jira_boards = jira.boards()
+    if ret_status == Ret.CODE.RET_OK:
+        issue = server.get_search_result().pop().raw
+        issue_data = json.dumps(issue, indent=4)
+        print(issue_data)
 
-        current_board = None
-
-        for board in jira_boards:
-            if board.name == board_name:
-                current_board  = board
-                break
-
-    if ret_status == Ret.CODE.RET_OK and \
-       current_board is not None:
-
-        sprints = jira.sprints(current_board.id)
-
-        printer.print_info(
-            f"found {len(sprints)} sprints in board {current_board.name}:",
-            *[sprint.name for sprint in sprints]
-            )
-
-        write_dict = {
-            'board' : current_board.name,
-            'sprints' : [sprint.raw for sprint in sprints]
-        }
-
-    return write_dict
-   
+    return ret_status
