@@ -37,6 +37,7 @@ https://github.com/pycontribs/jira/blob/eb0ec90e08ae24823e266b0128b852022d212982
 # Imports
 ################################################################################
 
+import os
 import time
 import requests
 from jira import JIRA
@@ -77,6 +78,20 @@ def add_user_to_jira() -> None:
     except Exception as e:  # pylint: disable=broad-except
         if "username already exists" not in str(e):
             raise e
+
+    # pylint: disable=missing-timeout
+    response = requests.post(CI_JIRA_URL + "/rest/pat/latest/tokens",
+                             auth=("jira_user", 'jira'),
+                             json={"name": "tokenName",
+                                   "expirationDuration": 90
+                                   })
+
+    if response.status_code != 201:
+        print("Failed to create token with status code", response.status_code)
+    else:
+        token = response.json().get("rawToken")
+        print("token", token)
+        os.environ["CI_JIRA_USER_TOKEN"] = token
 
 
 def create_project() -> None:
