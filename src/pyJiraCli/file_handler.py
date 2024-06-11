@@ -88,6 +88,10 @@ class FileHandler:
         formatted_path = os.path.join(*path_comps)
         parent_path = os.path.join(*path_comps[:-1])
 
+        if os.name != 'nt':
+            formatted_path = '/' + formatted_path.replace("\\", '/')
+            parent_path    = '/' + parent_path.replace("\\", '/')
+
         if os.path.exists(formatted_path) or \
            os.path.exists(parent_path):
             self._ext = os.path.splitext(formatted_path)[-1]
