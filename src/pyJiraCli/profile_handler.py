@@ -372,7 +372,7 @@ def _get_path_to_login_folder() -> str:
     user_info_path = os.path.expanduser("~") + PATH_TO_PROFILE_FOLDER
 
     if not os.path.exists(user_info_path):
-        
+
         os.makedirs(user_info_path)
 
         if os.name == 'nt':
