@@ -61,7 +61,7 @@ def register(subparser) -> argparse.ArgumentParser:
         subparser (obj):   The command subparser object provided via __main__.py.
         
     Returns:
-        obj:    The commmand parser obj of this module.
+        obj:    The command parser obj of this module.
     """
 
     sub_parser_export: argparse.ArgumentParser = subparser.add_parser('export',
@@ -74,7 +74,7 @@ def register(subparser) -> argparse.ArgumentParser:
     sub_parser_export.add_argument('--file',
                            type=str,
                            metavar='<path to file>',
-                           help="Absolute file path or filepath relativ " + \
+                           help="Absolute file path or filepath relative " + \
                                 "to the current working directory. " + \
                                 "The file format must be JSON. "  \
                                 "If a different file format is provided, " + \
@@ -84,7 +84,7 @@ def register(subparser) -> argparse.ArgumentParser:
 
 def execute(args) -> Ret.CODE:
     """ This function servers as entry point for the command 'export'.
-        It will be stored as callback for this moduls subparser command.
+        It will be stored as callback for this modules subparser command.
     
     Args: 
         args (obj): The command line arguments.

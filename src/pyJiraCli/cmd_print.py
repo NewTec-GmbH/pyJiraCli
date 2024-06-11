@@ -56,7 +56,7 @@ def register(subparser) -> argparse.ArgumentParser:
         subparser (obj):   The command subparser object provided via __main__.py.
         
     Returns:
-        obj:    The commmand parser object of this module.
+        obj:    The command parser object of this module.
     """
 
     sub_parser_search : argparse.ArgumentParser = subparser.add_parser('print',
@@ -70,7 +70,7 @@ def register(subparser) -> argparse.ArgumentParser:
 
 def execute(args) -> Ret.CODE:
     """ This function servers as entry point for the command 'print'.
-        It will be stored as callback for this moduls subparser command.
+        It will be stored as callback for this modules subparser command.
     
     Args: 
         args (obj): The command line arguments.
