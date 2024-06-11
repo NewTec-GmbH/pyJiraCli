@@ -93,6 +93,10 @@ def add_user_to_jira() -> None:
         print("token", token)
         os.environ["CI_JIRA_USER_TOKEN"] = token
 
+        # pylint: disable=W1514
+        with open(os.environ['GITHUB_ENV'], 'a') as fh:
+            print(f'{"CI_JIRA_USER_TOKEN"}={token}', file=fh)
+
 
 def create_project() -> None:
     """Create a project in Jira Server for CI testing purposes."""
