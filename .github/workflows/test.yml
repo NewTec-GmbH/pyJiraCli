@@ -57,7 +57,7 @@ jobs:
 
       - name: Test, with coverage report
         run: |
-          echo ${{ env.CI_JIRA_USER_TOKEN }}
+          echo $CI_JIRA_USER_TOKEN
           pytest tests/online -v --cov=./src/pyJiraCli --cov-report=html:coverage_report
   
       - name: Upload coverage report
