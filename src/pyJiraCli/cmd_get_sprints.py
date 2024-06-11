@@ -50,7 +50,7 @@ from pyJiraCli.ret import Ret
 # Functions
 ################################################################################
 def register(subparser) -> argparse.ArgumentParser:
-    """ Register subparser commands for the print module.
+    """ Register subparser commands for the get_sprints module.
         
     Args:
         subparser (obj):   The command subparser object provided via __main__.py.
@@ -59,12 +59,19 @@ def register(subparser) -> argparse.ArgumentParser:
         obj:    The commmand parser object of this module.
     """
 
-    sub_parser_search : argparse.ArgumentParser = subparser.add_parser('print',
-                                      help="Print the Jira Issue details to the console.")
+    sub_parser_search : argparse.ArgumentParser = subparser.add_parser('get_sprints',
+                                      help="Get all sprints in a board and \
+                                            save the sprint data into a JSON file.")
 
-    sub_parser_search.add_argument('issueKey',
+    sub_parser_search.add_argument('board',
                             type=str,
-                            help="The Jira Issue Key of the Issue to print.")
+                            help="The board for which the sprints shall be stored.")
+    
+    sub_parser_search.add_argument('--file',
+                                   type=str,
+                                   metavar="<PATH TO FILE>",
+                                   help=""
+                                   )
 
     return sub_parser_search
 
@@ -78,9 +85,9 @@ def execute(args) -> Ret.CODE:
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
-    return _cmd_print(args.issueKey, args.profile)
+    return _cmd_get_sprints(args.issueKey, args.profile)
 
-def _cmd_print(issue_key:str, profile_name:str) -> Ret.CODE:
+def _cmd_get_sprints(issue_key:str, profile_name:str) -> Ret.CODE:
     """ Load the data of the provided issue key and 
         and print it to the command line.
 
