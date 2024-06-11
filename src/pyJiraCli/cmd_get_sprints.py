@@ -112,18 +112,18 @@ def _cmd_get_sprints(board_name:str, profile_name:str, filepath:str) -> Ret.CODE
     write_dict = _get_sprints(board_name, profile_name)
 
     if BOARD_KEY in write_dict:
-        write_data = json.dumps(write_dict)
-
-        ret_status = file.process_file_argument(f"{write_data[BOARD_KEY]}_Sprints.json",filepath)
+        writeable_board_name =  write_dict[BOARD_KEY].replace(' ', '_').replace(':', '')
+        ret_status = file.process_file_argument(f"{writeable_board_name}_Sprints", filepath)
 
     else:
         ret_status = Ret.CODE.RET_ERROR_BOARD_NOT_FOUND
 
     if ret_status == Ret.CODE.RET_OK:
+        write_data = json.dumps(write_dict, indent=4)
+        ret_status = file.write_file(write_data)
 
-        if ret_status == Ret.CODE.RET_OK:
-            ret_status = file.write_file(write_data)
-
+    if ret_status == Ret.CODE.RET_OK:
+        printer.print_info('File saved at:', file.get_path())
 
     return ret_status
 
