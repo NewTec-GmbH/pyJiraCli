@@ -63,6 +63,7 @@ class Ret():
         RET_ERROR_INVALID_SEARCH         = 11
         RET_ERROR_INVALID_URL            = 12
         RET_ERROR_JIRA_LOGIN             = 13
+        RET_ERROR_BOARD_NOT_FOUND        = 14
 
     MSG = {
         CODE.RET_OK:                           "Process succesful.",
@@ -81,6 +82,8 @@ class Ret():
         CODE.RET_ERROR_INVALID_SEARCH:         "search string returned a jira error",
         CODE.RET_ERROR_INVALID_URL:            "The provided server url is invalid",
         CODE.RET_ERROR_JIRA_LOGIN:             "Login to jira server was not possible",
+        CODE.RET_ERROR_BOARD_NOT_FOUND:        "The jira board does not exist or \
+                                                you have now access to it."
     }
 
 
