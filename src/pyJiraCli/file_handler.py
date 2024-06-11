@@ -217,8 +217,9 @@ class FileHandler:
         """ Set the file attribute "file hidden".
         """
         if self._path is not None:
-            if os.path.exists(self._path):
-                ctypes.windll.kernel32.SetFileAttributesW(self._path,
+            if os.name == 'nt':
+                if os.path.exists(self._path):
+                    ctypes.windll.kernel32.SetFileAttributesW(self._path,
                                                       FILE_ATTRIBUTE_HIDDEN)
 
     def close_file(self) -> None:

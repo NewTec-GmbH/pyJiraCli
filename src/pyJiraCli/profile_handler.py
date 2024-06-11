@@ -373,6 +373,8 @@ def _get_path_to_login_folder() -> str:
 
     if not os.path.exists(user_info_path):
         os.makedirs(user_info_path)
-        ctypes.windll.kernel32.SetFileAttributesW(user_info_path,
-                                                  FILE_ATTRIBUTE_HIDDEN)
+
+        if os.name == 'nt':
+            ctypes.windll.kernel32.SetFileAttributesW(user_info_path,
+                                                      FILE_ATTRIBUTE_HIDDEN)
     return user_info_path
