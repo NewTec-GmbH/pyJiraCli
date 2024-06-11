@@ -69,7 +69,7 @@ def register(subparser) -> argparse.ArgumentParser:
         subparser (obj):   the command subparser provided via __main__.py
         
     Returns:
-        obj:    the commmand parser of this module
+        obj:    the command parser of this module
     """
     # subparser for the 'search' command
     sub_parser_search : argparse.ArgumentParser = subparser.add_parser('search',
@@ -95,7 +95,7 @@ def register(subparser) -> argparse.ArgumentParser:
 
 def execute(args) -> Ret.CODE:
     """ This function servers as entry point for the command 'search'.
-        It will be stored as callback for this moduls subparser command.
+        It will be stored as callback for this modules subparser command.
     
     Args: 
         args (obj): The command line arguments.
@@ -159,7 +159,7 @@ def _cmd_search(filter_str:str, profile_name:str, results:int, save_file:str) ->
     return ret_status
 
 def _print_table(issues:list) -> None:
-    """ Print a quick overview vor all issues in the list.
+    """ Print a quick overview for all issues in the list.
 
     Args:
         issues (list): list with all found issues
@@ -181,7 +181,7 @@ def _save_search(save_file:str, search_dict:dict) -> Ret.CODE:
 
     Args:
         save_file (str): The filepath to the JSON file.
-        search_dict (dict): The dictionay with the search data.
+        search_dict (dict): The dictionary with the search data.
 
     Returns:
         Ret.CODE: _description_
