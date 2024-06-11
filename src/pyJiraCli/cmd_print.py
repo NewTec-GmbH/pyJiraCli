@@ -33,8 +33,8 @@
 ################################################################################
 # Imports
 ################################################################################
-import argparse
 import json
+import argparse
 
 from pyJiraCli.jira_server import Server
 from pyJiraCli.ret import Ret
