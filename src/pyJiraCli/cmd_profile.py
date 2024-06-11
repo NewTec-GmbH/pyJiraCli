@@ -58,7 +58,7 @@ def register(subparser) -> argparse.ArgumentParser:
         subparser (obj):   The command subparser object provided via __main__.py.
         
     Returns:
-        obj:    The commmand parser object of this module.
+        obj:    The command parser object of this module.
     """
 
     sub_parser_profile:argparse.ArgumentParser = subparser.add_parser('profile',
@@ -114,7 +114,7 @@ def register(subparser) -> argparse.ArgumentParser:
 
 def execute(args) -> Ret.CODE:
     """ This function servers as entry point for the command 'profile'.
-        It will be stored as callback for this moduls subparser command.
+        It will be stored as callback for this modules subparser command.
     
     Args: 
         args (obj): The command line arguments.

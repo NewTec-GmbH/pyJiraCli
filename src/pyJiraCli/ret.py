@@ -65,8 +65,8 @@ class Ret():
         RET_ERROR_JIRA_LOGIN             = 13
 
     MSG = {
-        CODE.RET_OK:                           "Process succesful.",
-        CODE.RET_ERROR:                        "Error occured.",
+        CODE.RET_OK:                           "Process successful.",
+        CODE.RET_ERROR:                        "Error occurred.",
         CODE.RET_ERROR_ARGPARSE:               "Error while parsing arguments.",
         CODE.RET_ERROR_FILEPATH_INVALID:       "The provided filepath does not exist.",
         CODE.RET_ERROR_WORNG_FILE_FORMAT:      "Wrong file format for save file provided.",
@@ -95,7 +95,7 @@ class Warnings():
         WARNING_TOKEN_RECOMMENDED      = 2
 
     MSG = {
-        CODE.WARNING_UNSAVE_CONNECTION:      "No certificate for server authentification found." + \
+        CODE.WARNING_UNSAVE_CONNECTION:      "No certificate for server authentication found." + \
                                              " It's strongly advised, to add a certificate for " + \
                                              "your server profile.",
         CODE.WARNING_UNKNOWN_FILE_EXTENSION: "The provided file has an unknown file format. " + \

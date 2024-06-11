@@ -108,7 +108,7 @@ class Server:
             _printer.print_info('Loggin in to:', self._server_url)
 
             if api_token is None:
-                # promt user to enter username and password
+                # prompt user to enter username and password
                 user, password = _get_user_input()
 
                 ret_status = self._login_with_password(user, password)
@@ -118,7 +118,7 @@ class Server:
 
             if ret_status == Ret.CODE.RET_OK and \
             self._user is not None:
-                _printer.print_info('Login succesful. Logged in as:', self._user)
+                _printer.print_info('Login successful. Logged in as:', self._user)
 
         return ret_status
 
@@ -144,7 +144,7 @@ class Server:
             _printer.print_error(PrintType.WARNING, Warnings.CODE.WARNING_UNSAVE_CONNECTION)
 
         if api_token is None:
-            # promt user to enter username and password
+            # prompt user to enter username and password
             user, password = _get_user_input()
 
             ret_status = self._login_with_password(user, password)
@@ -167,7 +167,7 @@ class Server:
             The maximum of found issues can be set.
 
         Args:
-            search_str (str): The string by which to seach issues for.
+            search_str (str): The string by which to search issues for.
             max_results (int): The maximum number of search results.
 
         Returns:
@@ -192,7 +192,7 @@ class Server:
 
     def get_search_result(self) -> list:
         """ Return the results from a 
-            succesful search.
+            successful search.
 
         Returns:
             list: A list with all the found issues from the last search.
