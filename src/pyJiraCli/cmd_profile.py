@@ -62,7 +62,7 @@ def register(subparser) -> argparse.ArgumentParser:
     """
 
     sub_parser_profile:argparse.ArgumentParser = subparser.add_parser('profile',
-                                      help="Print the Jira Issue details to the console.")
+                                      help="Add, update or delete server profiles.")
 
     login_group = sub_parser_profile.add_argument_group("Profile Data")
 
