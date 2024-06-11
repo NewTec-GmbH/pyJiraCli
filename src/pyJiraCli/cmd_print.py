@@ -35,6 +35,7 @@
 ################################################################################
 import json
 import argparse
+import json
 
 from pyJiraCli.jira_server import Server
 from pyJiraCli.ret import Ret
