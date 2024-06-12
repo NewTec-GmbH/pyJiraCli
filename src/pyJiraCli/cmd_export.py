@@ -35,14 +35,13 @@
 ################################################################################
 # Imports
 ################################################################################
-import os
 import json
 import argparse
 
 from pyJiraCli.jira_server import Server
 from pyJiraCli.file_handler import FileHandler as File
-from pyJiraCli.printer import Printer, PrintType
-from pyJiraCli.ret import Ret, Warnings
+from pyJiraCli.printer import Printer
+from pyJiraCli.ret import Ret
 ################################################################################
 # Variables
 ################################################################################
@@ -61,7 +60,7 @@ def register(subparser) -> argparse.ArgumentParser:
         subparser (obj):   The command subparser object provided via __main__.py.
         
     Returns:
-        obj:    The commmand parser obj of this module.
+        obj:    The command parser obj of this module.
     """
 
     sub_parser_export: argparse.ArgumentParser = subparser.add_parser('export',
@@ -74,7 +73,7 @@ def register(subparser) -> argparse.ArgumentParser:
     sub_parser_export.add_argument('--file',
                            type=str,
                            metavar='<path to file>',
-                           help="Absolute file path or filepath relativ " + \
+                           help="Absolute file path or filepath relative " + \
                                 "to the current working directory. " + \
                                 "The file format must be JSON. "  \
                                 "If a different file format is provided, " + \
@@ -84,7 +83,7 @@ def register(subparser) -> argparse.ArgumentParser:
 
 def execute(args) -> Ret.CODE:
     """ This function servers as entry point for the command 'export'.
-        It will be stored as callback for this moduls subparser command.
+        It will be stored as callback for this modules subparser command.
     
     Args: 
         args (obj): The command line arguments.
@@ -114,13 +113,11 @@ def _cmd_export(args) -> Ret.CODE:
     """
 
     ret_status = Ret.CODE.RET_OK
+    file = File()
 
-    file = _process_file_argument(args.issue,
-                                      args.file)
-    if file is None:
-        ret_status = Ret.CODE.RET_ERROR_FILEPATH_INVALID
-
-    else:
+    ret_status = file.process_file_argument(args.issue,
+                                            args.file)
+    if ret_status == Ret.CODE.RET_OK:
         ret_status = _export_ticket_to_file(args.issue,
                                             file,
                                             args.profile)
@@ -152,58 +149,11 @@ def _export_ticket_to_file(issue_key:str, file:File, profile_name:str) -> Ret.CO
     if ret_status == Ret.CODE.RET_OK:
         ret_status = server.search(f"key = {issue_key}", max_results=1)
 
-        if ret_status == Ret.CODE.RET_OK:
-            issue = server.get_search_result().pop().raw
+    if ret_status == Ret.CODE.RET_OK:
 
-            write_data = json.dumps(issue, indent=4)
+        issue = server.get_search_result().pop().raw
 
-            if ret_status == Ret.CODE.RET_OK:
-                ret_status = file.write_file(write_data)
+        write_data = json.dumps(issue, indent=4)
+        ret_status = file.write_file(write_data)
 
     return ret_status
-
-def _process_file_argument(issue_key:str ,arg_file:str) -> File:
-    """ Get the filename. Handle possible extension errors 
-        with the filename provided via the -file option.
-        If a path to a file was supplied, the path will be kept.
-        The returned filename will be without extension.
-
-    Args:
-        issue_key (str): The current issue key. 
-        arg_file (str):  The -file option string provided via the console.
-
-    Returns:
-        File:   The filename according to the -file option.
-                                  The extension will be added later.
-    """
-    ret_status = Ret.CODE.RET_OK
-    file = File()
-
-    if arg_file is None:
-        ret_status = file.set_filepath(f"./{issue_key}.json")
-
-    else:
-        ret_status = file.set_filepath(arg_file)
-
-        if ret_status == Ret.CODE.RET_OK:
-            ext = file.get_file_extension()
-
-            if ext is None:
-                ret_status = file.set_filepath(os.path.join(file.get_parent_path(),
-                                                            f'{issue_key}.json'))
-
-            elif ext != '.json':
-                LOG.print_error(PrintType.WARNING, Warnings.CODE.WARNING_UNKNOWN_FILE_EXTENSION)
-
-                path, ext = os.path.splitext(file.get_path())
-
-                ret_status = file.set_filepath(path + '.json')
-
-            else:
-                # file or the parent directory exist and the file has the proper file format
-                pass
-
-        if ret_status != Ret.CODE.RET_OK:
-            file = None
-
-    return file

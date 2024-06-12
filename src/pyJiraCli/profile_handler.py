@@ -103,7 +103,7 @@ class ProfileHandler:
         if not os.path.exists(profile_path):
             os.mkdir(profile_path)
         else:
-            print("A profile with this name already exists. Do you want to overide this profile?")
+            print("A profile with this name already exists. Do you want to override this profile?")
             response = input("(y/n): ")
 
             if response == 'y':
@@ -119,7 +119,7 @@ class ProfileHandler:
             ret_status = _add_new_profile(write_dict, profile_path, cert_path)
 
             if ret_status == Ret.CODE.RET_OK:
-                _printer.print_info("A new profile was succesfully created. Profile name:",
+                _printer.print_info("A new profile was successfully created. Profile name:",
                                     profile_name)
 
         else:
@@ -162,7 +162,7 @@ class ProfileHandler:
             _file.write_file(cert_data)
             _file.hide_file()
 
-            _printer.print_info("Succesfully added a certificate to profile:",
+            _printer.print_info("Successfully added a certificate to profile:",
                                profile_name)
 
         return ret_status
@@ -288,7 +288,7 @@ class ProfileHandler:
 
             os.rmdir(profile_path)
 
-            _printer.print_info("Succesfully removed profile:", profile_name)
+            _printer.print_info("Successfully removed profile:", profile_name)
 
         else:
             _printer.print_info("Can't delete profile:", profile_name,
