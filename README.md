@@ -15,6 +15,7 @@ pyJiraCli is a command-line tool designed for handling Jira tickets efficiently.
   * [Search](#search)
   * [Print](#print)
   * [Profile](#profile)
+  * [Get_Sprints](#get_sprints)
 * [Add a command](#add-a-command)
 * [Examples](#examples)
   * [JSON example file](#json-example-file)
@@ -51,12 +52,13 @@ usage: pyJiraCli [-h] [--user <username>] [--password <password>] [--version] [-
 A CLI tool to import and export Jira issues between server and JSON files.
 
 positional arguments:
-  {export,import,search,login,delete,print}
-    export              export jira issue to JSON file
+  {export,import,search,print,profile,get_sprints}
+    export              Export a ticket from a Jira Server to a JSON file.
     import              Import a Jira Issue from a JSON file.
     search              Search for the Jira server for issues using the specified filter string.
     print               Print the Jira Issue details to the console.
-    profile             Print the Jira Issue details to the console.
+    profile             Add, update or delete server profiles.
+    get_sprints         Get all sprints in a board and save the sprint data into a JSON file.
 
 options:
   -h, --help            show this help message and exit
@@ -202,7 +204,7 @@ The profile contains following data:
   - name: A Unique profile name by which you can reference your profile. (required)
   - url: The server url where your jira server is located. (required)
   - token: An api token to allow for faster access. (optional)
-  - certificate: A server certificate for your company/jira instance. (opional)
+  - certificate: A server certificate for your company/jira instance. (optional)
 
 When adding a profile, the profile name and the server url are required. 
 The token and certificate are optional and can also be added later on, 
@@ -248,9 +250,33 @@ pyJiraCli profile new_profile --token This-Is-an-Example-Token --cert C:\\Path\\
 
 This will create a new profile with the name "new_profile" and saves all possible profile information.
 
+### Get_Sprints
+
+Analog to the export command for issue, you can get raw Sprint data for boards. \
+The board name needs to fit the name on the jira server. \
+You can choose where to store the data with the --file option.
+
+```cmd
+pyJiraCli get_sprints --help
+```
+
+Output:
+
+```cmd
+usage: pyJiraCli get_sprints [-h] [--file <path to file>] board
+
+positional arguments:
+  board                 The board for which the sprints shall be stored.
+
+options:
+  -h, --help            show this help message and exit
+  --file <path to file>
+                        Absolute file path or filepath relativ to the current working directory. The file format must be JSON.
+```
+
 ## Add a command
 
-In order to add a new command to the programm, the following steps must be taken:
+In order to add a new command to the program, the following steps must be taken:
 
 1. A file for the command must be created: `src/cmd_<command_name>.py`
 
@@ -281,13 +307,13 @@ def register(subparser):
                           action="store_true",
                           help="store 'True'' in args.bool_option if the option \
                                 is set on the commandline \
-                                otehrwise store 'False'")
+                                otherwise store 'False'")
     
     # make sure to return the command parser
     return sub_parser_cmd
 
 def execute(args):
-  ''' execute function, your module enty point will be here
+  ''' execute function, your module entry point will be here
       returns the module exit code: 
       retval.Ret.CODE.RET_OK'''
     ret_status = Ret.CODE.RET_OK
@@ -374,7 +400,7 @@ class Warnings(IntEnum):
 
 ### JSON example file
 
-  With version v1 the genereated JSON files will have following format:
+  With version v1 the generated JSON files will have following format:
 
 ```ticket.json```
 
@@ -387,7 +413,7 @@ class Warnings(IntEnum):
 }
 ```
 
-  In further versions this might change with the possibilty for the user to provide file templates on how JSON files shall be read and written
+  In further versions this might change with the possibility for the user to provide file templates on how JSON files shall be read and written
 
 ## Used Libraries
 

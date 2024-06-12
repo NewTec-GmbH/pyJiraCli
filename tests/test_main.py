@@ -71,7 +71,7 @@ def test_export():
     # Expect invalid arguments.
     assert Ret.CODE.RET_ERROR_ARGPARSE == ret.returncode
 
-    # Futher tests will be done in the future, as the command will change.
+    # Further tests will be done in the future, as the command will change.
 
 
 def test_import():
@@ -84,7 +84,7 @@ def test_import():
     # Expect invalid arguments.
     assert Ret.CODE.RET_ERROR_ARGPARSE == ret.returncode
 
-    # Futher tests will be done in the future, as the command will change.
+    # Further tests will be done in the future, as the command will change.
 
 def test_print():
     """
@@ -96,7 +96,7 @@ def test_print():
     # Expect invalid arguments.
     assert Ret.CODE.RET_ERROR_ARGPARSE == ret.returncode
 
-    # Futher tests will be done in the future, as the command will change.
+    # Further tests will be done in the future, as the command will change.
 
 
 def test_search():
@@ -109,7 +109,7 @@ def test_search():
     # Expect invalid arguments.
     assert Ret.CODE.RET_ERROR_ARGPARSE == ret.returncode
 
-    # Futher tests will be done in the future, as the command will change.
+    # Further tests will be done in the future, as the command will change.
 
 def test_profile():
     """
@@ -121,4 +121,4 @@ def test_profile():
     # Expect invalid arguments.
     assert Ret.CODE.RET_ERROR_ARGPARSE == ret.returncode
 
-    # Futher tests will be done in the future, as the command will change.
+    # Further tests will be done in the future, as the command will change.

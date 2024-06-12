@@ -6,7 +6,7 @@ Importing an issue or set of issues to the Jira Server is done using the `import
 pyJiraCli --profile my_profile import .\examples\import_issues.json\single_issue.json
 ```
 
-Use the `--verbose` flag to receive confirmation when issues are succesfully created.
+Use the `--verbose` flag to receive confirmation when issues are successfully created.
 
 The JSON file that describes the issues to be imported requires the following format:
 
@@ -14,7 +14,7 @@ The JSON file that describes the issues to be imported requires the following fo
 - At the top level, a `projectKey` object must exist, containing the key `key` with the Project Key of an already-existing Jira project. This script will **not** create the project, but the issues inside the project.
 - At the top level, an `issues` array must be defined. This array contains one object per issue.
 - Each issue **must** have an `externalId` key defined, with a reference ID for the user. This is necessary for creating sub-issues such as Sub-Tasks. It will not be sent to the Jira Server.
-- Each issue **must** have an `issuetype` object defined, which containes either an `id` or the `name` of the issue type. If both are defined, the `id` will be used.
+- Each issue **must** have an `issuetype` object defined, which contains either an `id` or the `name` of the issue type. If both are defined, the `id` will be used.
 - Each issue **must** have a `summary` key defined.
 - Other fields that can be applied to the issue, required or optional, must be defined by the user depending on the project. This is done by adding more keys to the issue object.
 - To determine which issue types and fields are available, please contact your Jira administrator.

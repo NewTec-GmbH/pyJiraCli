@@ -41,8 +41,6 @@ from dataclasses import dataclass
 ################################################################################
 # Classes
 ################################################################################
-
-
 @dataclass
 class Ret():
     """The Error codes of pyJiraCli tool."""
@@ -63,24 +61,27 @@ class Ret():
         RET_ERROR_INVALID_SEARCH         = 11
         RET_ERROR_INVALID_URL            = 12
         RET_ERROR_JIRA_LOGIN             = 13
+        RET_ERROR_BOARD_NOT_FOUND        = 14
 
     MSG = {
-        CODE.RET_OK:                           "Process succesful.",
-        CODE.RET_ERROR:                        "Error occured.",
+        CODE.RET_OK:                           "Process successful.",
+        CODE.RET_ERROR:                        "Error occurred.",
         CODE.RET_ERROR_ARGPARSE:               "Error while parsing arguments.",
         CODE.RET_ERROR_FILEPATH_INVALID:       "The provided filepath does not exist.",
         CODE.RET_ERROR_WORNG_FILE_FORMAT:      "Wrong file format for save file provided.",
         CODE.RET_ERROR_ISSUE_NOT_FOUND:        "Jira issue not found.",
         CODE.RET_ERROR_FILE_OPEN_FAILED:       "Failed to open file.",
-        CODE.RET_ERROR_NO_USERINFORMATION:     "No user information was provided \
-                                                or stored information file.",
+        CODE.RET_ERROR_NO_USERINFORMATION:     "No user information was provided " + \
+                                               "or stored information file.",
         CODE.RET_ERROR_PROFILE_NOT_FOUND:      "The server profile does not exist.",
-        CODE.RET_ERROR_NO_SERVER_URL:          "To add a new profile, the server url must \
-                                                be provided with the --url option",
+        CODE.RET_ERROR_NO_SERVER_URL:          "To add a new profile, the server url must " + \
+                                               "be provided with the --url option",
         CODE.RET_ERROR_CREATING_TICKET_FAILED: "creating the ticket on the jira server failed",
         CODE.RET_ERROR_INVALID_SEARCH:         "search string returned a jira error",
         CODE.RET_ERROR_INVALID_URL:            "The provided server url is invalid",
         CODE.RET_ERROR_JIRA_LOGIN:             "Login to jira server was not possible",
+        CODE.RET_ERROR_BOARD_NOT_FOUND:        "The jira board does not exist or " +\
+                                               "you have no access to it."
     }
 
 
@@ -95,7 +96,7 @@ class Warnings():
         WARNING_TOKEN_RECOMMENDED      = 2
 
     MSG = {
-        CODE.WARNING_UNSAVE_CONNECTION:      "No certificate for server authentification found." + \
+        CODE.WARNING_UNSAVE_CONNECTION:      "No certificate for server authentication found." + \
                                              " It's strongly advised, to add a certificate for " + \
                                              "your server profile.",
         CODE.WARNING_UNKNOWN_FILE_EXTENSION: "The provided file has an unknown file format. " + \

@@ -43,6 +43,7 @@ from pyJiraCli import cmd_export
 from pyJiraCli import cmd_search
 from pyJiraCli import cmd_print
 from pyJiraCli import cmd_profile
+from pyJiraCli import cmd_get_sprints
 
 from pyJiraCli.printer import Printer, PrintType
 from pyJiraCli.ret import Ret
@@ -58,7 +59,8 @@ _CMD_MODULS = [
     cmd_import,
     cmd_search,
     cmd_print,
-    cmd_profile
+    cmd_profile,
+    cmd_get_sprints
 ]
 
 ################################################################################
