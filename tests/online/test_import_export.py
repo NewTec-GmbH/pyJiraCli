@@ -36,12 +36,16 @@ Requires a Jira instance to be running.
 # Imports
 ################################################################################
 
+import json
 from pyJiraCli.ret import Ret
 from tests.conftest import Helpers
 
 ################################################################################
 # Variables
 ################################################################################
+
+ISSUE_KEY = "TESTPROJ-1"
+OUTPUT_FILE_NAME = "export.json"
 
 ################################################################################
 # Classes
@@ -52,8 +56,8 @@ from tests.conftest import Helpers
 ################################################################################
 
 
-def test_import(helpers: Helpers):
-    """ Test the import operation. """
+def test_import_export(helpers: Helpers):
+    """ Test the import and export commands. """
 
     # Make sure the profile exists by removing and adding it again.
 
@@ -84,6 +88,25 @@ def test_import(helpers: Helpers):
          "import", "examples/import_issues/sub_issues.json"])
 
     assert Ret.CODE.RET_OK == ret.returncode
+
+    # Export the single issue.
+    ret = helpers.run_pyjiracli(
+        ["--profile", helpers.CI_PROFILE_NAME,
+         "export", ISSUE_KEY, "--file", OUTPUT_FILE_NAME])
+
+    assert Ret.CODE.RET_OK == ret.returncode
+
+    # Compare the exported file with the original.
+    with open("examples/import_issues/single_issue.json", "r", encoding="UTF-8") as file:
+        original = json.load(file)
+
+    with open(OUTPUT_FILE_NAME, "r", encoding="UTF-8") as file:
+        exported = json.load(file)
+
+    original_summary = original["issues"][0]["summary"]
+    exported_summary = exported["fields"]["summary"]
+
+    assert original_summary == exported_summary
 
 ################################################################################
 # Main
