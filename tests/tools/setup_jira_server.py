@@ -63,6 +63,7 @@ def add_user_to_jira() -> None:
     """Add a user to Jira Server for CI testing purposes."""
 
     try:
+        # Create user.
         JIRA(
             CI_JIRA_URL,
             basic_auth=(CI_JIRA_ADMIN, CI_JIRA_ADMIN_PASSWORD),
@@ -79,6 +80,7 @@ def add_user_to_jira() -> None:
         if "username already exists" not in str(e):
             raise e
 
+    # Create token for user.
     # pylint: disable=missing-timeout
     response = requests.post(CI_JIRA_URL + "/rest/pat/latest/tokens",
                              auth=("jira_user", 'jira'),
@@ -91,8 +93,8 @@ def add_user_to_jira() -> None:
     else:
         token = response.json().get("rawToken")
         print("token", token)
-        os.environ["CI_JIRA_USER_TOKEN"] = token
 
+        # Save token to GitHub environment.
         # pylint: disable=W1514
         with open(os.environ['GITHUB_ENV'], 'a') as fh:
             print(f'{"CI_JIRA_USER_TOKEN"}={token}', file=fh)
@@ -116,6 +118,12 @@ def create_project() -> None:
         if "A project with that name already exists." not in str(e):
             raise e
 
+def create_cert() -> None:
+    """Create a certificate for Jira Server for CI testing purposes."""
+
+    with open("cert.pem", "w", encoding="UTF-8") as cert_file:
+        cert_file.write("HELLO WORLD")
+
 ################################################################################
 # Functions
 ################################################################################
@@ -138,6 +146,7 @@ if __name__ == "__main__":
             print("JIRA IS REACHABLE")
             add_user_to_jira()
             create_project()
+            create_cert()
             break
 
         except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as ex:
