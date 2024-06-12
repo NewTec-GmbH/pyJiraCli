@@ -72,11 +72,11 @@ class Ret():
         CODE.RET_ERROR_WORNG_FILE_FORMAT:      "Wrong file format for save file provided.",
         CODE.RET_ERROR_ISSUE_NOT_FOUND:        "Jira issue not found.",
         CODE.RET_ERROR_FILE_OPEN_FAILED:       "Failed to open file.",
-        CODE.RET_ERROR_NO_USERINFORMATION:     "No user information was provided \
-                                                or stored information file.",
+        CODE.RET_ERROR_NO_USERINFORMATION:     "No user information was provided " + \
+                                               "or stored information file.",
         CODE.RET_ERROR_PROFILE_NOT_FOUND:      "The server profile does not exist.",
-        CODE.RET_ERROR_NO_SERVER_URL:          "To add a new profile, the server url must \
-                                                be provided with the --url option",
+        CODE.RET_ERROR_NO_SERVER_URL:          "To add a new profile, the server url must " + \
+                                               "be provided with the --url option",
         CODE.RET_ERROR_CREATING_TICKET_FAILED: "creating the ticket on the jira server failed",
         CODE.RET_ERROR_INVALID_SEARCH:         "search string returned a jira error",
         CODE.RET_ERROR_INVALID_URL:            "The provided server url is invalid",
