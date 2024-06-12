@@ -36,7 +36,6 @@ Requires a Jira instance to be running.
 # Imports
 ################################################################################
 
-import os
 from pyJiraCli.ret import Ret
 from tests.conftest import Helpers
 
@@ -44,12 +43,7 @@ from tests.conftest import Helpers
 # Variables
 ################################################################################
 
-PROFILE_COMMAND = "profile"
-CI_JIRA_USER = "jira_user"
-CI_JIRA_USER_PASSWORD = "jira"
-CI_PROFILE_NAME = "ci_profile"
-CI_JIRA_SERVER_URL = "http://localhost:2990/jira"
-CI_JIRA_USER_TOKEN = os.environ["CI_JIRA_USER_TOKEN"]
+CERT_NAME = "cert.pem"
 
 ################################################################################
 # Classes
@@ -60,20 +54,41 @@ CI_JIRA_USER_TOKEN = os.environ["CI_JIRA_USER_TOKEN"]
 ################################################################################
 
 
-def test_add(helpers: Helpers):
+def test_profile_operation(helpers: Helpers):
     """ Test the --add option. """
-    ret = helpers.run_pyjiracli([PROFILE_COMMAND, "--add",
-                                 "--url", CI_JIRA_SERVER_URL,
-                                 "--token", CI_JIRA_USER_TOKEN,
-                                 CI_PROFILE_NAME])
+    # Remove any existing profile.
+    ret = helpers.remove_profile()
 
     # Expect OK.
     assert Ret.CODE.RET_OK == ret.returncode
 
+    # Create a new profile.
+    ret = helpers.create_profile()
 
-def test_remove(helpers: Helpers):
-    """ Test the --remove option. """
-    ret = helpers.run_pyjiracli([PROFILE_COMMAND, "--remove", CI_PROFILE_NAME])
+    # Expect OK.
+    assert Ret.CODE.RET_OK == ret.returncode
+
+    # Try to create the profile again.
+    ret = helpers.create_profile()
+
+    # Expect ERROR.
+    assert Ret.CODE.RET_ERROR == ret.returncode
+
+    # Remove the profile.
+    ret = helpers.remove_profile()
+
+    # Expect OK.
+    assert Ret.CODE.RET_OK == ret.returncode
+
+    # Try to create the profile again.
+    ret = helpers.create_profile()
+
+    # Expect OK.
+    assert Ret.CODE.RET_OK == ret.returncode
+
+    # Update the profile.
+    ret = helpers.run_pyjiracli(
+        [Helpers.PROFILE_COMMAND, "--update", Helpers.CI_PROFILE_NAME, "--cert", CERT_NAME])
 
     # Expect OK.
     assert Ret.CODE.RET_OK == ret.returncode
