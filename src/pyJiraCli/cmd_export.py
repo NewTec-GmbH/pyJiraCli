@@ -180,7 +180,7 @@ def _process_file_argument(issue_key:str ,arg_file:str) -> File:
     file = File()
 
     if arg_file is None:
-        ret_status = file.set_filepath(f".\\{issue_key}.json")
+        ret_status = file.set_filepath(f"./{issue_key}.json")
 
     else:
         ret_status = file.set_filepath(arg_file)

@@ -141,7 +141,7 @@ class ProfileHandler:
 
         _file = File()
         _printer = Printer()
-        profile_path = _get_path_to_login_folder() + f"{profile_name}\\"
+        profile_path = _get_path_to_login_folder() + f"{profile_name}/"
 
         if os.path.exists(cert_path):
             ret_status =_file.set_filepath(cert_path)
@@ -181,7 +181,7 @@ class ProfileHandler:
 
         _file = File()
         _printer = Printer()
-        profile_path = _get_path_to_login_folder() + f"{profile_name}\\"
+        profile_path = _get_path_to_login_folder() + f"{profile_name}/"
 
         self.load(profile_name)
 
@@ -236,7 +236,7 @@ class ProfileHandler:
 
         _file = File()
 
-        profile_path = _get_path_to_login_folder() + f"{profile_name}\\"
+        profile_path = _get_path_to_login_folder() + f"{profile_name}/"
 
         if os.path.exists(profile_path):
             ret_status = _file.set_filepath(profile_path + DATA_FILE)
@@ -278,7 +278,7 @@ class ProfileHandler:
             profile_name (str): _description_
         """
         _printer = Printer()
-        profile_path = _get_path_to_login_folder() + f"{profile_name}\\"
+        profile_path = _get_path_to_login_folder() + f"{profile_name}/"
 
         if os.path.exists(profile_path):
             os.remove(profile_path + DATA_FILE)

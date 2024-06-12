@@ -83,7 +83,7 @@ class FileHandler:
 
         if path_comps[0][-1] == ':':
             # check if the first component is a drive name
-            path_comps[0] += '\\'
+            path_comps[0] += '/'
 
         formatted_path = os.path.join(*path_comps)
         parent_path = os.path.join(*path_comps[:-1])
