@@ -36,7 +36,6 @@
 ################################################################################
 import os
 import ctypes
-
 import json
 
 from pyJiraCli.file_handler import FileHandler as File
@@ -45,7 +44,7 @@ from pyJiraCli.printer import Printer, PrintType
 ################################################################################
 # Variables
 ################################################################################
-PATH_TO_PROFILE_FOLDER   = "\\.pyJiraCli\\.profiles\\"
+PATH_TO_PROFILE_FOLDER   = "/.pyJiraCli/.profiles/"
 CERT_FILE = ".cert.crt"
 DATA_FILE = ".data.json"
 
@@ -99,7 +98,7 @@ class ProfileHandler:
         else:
             write_dict[TOKEN_KEY] = login_token
 
-        profile_path = _get_path_to_login_folder() + f"{profile_name}\\"
+        profile_path = _get_path_to_login_folder() + f"{profile_name}/"
 
         if not os.path.exists(profile_path):
             os.mkdir(profile_path)
@@ -108,7 +107,8 @@ class ProfileHandler:
             response = input("(y/n): ")
 
             if response == 'y':
-                os.remove(profile_path + DATA_FILE)
+                if os.path.exists(profile_path + DATA_FILE):
+                    os.remove(profile_path + DATA_FILE)
 
                 if os.path.exists(profile_path + CERT_FILE):
                     os.remove(profile_path + CERT_FILE)
@@ -141,7 +141,7 @@ class ProfileHandler:
 
         _file = File()
         _printer = Printer()
-        profile_path = _get_path_to_login_folder() + f"{profile_name}\\"
+        profile_path = _get_path_to_login_folder() + f"{profile_name}/"
 
         if os.path.exists(cert_path):
             ret_status =_file.set_filepath(cert_path)
@@ -181,7 +181,7 @@ class ProfileHandler:
 
         _file = File()
         _printer = Printer()
-        profile_path = _get_path_to_login_folder() + f"{profile_name}\\"
+        profile_path = _get_path_to_login_folder() + f"{profile_name}/"
 
         self.load(profile_name)
 
@@ -236,7 +236,7 @@ class ProfileHandler:
 
         _file = File()
 
-        profile_path = _get_path_to_login_folder() + f"{profile_name}\\"
+        profile_path = _get_path_to_login_folder() + f"{profile_name}/"
 
         if os.path.exists(profile_path):
             ret_status = _file.set_filepath(profile_path + DATA_FILE)
@@ -278,7 +278,7 @@ class ProfileHandler:
             profile_name (str): _description_
         """
         _printer = Printer()
-        profile_path = _get_path_to_login_folder() + f"{profile_name}\\"
+        profile_path = _get_path_to_login_folder() + f"{profile_name}/"
 
         if os.path.exists(profile_path):
             os.remove(profile_path + DATA_FILE)
@@ -372,7 +372,11 @@ def _get_path_to_login_folder() -> str:
     user_info_path = os.path.expanduser("~") + PATH_TO_PROFILE_FOLDER
 
     if not os.path.exists(user_info_path):
+
         os.makedirs(user_info_path)
-        ctypes.windll.kernel32.SetFileAttributesW(user_info_path,
-                                                  FILE_ATTRIBUTE_HIDDEN)
+
+        if os.name == 'nt':
+            ctypes.windll.kernel32.SetFileAttributesW(user_info_path,
+                                                      FILE_ATTRIBUTE_HIDDEN)
+
     return user_info_path

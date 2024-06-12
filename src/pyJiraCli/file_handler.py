@@ -128,10 +128,14 @@ class FileHandler:
 
         if path_comps[0][-1] == ':':
             # check if the first component is a drive name
-            path_comps[0] += '\\'
+            path_comps[0] += '/'
 
         formatted_path = os.path.join(*path_comps)
         parent_path = os.path.join(*path_comps[:-1])
+
+        if os.name != 'nt':
+            formatted_path = '/' + formatted_path.replace("\\", '/')
+            parent_path    = '/' + parent_path.replace("\\", '/')
 
         if os.path.exists(formatted_path) or \
            os.path.exists(parent_path):
@@ -262,8 +266,9 @@ class FileHandler:
         """ Set the file attribute "file hidden".
         """
         if self._path is not None:
-            if os.path.exists(self._path):
-                ctypes.windll.kernel32.SetFileAttributesW(self._path,
+            if os.name == 'nt':
+                if os.path.exists(self._path):
+                    ctypes.windll.kernel32.SetFileAttributesW(self._path,
                                                       FILE_ATTRIBUTE_HIDDEN)
 
     def close_file(self) -> None:

@@ -330,6 +330,7 @@ def _get_user_input() -> tuple[str, str]:
 
     print("Enter your password: ", end="", flush=True)
     password = _get_password()
+    print('\r', end='')
 
     return username, password
 
