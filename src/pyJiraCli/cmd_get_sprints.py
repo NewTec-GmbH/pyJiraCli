@@ -111,14 +111,11 @@ def _cmd_get_sprints(board_name:str, profile_name:str, filepath:str) -> Ret.CODE
 
     file = File()
 
-    write_dict = _get_sprints(board_name, profile_name)
+    write_dict, ret_status = _get_sprints(board_name, profile_name)
 
-    if BOARD_KEY in write_dict:
+    if ret_status == Ret.CODE.RET_OK:
         writeable_board_name =  write_dict[BOARD_KEY].replace(' ', '_').replace(':', '')
         ret_status = file.process_file_argument(f"{writeable_board_name}_Sprints", filepath)
-
-    else:
-        ret_status = Ret.CODE.RET_ERROR_BOARD_NOT_FOUND
 
     if ret_status == Ret.CODE.RET_OK:
         write_data = json.dumps(write_dict, indent=4)
@@ -129,7 +126,7 @@ def _cmd_get_sprints(board_name:str, profile_name:str, filepath:str) -> Ret.CODE
 
     return ret_status
 
-def _get_sprints(board_name:str, profile_name:str) -> dict:
+def _get_sprints(board_name:str, profile_name:str) -> tuple[dict, Ret.CODE]:
     """ Retrieve sprint information for a given board and profile.
 
     Args:
@@ -144,6 +141,7 @@ def _get_sprints(board_name:str, profile_name:str) -> dict:
     jira = None
 
     write_dict = {}
+    sprints = None
 
     ret_status = server.login(profile_name)
 
@@ -151,32 +149,50 @@ def _get_sprints(board_name:str, profile_name:str) -> dict:
         jira = server.get_handle()
 
         # get all boards the current user has access to
-        jira_boards = jira.boards()
-
+        all_boards = []
+        start_at = 0
         current_board = None
 
-        # search all boards for the one we're looking for
-        for board in jira_boards:
-            if board.name == board_name:
+        ret_status = Ret.CODE.RET_ERROR
 
-                # get the board data
-                current_board  = board
-                break
+        while ret_status == Ret.CODE.RET_ERROR:
+            jira_boards = jira.boards(startAt=start_at, maxResults=50)
+
+            # search all boards for the one we're looking for
+            for board in jira_boards:
+                if board.name == board_name:
+
+                    # get the board data
+                    current_board  = board
+                    ret_status = Ret.CODE.RET_OK
+                    break
+
+            if ret_status != Ret.CODE.RET_OK:
+                if len(all_boards) == jira_boards.total:
+                    ret_status = Ret.CODE.RET_ERROR_BOARD_NOT_FOUND
+                else:
+                    all_boards.extend(jira_boards)
+                    start_at += 50
 
     if ( ret_status == Ret.CODE.RET_OK ) and \
        ( current_board is not None ):
 
         write_dict[BOARD_KEY] = current_board.name
 
-        sprints = jira.sprints(current_board.id)
+        try:
+            sprints = jira.sprints(current_board.id)
 
-        printer.print_info(
-            f"found {len(sprints)} sprints in board {current_board.name}:",
-            *[sprint.name for sprint in sprints]
+            printer.print_info(
+                f"found {len(sprints)} sprints in board {current_board.name}:",
+                *[sprint.name for sprint in sprints]
             )
 
-        if len(sprints) > 0:
+        except: #pylint: disable=W0702
+            printer.print_info("No sprints found or the board doesnt support Sprints. Board:",
+                               current_board.name)
+
+        if sprints is not None:
             write_dict[SPRINTS_KEY] = [sprint.raw for sprint in sprints]
 
-    return write_dict
+    return write_dict, ret_status
    
