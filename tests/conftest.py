@@ -35,6 +35,7 @@ This file contains fixtures that are used by all tests in the tests folder.
 # Imports
 ################################################################################
 
+import os
 import subprocess
 import pytest
 
@@ -47,10 +48,15 @@ import pytest
 ################################################################################
 
 
-class Helpers: # pylint: disable=too-few-public-methods
+class Helpers:  # pylint: disable=too-few-public-methods
     """
     Helper class for common fixtures.
     """
+
+    PROFILE_COMMAND = "profile"
+    CI_PROFILE_NAME = "ci_profile"
+    CI_JIRA_SERVER_URL = "http://localhost:2990/jira"
+    CI_JIRA_USER_TOKEN = os.environ["CI_JIRA_USER_TOKEN"]
 
     @staticmethod
     def run_pyjiracli(arguments) -> subprocess.CompletedProcess:
@@ -75,9 +81,37 @@ class Helpers: # pylint: disable=too-few-public-methods
                               # Do not run command in shell. Otherwise, it will not work on Linux.
                               shell=False)
 
+    @staticmethod
+    def create_profile() -> subprocess.CompletedProcess:
+        """
+        Create a profile for testing.
+        Found in this class for easier reuse between commands.
+
+        Returns:
+            subprocess.CompletedProcess[bytes]: The result of the command. 
+            Includes return code, stdout and stderr.
+        """
+        return Helpers.run_pyjiracli([Helpers.PROFILE_COMMAND, "--add",
+                                      "--url", Helpers.CI_JIRA_SERVER_URL,
+                                      "--token", Helpers.CI_JIRA_USER_TOKEN,
+                                      Helpers.CI_PROFILE_NAME])
+
+    @staticmethod
+    def remove_profile() -> subprocess.CompletedProcess:
+        """
+        Remove a profile for testing.
+        Found in this class for easier reuse between commands.
+
+        Returns:
+            subprocess.CompletedProcess[bytes]: The result of the command. 
+            Includes return code, stdout and stderr.
+        """
+        return Helpers.run_pyjiracli([Helpers.PROFILE_COMMAND, "--remove", Helpers.CI_PROFILE_NAME])
+
 ################################################################################
 # Functions
 ################################################################################
+
 
 @pytest.fixture
 def helpers() -> Helpers:
