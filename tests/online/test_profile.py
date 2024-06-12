@@ -1,5 +1,5 @@
 """
-Tests for the import command.
+Tests for the profile command.
 Requires a Jira instance to be running.
 """
 
