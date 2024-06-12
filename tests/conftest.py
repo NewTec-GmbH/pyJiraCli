@@ -56,7 +56,7 @@ class Helpers:  # pylint: disable=too-few-public-methods
     PROFILE_COMMAND = "profile"
     CI_PROFILE_NAME = "ci_profile"
     CI_JIRA_SERVER_URL = "http://localhost:2990/jira"
-    CI_JIRA_USER_TOKEN = os.environ["CI_JIRA_USER_TOKEN"]
+    CI_JIRA_USER_TOKEN = os.environ.get("CI_JIRA_USER_TOKEN", "DummyToken")
 
     @staticmethod
     def run_pyjiracli(arguments) -> subprocess.CompletedProcess:
