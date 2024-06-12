@@ -70,7 +70,7 @@ class Helpers:  # pylint: disable=too-few-public-methods
             subprocess.CompletedProcess[bytes]: The result of the command. 
             Includes return code, stdout and stderr.
         """
-        args = ["pyJiraCli", "--verbose"]  # The executable to run.
+        args = ["pyJiraCli"]  # The executable to run.
         args.extend(arguments)  # Add the arguments to the command.
 
         return subprocess.run(args,
