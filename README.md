@@ -15,6 +15,7 @@ pyJiraCli is a command-line tool designed for handling Jira tickets efficiently.
   * [Search](#search)
   * [Print](#print)
   * [Profile](#profile)
+  * [Get_Sprints](#get_sprints)
 * [Add a command](#add-a-command)
 * [Examples](#examples)
   * [JSON example file](#json-example-file)
@@ -51,12 +52,13 @@ usage: pyJiraCli [-h] [--user <username>] [--password <password>] [--version] [-
 A CLI tool to import and export Jira issues between server and JSON files.
 
 positional arguments:
-  {export,import,search,login,delete,print}
-    export              export jira issue to JSON file
+  {export,import,search,print,profile,get_sprints}
+    export              Export a ticket from a Jira Server to a JSON file.
     import              Import a Jira Issue from a JSON file.
     search              Search for the Jira server for issues using the specified filter string.
     print               Print the Jira Issue details to the console.
-    profile             Print the Jira Issue details to the console.
+    profile             Add, update or delete server profiles.
+    get_sprints         Get all sprints in a board and save the sprint data into a JSON file.
 
 options:
   -h, --help            show this help message and exit
@@ -247,6 +249,30 @@ pyJiraCli profile new_profile --token This-Is-an-Example-Token --cert C:\\Path\\
 ```
 
 This will create a new profile with the name "new_profile" and saves all possible profile information.
+
+### Get_Sprints
+
+Analog to the export command for issue, you can get raw Sprint data for boards. \
+The board name needs to fit the name on the jira server. \
+You can choose where to store the data with the --file option.
+
+```cmd
+pyJiraCli get_sprints --help
+```
+
+Output:
+
+```cmd
+usage: pyJiraCli get_sprints [-h] [--file <path to file>] board
+
+positional arguments:
+  board                 The board for which the sprints shall be stored.
+
+options:
+  -h, --help            show this help message and exit
+  --file <path to file>
+                        Absolute file path or filepath relativ to the current working directory. The file format must be JSON.
+```
 
 ## Add a command
 

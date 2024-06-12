@@ -35,11 +35,13 @@
 import os
 import ctypes
 
-from pyJiraCli.ret import Ret
+from pyJiraCli.ret import Ret, Warnings
+from pyJiraCli.printer import Printer, PrintType
 ################################################################################
 # Variables
 ################################################################################
 FILE_ATTRIBUTE_HIDDEN = 0x02
+printer = Printer()
 ################################################################################
 # Classes
 ################################################################################
@@ -53,6 +55,49 @@ class FileHandler:
         self._path = None
         self._parent_path = None
         self._content = None
+
+    def process_file_argument(self, default_name:str, file_arg:str) -> Ret.CODE:
+        """ Get the filename. Handle possible extension errors 
+            with the filename provided via the -file option.
+            If a path to a file was supplied, the path will be kept.
+            The returned filename will be without extension.
+
+        Args:
+            issue_key (str): The current issue key. 
+            arg_file (str):  The -file option string provided via the console.
+
+        Returns:
+            File:   The filename according to the -file option.
+                    The extension will be added later.
+        """
+        ret_status = Ret.CODE.RET_OK
+
+        if file_arg is None:
+            ret_status = self.set_filepath(f".\\{default_name}.json")
+
+        else:
+            ret_status = self.set_filepath(file_arg)
+
+            if ret_status == Ret.CODE.RET_OK:
+                ext = self.get_file_extension()
+
+                if ext is None:
+                    ret_status = self.set_filepath(os.path.join(self.get_parent_path(),
+                                                                f'{default_name}.json'))
+
+                elif ext != '.json':
+                    printer.print_error(PrintType.WARNING,
+                                        Warnings.CODE.WARNING_UNKNOWN_FILE_EXTENSION)
+
+                    path, ext = os.path.splitext(self.get_path())
+
+                    ret_status = self.set_filepath(path + '.json')
+
+            else:
+                # file or the parent directory exist and the file has the proper file format
+                pass
+
+        return ret_status
 
     def set_filepath(self, path:str) -> Ret.CODE:
         """ Set the path for the file contained in this Instance.
