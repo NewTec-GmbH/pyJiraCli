@@ -6,7 +6,6 @@
     {
       "externalId":"1",
       "issuetype":{
-        "id": "10104",
         "name":"Bug"
       },
       "summary":"Fix tool documentation.",
@@ -15,7 +14,7 @@
     {
       "externalId":"2",
       "issuetype":{
-        "id": "10103"
+        "name": "New Feature"
       },
       "summary":"Perform initial project actions"
     },

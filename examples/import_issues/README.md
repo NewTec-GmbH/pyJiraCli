@@ -3,7 +3,7 @@
 Importing an issue or set of issues to the Jira Server is done using the `import` command.
 
 ```cmd
-pyJiraCli --profile my_profile import .\examples\import_issues.json\single_issue.json
+pyJiraCli --profile my_profile import ./examples/import_issues/single_issue.json
 ```
 
 Use the `--verbose` flag to receive confirmation when issues are successfully created.
@@ -19,12 +19,34 @@ The JSON file that describes the issues to be imported requires the following fo
 - Other fields that can be applied to the issue, required or optional, must be defined by the user depending on the project. This is done by adding more keys to the issue object.
 - To determine which issue types and fields are available, please contact your Jira administrator.
 
+Note:
+The `id` key for `issuetype` is not used in the examples as it can lead to errors in the test server. However it looks like this:
+
+```json
+{
+  "projectKey":{
+    "key":"TESTPROJ"
+  },
+  "issues":[
+    {
+      "externalId":"1",
+      "issuetype":{
+        "id":"5",
+        "name":"Bug"
+      },
+      "summary":"Fix tool documentation.",
+      "labels" : ["label1", "label2"]
+    }
+  ]
+}
+```
+
 ## Import single issue
 
 See: [Single issue template](./single_issue.json)
 
 ```cmd
-pyJiraCli --profile my_profile import .\examples\import_issues.json\single_issue.json
+pyJiraCli --profile my_profile import ./examples/import_issues/single_issue.json
 ```
 
 The `labels` array is an optional field.
@@ -34,15 +56,14 @@ The `labels` array is an optional field.
 See: [Multiple issue template](./multiple_issues.json)
 
 ```cmd
-pyJiraCli --profile my_profile import .\examples\import_issues.json\multiple_issues.json
-```
+pyJiraCli --profile my_profile import ./examples/import_issues/single_issue.json
 
 ## Import sub-issues
 
 See: [Sub-issues template](./sub_issues.json)
 
 ```cmd
-pyJiraCli --profile my_profile import .\examples\import_issues.json\sub_issues.json
+pyJiraCli --profile my_profile import ./examples/import_issues/single_issue.json
 ```
 
 - Sub-issues must have a corresponding Sub-Issue/Task type.
