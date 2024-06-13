@@ -58,41 +58,30 @@ OUTPUT_FILE_NAME = "export.json"
 
 def test_import_export(helpers: Helpers):
     """ Test the import and export commands. """
-
-    # Make sure the profile exists by removing and adding it again.
-
-    # Remove existing profile. Ignore if failed.
-    helpers.remove_profile()
-
-    # Create the profile.
-    ret = helpers.create_profile()
-    assert Ret.CODE.RET_OK == ret.returncode
+    credentials = ["--server", helpers.CI_JIRA_SERVER_URL,
+                   "--token", helpers.CI_JIRA_USER_TOKEN]
 
     # Import a single issue.
     ret = helpers.run_pyjiracli(
-        ["--profile", helpers.CI_PROFILE_NAME,
-         "import", "./examples/import_issues/single_issue.json"])
+        credentials + ["import", "./examples/import_issues/single_issue.json"])
 
     assert Ret.CODE.RET_OK == ret.returncode
 
     # Import multiple issues.
     ret = helpers.run_pyjiracli(
-        ["--profile", helpers.CI_PROFILE_NAME,
-         "import", "./examples/import_issues/multiple_issues.json"])
+        credentials + ["import", "./examples/import_issues/multiple_issues.json"])
 
     assert Ret.CODE.RET_OK == ret.returncode
 
     # Import sub-issues.
     ret = helpers.run_pyjiracli(
-        ["--profile", helpers.CI_PROFILE_NAME,
-         "import", "./examples/import_issues/sub_issues.json"])
+        credentials + ["import", "./examples/import_issues/sub_issues.json"])
 
     assert Ret.CODE.RET_OK == ret.returncode
 
     # Export the single issue.
     ret = helpers.run_pyjiracli(
-        ["--profile", helpers.CI_PROFILE_NAME,
-         "export", ISSUE_KEY, "--file", OUTPUT_FILE_NAME])
+        credentials + ["export", ISSUE_KEY, "--file", OUTPUT_FILE_NAME])
 
     assert Ret.CODE.RET_OK == ret.returncode
 
