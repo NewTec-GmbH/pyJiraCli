@@ -2,11 +2,9 @@ name: Jira Online Tests
 
 # Controls when the action will run.
 on:
-  push: # TODO: Should be removed before merging the PR
-    branches: ["**"]
   pull_request:
-    # A pull request to the main branch.
-    branches: [main]
+    # A pull request to the main branch or a release branch.
+    branches: [main, release/**]
   release:
     # A release, pre-release, or draft of a release is published.
     types: [published]
