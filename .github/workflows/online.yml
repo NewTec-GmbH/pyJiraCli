@@ -2,6 +2,8 @@ name: Jira Online Tests
 
 # Controls when the action will run.
 on:
+  push: # TODO: Should be removed before merging the PR
+    branches: ["**"]
   pull_request:
     # A pull request to the main branch.
     branches: [main]

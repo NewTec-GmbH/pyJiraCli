@@ -56,9 +56,9 @@ def test_help(helpers: Helpers):
     Test the help argument of the pyJiraCli and all its commands.
     """
 
-    # No arguments should return the help message.
+    # No arguments should return the help message but fail as a required arg is missing.
     ret = helpers.run_pyjiracli([])
-    assert Ret.CODE.RET_OK == ret.returncode  # Expect success.
+    assert Ret.CODE.RET_ERROR_ARGPARSE == ret.returncode  # Expect error.
 
     # Test the help option of the pyJiraCli.
     ret = helpers.run_pyjiracli(["--help"])
