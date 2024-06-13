@@ -151,12 +151,14 @@ class Server:
             else:
                 # No user information given
                 ret_status = Ret.CODE.RET_ERROR
-                _printer.print_info("Missing token, username or password.")
+                _printer.print_error(
+                    PrintType.ERROR, "Missing token, username or password.")
 
         else:
             # No server information given
             ret_status = Ret.CODE.RET_ERROR
-            _printer.print_info("Missing server URL to connect to.")
+            _printer.print_error(
+                PrintType.ERROR, "Missing server URL to connect to.")
 
         if (Ret.CODE.RET_OK == ret_status) and (self._user is not None):
             _printer.print_info(
