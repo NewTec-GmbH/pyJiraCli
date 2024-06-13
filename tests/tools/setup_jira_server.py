@@ -137,7 +137,7 @@ def create_cert() -> None:
 if __name__ == "__main__":
 
     start_time = time.time()
-    TIMEOUT_MINS = 15
+    TIMEOUT_MINS = 20
 
     print(
         "waiting for instance of jira to be running, to add a user for CI system:\n"
@@ -156,7 +156,7 @@ if __name__ == "__main__":
 
         except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as ex:
             print(f"encountered {ex} while waiting for the JiraServer docker")
-            time.sleep(20)
+            time.sleep(60)
 
         if start_time + 60 * TIMEOUT_MINS < time.time():
             raise TimeoutError(
