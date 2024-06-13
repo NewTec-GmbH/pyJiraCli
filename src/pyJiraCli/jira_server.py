@@ -151,14 +151,16 @@ class Server:
             else:
                 # No user information given
                 ret_status = Ret.CODE.RET_ERROR
+                print("Missing user information to login.")
                 _printer.print_error(
-                    PrintType.ERROR, "Missing token, username or password.")
+                    PrintType.ERROR, Ret.CODE.RET_ERROR_JIRA_LOGIN)
 
         else:
             # No server information given
             ret_status = Ret.CODE.RET_ERROR
+            print("Missing server URL to connect to.")
             _printer.print_error(
-                PrintType.ERROR, "Missing server URL to connect to.")
+                PrintType.ERROR, Ret.CODE.RET_ERROR_JIRA_LOGIN)
 
         if (Ret.CODE.RET_OK == ret_status) and (self._user is not None):
             _printer.print_info(
