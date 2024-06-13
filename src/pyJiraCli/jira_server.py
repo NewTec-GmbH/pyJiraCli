@@ -168,38 +168,6 @@ class Server:
 
         return ret_status
 
-    def try_login(self, url:str, api_token:str, cert_path:str) -> Ret.CODE:
-        """ Attempts to log in with the provided information.
-
-        Args:
-            url (str): The URL of the server to log in to.
-            api_token (str): The API token used for authentication.
-            cert_path (str): The path to the server certificate.
-
-        Returns:
-            Ret.CODE: Status code indicating the success or failure of the login attempt.
-        """
-
-        ret_status = Ret.CODE.RET_OK
-        _printer = Printer()
-
-        self._cert_path = cert_path
-        self._server_url = url
-
-        if self._cert_path is None:
-            _printer.print_error(PrintType.WARNING, Warnings.CODE.WARNING_UNSAVE_CONNECTION)
-
-        if api_token is None:
-            # prompt user to enter username and password
-            user, password = _get_user_input()
-
-            ret_status = self._login_with_password(user, password)
-
-        else:
-            ret_status = self._login_with_token(api_token)
-
-        return ret_status
-
     def get_handle(self) -> JIRA:
         """ Return the handle to the jira rest api.
 
@@ -208,7 +176,7 @@ class Server:
         """
         return self._jira_obj
 
-    def search(self, search_str:str, max_results:int) -> Ret.CODE:
+    def search(self, search_str: str, max_results: int) -> Ret.CODE:
         """ Search for jira issues with a search string.
             The maximum of found issues can be set.
 
@@ -245,7 +213,7 @@ class Server:
         """
         return self._search_result
 
-    def _login_with_token(self, token:str) -> Ret.CODE:
+    def _login_with_token(self, token: str) -> Ret.CODE:
         """ Login to jira with API token.
 
         Args:
@@ -262,14 +230,14 @@ class Server:
 
         try:
             if self._cert_path is None:
-                self._jira_obj = JIRA(server= self._server_url,
-                                      options={'verify' : False},
+                self._jira_obj = JIRA(server=self._server_url,
+                                      options={'verify': False},
                                       token_auth=token,
                                       max_retries=self._max_retries,
                                       timeout=self._timeout)
             else:
                 self._jira_obj = JIRA(server=self._server_url,
-                                      options={'verify' : self._cert_path},
+                                      options={'verify': self._cert_path},
                                       token_auth=token,
                                       max_retries=self._max_retries,
                                       timeout=self._timeout)
@@ -284,7 +252,7 @@ class Server:
                 reqex.MissingSchema,
                 reqex.InvalidSchema,
                 reqex.InvalidURL) as e:
-            #print error
+            # print error
             ret_status = Ret.CODE.RET_ERROR_JIRA_LOGIN
 
             if isinstance(e, exceptions.JIRAError):
@@ -305,7 +273,7 @@ class Server:
 
         return ret_status
 
-    def _login_with_password(self, user:str, pw:str) -> Ret.CODE:
+    def _login_with_password(self, user: str, pw: str) -> Ret.CODE:
         """ Login to jira with username and password.
 
         Args:
@@ -324,13 +292,13 @@ class Server:
             if self._cert_path is None:
                 self._jira_obj = JIRA(server=self._server_url,
                                       basic_auth=(user, pw),
-                                      options={'verify' : False},
+                                      options={'verify': False},
                                       max_retries=self._max_retries,
                                       timeout=self._timeout)
             else:
                 self._jira_obj = JIRA(server=self._server_url,
                                       basic_auth=(user, pw),
-                                      options={'verify' : self._cert_path},
+                                      options={'verify': self._cert_path},
                                       max_retries=self._max_retries,
                                       timeout=self._timeout)
 
@@ -344,7 +312,7 @@ class Server:
                 reqex.MissingSchema,
                 reqex.InvalidSchema,
                 reqex.InvalidURL) as e:
-            #print error
+            # print error
             ret_status = Ret.CODE.RET_ERROR_JIRA_LOGIN
 
             if isinstance(e, exceptions.JIRAError):
@@ -365,6 +333,8 @@ class Server:
 ################################################################################
 # Functions
 ################################################################################
+
+
 def _get_user_input() -> tuple[str, str]:
     """Prompt the user to enter a username and a password.
     The password input is masked with '*' characters.
@@ -379,6 +349,7 @@ def _get_user_input() -> tuple[str, str]:
     print('\r', end='')
 
     return username, password
+
 
 if os.name == 'nt':
     def _get_password() -> str:
