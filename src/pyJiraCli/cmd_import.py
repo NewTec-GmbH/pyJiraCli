@@ -128,6 +128,41 @@ def _separate_issue_types(issue_dict: dict) -> tuple[list, list]:
     return issues_list, sub_issues_list
 
 
+def _create_components(jira: JIRA, components: list[dict], project_key: str) -> Ret.CODE:
+    """ Create the components on the Jira server. """
+
+    ret_status = Ret.CODE.RET_OK
+
+    for component in components:
+        component_name = component.get("name")
+        component_description = component.get("description")
+
+        # Check if the component name and description are specified.
+        if (component_name is None) or (component_description is None):
+            ret_status = Ret.CODE.RET_ERROR
+            LOG.print_error(
+                PrintType.ERROR, Ret.CODE.RET_ERROR)
+            break
+
+        # Create the component.
+        created_component = jira.create_component(
+            name=component_name,
+            project=project_key,
+            description=component_description)
+
+        # Check if the component was created successfully.
+        if created_component is None:
+            ret_status = Ret.CODE.RET_ERROR
+            LOG.print_error(
+                PrintType.ERROR, Ret.CODE.RET_ERROR)
+            break
+
+        LOG.print_info(
+            f"Created component {created_component.name}.")
+
+    return ret_status
+
+
 def _create_issues(jira: JIRA,
                    issue_dict: dict,
                    issues_list: list[dict]) -> tuple[Ret.CODE, dict]:
@@ -270,6 +305,10 @@ def _cmd_import(input_file: str, server: Server) -> Ret.CODE:
 
         if project_key is None:
             ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
+
+    if Ret.CODE.RET_OK == ret_status:
+        components = issue_dict.get("components", [])
+        ret_status = _create_components(jira, components, project_key)
 
     if Ret.CODE.RET_OK == ret_status:
         issues_list = []

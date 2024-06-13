@@ -1,0 +1,26 @@
+{
+  "projectKey":{
+    "key":"PROJGR"
+  },
+  "components":[
+    {
+      "name":"PM",
+      "description":"Project Management"
+    }
+  ],
+  "issues":[
+    {
+      "externalId":"1",
+      "issuetype":{
+        "name":"Bug"
+      },
+      "summary":"Fix tool documentation.",
+      "labels" : ["label1", "label2"],
+      "components":[
+        {
+          "name": "PM"
+        }
+      ]
+    }
+  ]
+}
