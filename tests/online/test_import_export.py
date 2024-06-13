@@ -71,21 +71,21 @@ def test_import_export(helpers: Helpers):
     # Import a single issue.
     ret = helpers.run_pyjiracli(
         ["--profile", helpers.CI_PROFILE_NAME,
-         "import", "examples/import_issues/single_issue.json"])
+         "import", "./examples/import_issues/single_issue.json"])
 
     assert Ret.CODE.RET_OK == ret.returncode
 
     # Import multiple issues.
     ret = helpers.run_pyjiracli(
         ["--profile", helpers.CI_PROFILE_NAME,
-         "import", "examples/import_issues/multiple_issues.json"])
+         "import", "./examples/import_issues/multiple_issues.json"])
 
     assert Ret.CODE.RET_OK == ret.returncode
 
     # Import sub-issues.
     ret = helpers.run_pyjiracli(
         ["--profile", helpers.CI_PROFILE_NAME,
-         "import", "examples/import_issues/sub_issues.json"])
+         "import", "./examples/import_issues/sub_issues.json"])
 
     assert Ret.CODE.RET_OK == ret.returncode
 
