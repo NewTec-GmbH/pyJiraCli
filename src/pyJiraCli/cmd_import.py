@@ -68,8 +68,9 @@ def register(subparser) -> argparse.ArgumentParser:
     Returns:
         obj:  The command parser object of this module.
     """
-    sub_parser_import: argparse.ArgumentParser = subparser.add_parser('import',
-                                                                      help="Import a Jira Issue from a JSON file.")
+    sub_parser_import: argparse.ArgumentParser = \
+        subparser.add_parser('import',
+                             help="Import a Jira Issue from a JSON file.")
 
     sub_parser_import.add_argument('file',
                                    type=str,
@@ -92,6 +93,7 @@ def execute(args, server: Server) -> Ret.CODE:
 
     ret_status = Ret.CODE.RET_ERROR
 
+    # pylint: disable=R0801
     if server is None:
         LOG.print_error(
             "Connection to server is not established. Please login first.")

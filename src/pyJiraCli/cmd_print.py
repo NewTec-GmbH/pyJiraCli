@@ -64,15 +64,15 @@ def register(subparser) -> argparse.ArgumentParser:
         obj:    The command parser object of this module.
     """
 
-    sub_parser_search: argparse.ArgumentParser = \
+    sub_parser_print: argparse.ArgumentParser = \
         subparser.add_parser('print',
                              help="Print the Jira Issue details to the console.")
 
-    sub_parser_search.add_argument('issueKey',
-                                   type=str,
-                                   help="The Jira Issue Key of the Issue to print.")
+    sub_parser_print.add_argument('issueKey',
+                                  type=str,
+                                  help="The Jira Issue Key of the Issue to print.")
 
-    return sub_parser_search
+    return sub_parser_print
 
 
 def execute(args, server: Server) -> Ret.CODE:
@@ -88,6 +88,7 @@ def execute(args, server: Server) -> Ret.CODE:
     """
     ret_status = Ret.CODE.RET_ERROR
 
+    # pylint: disable=R0801
     if server is None:
         LOG.print_error(
             "Connection to server is not established. Please login first.")

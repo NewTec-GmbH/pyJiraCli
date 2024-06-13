@@ -113,6 +113,7 @@ def execute(args, server: Server) -> Ret.CODE:
     """
     ret_status = Ret.CODE.RET_ERROR
 
+    # pylint: disable=R0801
     if server is None:
         LOG.print_error(
             "Connection to server is not established. Please login first.")
