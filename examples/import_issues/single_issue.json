@@ -6,6 +6,7 @@
     {
       "externalId":"1",
       "issuetype":{
+        "id": "10103",
         "name":"Bug"
       },
       "summary":"Fix tool documentation.",
