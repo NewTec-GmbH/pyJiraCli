@@ -1,5 +1,5 @@
 """
-Tests for the import command.
+Tests for the import and export commands.
 Requires a Jira instance to be running.
 """
 
