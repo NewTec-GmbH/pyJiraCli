@@ -46,7 +46,7 @@ from pyJiraCli.ret import Ret
 BOARD_KEY = 'board'
 SPRINTS_KEY = 'sprints'
 
-printer = Printer()
+LOG = Printer()
 ################################################################################
 # Classes
 ################################################################################
@@ -54,17 +54,19 @@ printer = Printer()
 ################################################################################
 # Functions
 ################################################################################
+
+
 def register(subparser) -> argparse.ArgumentParser:
     """ Register subparser commands for the get_sprints module.
-        
+
     Args:
         subparser (obj):   The command subparser object provided via __main__.py.
-        
+
     Returns:
         obj:    The commmand parser object of this module.
     """
 
-    sub_parser_get_sprints : argparse.ArgumentParser = \
+    sub_parser_get_sprints: argparse.ArgumentParser = \
         subparser.add_parser('get_sprints',
                              help="Get all sprints in a board and \
                              save the sprint data into a JSON file.")
@@ -74,35 +76,46 @@ def register(subparser) -> argparse.ArgumentParser:
                                         help="The board for which the sprints shall be stored.")
 
     sub_parser_get_sprints.add_argument('--file',
-                                   type=str,
-                                   metavar='<path to file>',
-                                   help="Absolute file path or filepath relativ " + \
-                                        "to the current working directory. " + \
+                                        type=str,
+                                        metavar='<path to file>',
+                                        help="Absolute file path or filepath relativ " +
+                                        "to the current working directory. " +
                                         "The file format must be JSON. ")
 
     return sub_parser_get_sprints
 
-def execute(args) -> Ret.CODE:
+
+def execute(args, server: Server) -> Ret.CODE:
     """ This function servers as entry point for the command 'print'.
         It will be stored as callback for this moduls subparser command.
-    
+
     Args: 
         args (obj): The command line arguments.
-        
+        server (Server): The server object to interact with the Jira server.
+
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
-    return _cmd_get_sprints(args.board, args.profile, args.file)
+    ret_status = Ret.CODE.RET_ERROR
 
-def _cmd_get_sprints(board_name:str, profile_name:str, filepath:str) -> Ret.CODE:
+    if server is None:
+        LOG.print_error(
+            "Connection to server is not established. Please login first.")
+    else:
+        ret_status = _cmd_get_sprints(args.board, args.file, server)
+
+    return ret_status
+
+
+def _cmd_get_sprints(board_name: str, filepath: str, server: Server) -> Ret.CODE:
     """ Load the sprints in the board and store the data in a 
         JSON file.
 
     Args:
         board_name (str): The unique board name in string format.
-        profile_name (str): The server profile that shall be used.
         filepath (str): The absolute filepath or a relative filepath to
                         the current working directory.
+        server (Server): The server object to interact with the Jira server.
 
     Returns:
         Ret.CODE: The return status of the module.
@@ -111,88 +124,83 @@ def _cmd_get_sprints(board_name:str, profile_name:str, filepath:str) -> Ret.CODE
 
     file = File()
 
-    write_dict, ret_status = _get_sprints(board_name, profile_name)
+    write_dict, ret_status = _get_sprints(board_name, server)
 
     if ret_status == Ret.CODE.RET_OK:
-        writeable_board_name =  write_dict[BOARD_KEY].replace(' ', '_').replace(':', '')
-        ret_status = file.process_file_argument(f"{writeable_board_name}_Sprints", filepath)
+        writeable_board_name = write_dict[BOARD_KEY].replace(
+            ' ', '_').replace(':', '')
+        ret_status = file.process_file_argument(
+            f"{writeable_board_name}_Sprints", filepath)
 
     if ret_status == Ret.CODE.RET_OK:
         write_data = json.dumps(write_dict, indent=4)
         ret_status = file.write_file(write_data)
 
     if ret_status == Ret.CODE.RET_OK:
-        printer.print_info('File saved at:', file.get_path())
+        LOG.print_info('File saved at:', file.get_path())
 
     return ret_status
 
-def _get_sprints(board_name:str, profile_name:str) -> tuple[dict, Ret.CODE]:
+
+def _get_sprints(board_name: str, server: Server) -> tuple[dict, Ret.CODE]:
     """ Retrieve sprint information for a given board and profile.
 
     Args:
         board_name (str): The name of the board to retrieve sprint information from.
-        profile_name (str): The name of the server profile.
+        server (Server): The server object to interact with the Jira server.
 
     Returns:
         dict: A dictionary containing sprint information for the specified board and profile.
     """
 
-    server = Server()
-    jira = None
-
     write_dict = {}
     sprints = None
+    jira = server.get_handle()
 
-    ret_status = server.login(profile_name)
+    # get all boards the current user has access to
+    all_boards = []
+    start_at = 0
+    current_board = None
 
-    if ret_status == Ret.CODE.RET_OK:
-        jira = server.get_handle()
+    ret_status = Ret.CODE.RET_ERROR
 
-        # get all boards the current user has access to
-        all_boards = []
-        start_at = 0
-        current_board = None
+    while ret_status == Ret.CODE.RET_ERROR:
+        jira_boards = jira.boards(startAt=start_at, maxResults=50)
 
-        ret_status = Ret.CODE.RET_ERROR
+        # search all boards for the one we're looking for
+        for board in jira_boards:
+            if board.name == board_name:
 
-        while ret_status == Ret.CODE.RET_ERROR:
-            jira_boards = jira.boards(startAt=start_at, maxResults=50)
+                # get the board data
+                current_board = board
+                ret_status = Ret.CODE.RET_OK
+                break
 
-            # search all boards for the one we're looking for
-            for board in jira_boards:
-                if board.name == board_name:
+        if ret_status != Ret.CODE.RET_OK:
+            if len(all_boards) == jira_boards.total:
+                ret_status = Ret.CODE.RET_ERROR_BOARD_NOT_FOUND
+            else:
+                all_boards.extend(jira_boards)
+                start_at += 50
 
-                    # get the board data
-                    current_board  = board
-                    ret_status = Ret.CODE.RET_OK
-                    break
-
-            if ret_status != Ret.CODE.RET_OK:
-                if len(all_boards) == jira_boards.total:
-                    ret_status = Ret.CODE.RET_ERROR_BOARD_NOT_FOUND
-                else:
-                    all_boards.extend(jira_boards)
-                    start_at += 50
-
-    if ( ret_status == Ret.CODE.RET_OK ) and \
-       ( current_board is not None ):
+    if (ret_status == Ret.CODE.RET_OK) and \
+       (current_board is not None):
 
         write_dict[BOARD_KEY] = current_board.name
 
         try:
             sprints = jira.sprints(current_board.id)
 
-            printer.print_info(
+            LOG.print_info(
                 f"found {len(sprints)} sprints in board {current_board.name}:",
                 *[sprint.name for sprint in sprints]
             )
 
-        except: #pylint: disable=W0702
-            printer.print_info("No sprints found or the board doesnt support Sprints. Board:",
-                               current_board.name)
+        except:  # pylint: disable=W0702
+            LOG.print_info("No sprints found or the board doesnt support Sprints. Board:",
+                           current_board.name)
 
         if sprints is not None:
             write_dict[SPRINTS_KEY] = [sprint.raw for sprint in sprints]
 
     return write_dict, ret_status
-   

@@ -36,11 +36,14 @@
 import json
 import argparse
 
+from pyJiraCli.printer import Printer
 from pyJiraCli.jira_server import Server
 from pyJiraCli.ret import Ret
 ################################################################################
 # Variables
 ################################################################################
+
+LOG = Printer()
 
 ################################################################################
 # Classes
@@ -49,55 +52,64 @@ from pyJiraCli.ret import Ret
 ################################################################################
 # Functions
 ################################################################################
+
+
 def register(subparser) -> argparse.ArgumentParser:
     """ Register subparser commands for the print module.
-        
+
     Args:
         subparser (obj):   The command subparser object provided via __main__.py.
-        
+
     Returns:
         obj:    The command parser object of this module.
     """
 
-    sub_parser_search : argparse.ArgumentParser = subparser.add_parser('print',
-                                      help="Print the Jira Issue details to the console.")
+    sub_parser_search: argparse.ArgumentParser = \
+        subparser.add_parser('print',
+                             help="Print the Jira Issue details to the console.")
 
     sub_parser_search.add_argument('issueKey',
-                            type=str,
-                            help="The Jira Issue Key of the Issue to print.")
+                                   type=str,
+                                   help="The Jira Issue Key of the Issue to print.")
 
     return sub_parser_search
 
-def execute(args) -> Ret.CODE:
+
+def execute(args, server: Server) -> Ret.CODE:
     """ This function servers as entry point for the command 'print'.
         It will be stored as callback for this modules subparser command.
-    
+
     Args: 
         args (obj): The command line arguments.
-        
+        server (Server): The server object to interact with the Jira server.
+
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
-    return _cmd_print(args.issueKey, args.profile)
+    ret_status = Ret.CODE.RET_ERROR
 
-def _cmd_print(issue_key:str, profile_name:str) -> Ret.CODE:
+    if server is None:
+        LOG.print_error(
+            "Connection to server is not established. Please login first.")
+    else:
+        ret_status = _cmd_print(args.issueKey, server)
+
+    return ret_status
+
+
+def _cmd_print(issue_key: str, server: Server) -> Ret.CODE:
     """ Load the data of the provided issue key and 
         and print it to the command line.
 
     Args:
         issue_key (str): The unique issue key in string format.
-        profile_name (str): The server profile that shall be used.
+        server (Server): The server object to interact with the Jira server.
 
     Returns:
         Ret.CODE: The return status of the module.
     """
     ret_status = Ret.CODE.RET_OK
-    server = Server()
-
-    ret_status = server.login(profile_name)
-
-    if ret_status == Ret.CODE.RET_OK:
-        ret_status = server.search(f"key = {issue_key}", max_results=1)
+    ret_status = server.search(f"key = {issue_key}", max_results=1)
 
     if ret_status == Ret.CODE.RET_OK:
         issue = server.get_search_result().pop().raw

@@ -48,6 +48,8 @@ from pyJiraCli.ret import Ret
 # Variables
 ################################################################################
 
+LOG = Printer()
+
 ################################################################################
 # Classes
 ################################################################################
@@ -67,7 +69,7 @@ def register(subparser) -> argparse.ArgumentParser:
         obj:  The command parser object of this module.
     """
     sub_parser_import: argparse.ArgumentParser = subparser.add_parser('import',
-                                        help="Import a Jira Issue from a JSON file.")
+                                                                      help="Import a Jira Issue from a JSON file.")
 
     sub_parser_import.add_argument('file',
                                    type=str,
@@ -76,19 +78,27 @@ def register(subparser) -> argparse.ArgumentParser:
     return sub_parser_import
 
 
-def execute(args) -> Ret.CODE:
+def execute(args, server: Server) -> Ret.CODE:
     """ This function servers as entry point for the command 'import'.
         It will be stored as callback for this modules subparser command.
 
     Args: 
         args (obj):   The command line arguments.
-        profile_name (str): The server profile that shall be used.
+        server (Server): The server object to interact with the Jira server.
 
     Returns:
         Ret:   Ret.CODE.RET_OK if successful, corresponding error code if not
     """
 
-    return _cmd_import(args.file, args.profile)
+    ret_status = Ret.CODE.RET_ERROR
+
+    if server is None:
+        LOG.print_error(
+            "Connection to server is not established. Please login first.")
+    else:
+        ret_status = _cmd_import(args.file, server)
+
+    return ret_status
 
 
 def _separate_issue_types(issue_dict: dict) -> tuple[list, list]:
@@ -117,7 +127,6 @@ def _separate_issue_types(issue_dict: dict) -> tuple[list, list]:
 
 
 def _create_issues(jira: JIRA,
-                   printer: Printer,
                    issue_dict: dict,
                    issues_list: list[dict]) -> tuple[Ret.CODE, dict]:
     """ Create the issues on the Jira server.
@@ -141,13 +150,13 @@ def _create_issues(jira: JIRA,
 
         if external_id is None:
             ret_status = Ret.CODE.RET_ERROR
-            printer.print_error(
+            LOG.print_error(
                 PrintType.ERROR, "External ID must be specified.")
             break
 
         if external_id in id_cross_ref_dict:
             ret_status = Ret.CODE.RET_ERROR
-            printer.print_error(
+            LOG.print_error(
                 PrintType.ERROR, f"External ID {external_id} is not unique.")
             break
 
@@ -159,20 +168,19 @@ def _create_issues(jira: JIRA,
 
         if created_issue is None:
             ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
-            printer.print_error(
+            LOG.print_error(
                 PrintType.ERROR, f"Issue {external_id} could not be created.")
             break
 
         # Store the external ID and the created issue key in a dictionary for later reference.
         id_cross_ref_dict[external_id] = created_issue.key
 
-        printer.print_info(f"Created issue {created_issue.key}.")
+        LOG.print_info(f"Created issue {created_issue.key}.")
 
     return ret_status, id_cross_ref_dict
 
 
 def _create_sub_issues(jira: JIRA,
-                       printer: Printer,
                        issue_dict: dict,
                        sub_issues_list: list[dict],
                        id_cross_ref_dict: dict) -> Ret.CODE:
@@ -211,14 +219,14 @@ def _create_sub_issues(jira: JIRA,
             if parent_external_id is None:
                 # Both parent key and external ID are missing.
                 ret_status = Ret.CODE.RET_ERROR
-                printer.print_error(
+                LOG.print_error(
                     PrintType.ERROR, "Parent key or external ID must be specified.")
                 break
 
             if parent_external_id not in id_cross_ref_dict:
                 # Parent external ID does not exist.
                 ret_status = Ret.CODE.RET_ERROR
-                printer.print_error(
+                LOG.print_error(
                     PrintType.ERROR, f"Parent external ID\
                             {parent_external_id} does not exist.")
                 break
@@ -235,39 +243,33 @@ def _create_sub_issues(jira: JIRA,
 
         if created_issue is None:
             ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
-            printer.print_error(
+            LOG.print_error(
                 PrintType.ERROR, f"Sub-issue {external_id} could not be created.")
             break
 
-        printer.print_info(
+        LOG.print_info(
             f"Created sub-issue {created_issue.key} with parent {issue.get('parent').get('key')}.")
 
     return ret_status
 
 
-def _cmd_import(input_file: str, profile_name: str) -> Ret.CODE:
+def _cmd_import(input_file: str, server: Server) -> Ret.CODE:
     """ Import a jira issue from a JSON file.
         Create a jira issue on the server with the data
         read from the input file.
 
     Args:
         input_file (str):  The filepath to the input file.
-        profile_name (str): The server profile that shall be used.
-
+        server (Server): The server object to interact with the Jira server.
 
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
-    server = Server()
-    printer = Printer()
+
     issue_dict = {}
 
     # Read the data from the file.
     ret_status, issue_dict = _read_file(input_file)
-
-    if Ret.CODE.RET_OK == ret_status:
-        # Connect to Jira Server
-        ret_status = server.login(profile_name)
 
     if Ret.CODE.RET_OK == ret_status:
         # Get the Jira handle to use the Jira API directly.
@@ -278,7 +280,7 @@ def _cmd_import(input_file: str, profile_name: str) -> Ret.CODE:
 
         if project_key is None:
             ret_status = Ret.CODE.RET_ERROR
-            printer.print_error(
+            LOG.print_error(
                 PrintType.ERROR, "Project key must be specified.")
 
     if Ret.CODE.RET_OK == ret_status:
@@ -291,7 +293,6 @@ def _cmd_import(input_file: str, profile_name: str) -> Ret.CODE:
 
         # Create the normal issues.
         ret_status, id_cross_ref_dict = _create_issues(jira,
-                                                       printer,
                                                        issue_dict,
                                                        issues_list)
 
@@ -299,7 +300,6 @@ def _cmd_import(input_file: str, profile_name: str) -> Ret.CODE:
         if Ret.CODE.RET_OK == ret_status:
             # Create the sub issues.
             ret_status = _create_sub_issues(jira,
-                                            printer,
                                             issue_dict,
                                             sub_issues_list,
                                             id_cross_ref_dict)

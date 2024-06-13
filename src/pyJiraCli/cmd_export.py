@@ -42,6 +42,7 @@ from pyJiraCli.jira_server import Server
 from pyJiraCli.file_handler import FileHandler as File
 from pyJiraCli.printer import Printer
 from pyJiraCli.ret import Ret
+
 ################################################################################
 # Variables
 ################################################################################
@@ -53,48 +54,61 @@ LOG = Printer()
 ################################################################################
 # Functions
 ################################################################################
+
+
 def register(subparser) -> argparse.ArgumentParser:
     """ Register the subparser commands for the export module.
-        
+
     Args:
         subparser (obj):   The command subparser object provided via __main__.py.
-        
+
     Returns:
         obj:    The command parser obj of this module.
     """
 
-    sub_parser_export: argparse.ArgumentParser = subparser.add_parser('export',
-                                     help="Export a ticket from a Jira Server to a JSON file.")
+    sub_parser_export: argparse.ArgumentParser = \
+        subparser.add_parser('export',
+                             help="Export a ticket from a Jira Server to a JSON file.")
 
     sub_parser_export.add_argument('issue',
-                           type=str,
-                           help="Jira issue key")
+                                   type=str,
+                                   help="Jira issue key")
 
     sub_parser_export.add_argument('--file',
-                           type=str,
-                           metavar='<path to file>',
-                           help="Absolute file path or filepath relative " + \
-                                "to the current working directory. " + \
-                                "The file format must be JSON. "  \
-                                "If a different file format is provided, " + \
-                                "the file extension will be replaced.")
+                                   type=str,
+                                   metavar='<path to file>',
+                                   help="Absolute file path or filepath relative " +
+                                   "to the current working directory. " +
+                                   "The file format must be JSON. "
+                                   "If a different file format is provided, " +
+                                   "the file extension will be replaced.")
 
     return sub_parser_export
 
-def execute(args) -> Ret.CODE:
+
+def execute(args, server: Server) -> Ret.CODE:
     """ This function servers as entry point for the command 'export'.
         It will be stored as callback for this modules subparser command.
-    
+
     Args: 
         args (obj): The command line arguments.
-        
+        server (Server): The server object to interact with the Jira server.
+
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
-    return _cmd_export(args)
+    ret_status = Ret.CODE.RET_ERROR
 
-# export command function
-def _cmd_export(args) -> Ret.CODE:
+    if server is None:
+        LOG.print_error(
+            "Connection to server is not established. Please login first.")
+    else:
+        ret_status = _cmd_export(args, server)
+
+    return ret_status
+
+
+def _cmd_export(args, server: Server) -> Ret.CODE:
     """ Export a jira ticket to a JSON file.
 
         The function takes the commandline arguments and extracts the
@@ -104,10 +118,11 @@ def _cmd_export(args) -> Ret.CODE:
         take the issue key as filename.
 
         The data will be written and stored in a JSON file.
-    
+
     Args:
         args (obj): The command line arguments.
-        
+        server (Server): The server object to interact with the Jira server.
+
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
@@ -120,34 +135,27 @@ def _cmd_export(args) -> Ret.CODE:
     if ret_status == Ret.CODE.RET_OK:
         ret_status = _export_ticket_to_file(args.issue,
                                             file,
-                                            args.profile)
+                                            server)
 
     if ret_status == Ret.CODE.RET_OK:
         LOG.print_info('File saved at:', file.get_path())
 
     return ret_status
 
-def _export_ticket_to_file(issue_key:str, file:File, profile_name:str) -> Ret.CODE:
+
+def _export_ticket_to_file(issue_key: str, file: File, server: Server) -> Ret.CODE:
     """ Export a jira issue from the server
         and write the issue data to a JSON file.
-        
+
     Args:
         issue_key (str):    The issue key as a string.
         file (File):        The file object for the output file.
-        profile_name (str): The server profile that shall be used.
+        server (Server):    The server object to interact with the Jira server.
 
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
-# pylint: disable=R0801
-    ret_status = Ret.CODE.RET_OK
-    server = Server()
-
-    # login to server, get jira handle obj
-    ret_status = server.login(profile_name)
-
-    if ret_status == Ret.CODE.RET_OK:
-        ret_status = server.search(f"key = {issue_key}", max_results=1)
+    ret_status = server.search(f"key = {issue_key}", max_results=1)
 
     if ret_status == Ret.CODE.RET_OK:
 
