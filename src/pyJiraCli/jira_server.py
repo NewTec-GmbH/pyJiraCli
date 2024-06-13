@@ -34,6 +34,7 @@
 ################################################################################
 import os
 import sys
+from typing import Optional
 
 import certifi
 import urllib3
@@ -61,6 +62,8 @@ else:
 ################################################################################
 # Classes
 ################################################################################
+
+
 class Server:
     """This class handles connection to the Jira server.
 
@@ -81,12 +84,22 @@ class Server:
 
         urllib3.disable_warnings()
 
-    def login(self, profile_name:str) -> Ret.CODE:
+    # pylint: disable=R0913
+    def login(self,
+              arg_profile_name: Optional[str],
+              arg_server_url: Optional[str],
+              arg_token: Optional[str],
+              arg_username: Optional[str],
+              arg_password: Optional[str]) -> Ret.CODE:
         """ Login to Jira server with user info or login info from 
             stored token or user file.
 
         Args:
-            profile_name (str): The server profile that shall be used.
+            arg_profile_name (str): The server profile that shall be used.
+            arg_server_url (str): The URL of the server to log in to.
+            arg_token (str): The API token used for authentication.
+            arg_username (str): The username for authentication.
+            arg_password (str): The password for authentication.
 
         returns:
             Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
@@ -95,30 +108,59 @@ class Server:
         _printer = Printer()
         _profile = ProfileHandler()
 
-        ret_status = _profile.load(profile_name)
+        if arg_profile_name is not None:
+            # Login with profile
+            ret_status = _profile.load(arg_profile_name)
 
-        if ret_status == Ret.CODE.RET_OK:
-            self._cert_path = _profile.get_cert_path()
-            self._server_url = _profile.get_server_url()
-            api_token = _profile.get_api_token()
+            if ret_status == Ret.CODE.RET_OK:
+                self._cert_path = _profile.get_cert_path()
+                self._server_url = _profile.get_server_url()
+                api_token = _profile.get_api_token()
+
+                _printer.print_info('Loggin in to:', self._server_url)
+
+                if self._cert_path is None:
+                    _printer.print_error(
+                        PrintType.WARNING, Warnings.CODE.WARNING_UNSAVE_CONNECTION)
+
+                if api_token is None:
+                    # prompt user to enter username and password
+                    user, password = _get_user_input()
+                    ret_status = self._login_with_password(user, password)
+                else:
+                    ret_status = self._login_with_token(api_token)
+
+        elif arg_server_url is not None:
+            # Login with server URL
+
+            self._server_url = arg_server_url
 
             if self._cert_path is None:
-                _printer.print_error(PrintType.WARNING, Warnings.CODE.WARNING_UNSAVE_CONNECTION)
+                _printer.print_error(
+                    PrintType.WARNING, Warnings.CODE.WARNING_UNSAVE_CONNECTION)
 
             _printer.print_info('Loggin in to:', self._server_url)
 
-            if api_token is None:
-                # prompt user to enter username and password
-                user, password = _get_user_input()
-
-                ret_status = self._login_with_password(user, password)
-
+            if arg_token is not None:
+                # Login with token
+                ret_status = self._login_with_token(arg_token)
+            elif (arg_username is not None) and (arg_password is not None):
+                # Login with user and password
+                ret_status = self._login_with_password(
+                    arg_username, arg_password)
             else:
-                ret_status = self._login_with_token(api_token)
+                # No user information given
+                ret_status = Ret.CODE.RET_ERROR
+                _printer.print_info("Missing token, username or password.")
 
-            if ret_status == Ret.CODE.RET_OK and \
-            self._user is not None:
-                _printer.print_info('Login successful. Logged in as:', self._user)
+        else:
+            # No server information given
+            ret_status = Ret.CODE.RET_ERROR
+            _printer.print_info("Missing server URL to connect to.")
+
+        if (Ret.CODE.RET_OK == ret_status) and (self._user is not None):
+            _printer.print_info(
+                'Login successful. Logged in as:', self._user)
 
         return ret_status
 
