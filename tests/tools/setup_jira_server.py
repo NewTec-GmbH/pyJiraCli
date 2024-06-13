@@ -104,19 +104,24 @@ def create_project() -> None:
     """Create a project in Jira Server for CI testing purposes."""
 
     try:
-        project = JIRA(
+        jira = JIRA(
             CI_JIRA_URL,
             basic_auth=(CI_JIRA_ADMIN, CI_JIRA_ADMIN_PASSWORD),
-        ).create_project(CI_JIRA_TEST_PROJECT)
+        )
+
+        project = jira.create_project(CI_JIRA_TEST_PROJECT)
 
         if project is False:
             print("Failed to create project.")
         else:
             print("Test project", CI_JIRA_TEST_PROJECT)
+            issue_types = jira.project_issue_types(CI_JIRA_TEST_PROJECT)
+            print("Issue types", issue_types)
 
     except Exception as e:  # pylint: disable=broad-except
         if "A project with that name already exists." not in str(e):
             raise e
+
 
 def create_cert() -> None:
     """Create a certificate for Jira Server for CI testing purposes."""
