@@ -87,7 +87,7 @@ def register(subparser) -> argparse.ArgumentParser:
                              type=str,
                              metavar="<certificate path>",
                              required=False,
-                             help="The server url for the profile.")
+                             help="The server SSL certificate.")
 
     datatype_desc = sub_parser_profile.add_argument_group(
         title='profile operations',
