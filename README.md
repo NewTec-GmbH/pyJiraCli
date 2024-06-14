@@ -175,6 +175,8 @@ pyJiraCli search --max 50 "project=PROJ order by created desc"
 
 This will find the 50 latest issues in project PROJ and display them by descending creation date.
 
+More examples can be found in [the examples folder](./examples/search/README.md).
+
 ### Print
 
 Print the Jira Issue details to the console.
