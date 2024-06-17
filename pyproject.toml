@@ -9,14 +9,16 @@ description = "A CLI tool to import and export Jira Issues between server and js
 readme = "README.md"
 requires-python = ">=3.9"
 authors = [
-    { name = "Timo Heitzmann", email = "heitzmann_timo@web.de" }
+    { name = "Timo Heitzmann", email = "heitzmann_timo@web.de" },
+    { name = "Gabryel Reyes", email = "gabryelrdiaz@gmail.com" }
 ]
 license = {text = "BSD 3-Clause"}
 classifiers = [
     "License :: OSI Approved :: BSD 3-Clause",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10"
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11"
 ]
 
 dependencies = [
