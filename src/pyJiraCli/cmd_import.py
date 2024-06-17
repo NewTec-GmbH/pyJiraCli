@@ -139,9 +139,7 @@ def _create_components(jira: JIRA, components: list[dict], project_key: str) -> 
 
         # Check if the component name and description are specified.
         if (component_name is None) or (component_description is None):
-            ret_status = Ret.CODE.RET_ERROR
-            LOG.print_error(
-                PrintType.ERROR, Ret.CODE.RET_ERROR)
+            ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
             break
 
         # Create the component.
@@ -152,9 +150,7 @@ def _create_components(jira: JIRA, components: list[dict], project_key: str) -> 
 
         # Check if the component was created successfully.
         if created_component is None:
-            ret_status = Ret.CODE.RET_ERROR
-            LOG.print_error(
-                PrintType.ERROR, Ret.CODE.RET_ERROR)
+            ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
             break
 
         LOG.print_info(
