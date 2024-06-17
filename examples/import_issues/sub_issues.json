@@ -1,12 +1,11 @@
 {
   "projectKey":{
-    "key":"NEWPROJECT"
+    "key":"TESTPROJ"
   },
   "issues":[
     {
       "externalId":"1",
       "issuetype":{
-        "id": "1",
         "name":"Bug"
       },
       "summary":"Fix tool documentation.",
@@ -25,7 +24,7 @@
     {
       "externalId":"3",
       "issuetype":{
-        "id": "5"
+        "name":"Sub-task"
       },
       "summary":"Fix argument documentation.",
       "parent": {

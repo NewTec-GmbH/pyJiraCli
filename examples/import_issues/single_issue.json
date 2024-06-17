@@ -1,12 +1,11 @@
 {
   "projectKey":{
-    "key":"NEWPROJECT"
+    "key":"TESTPROJ"
   },
   "issues":[
     {
       "externalId":"1",
       "issuetype":{
-        "id": "1",
         "name":"Bug"
       },
       "summary":"Fix tool documentation.",
