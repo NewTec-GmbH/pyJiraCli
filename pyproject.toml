@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyJiraCli"
-version = "1.2.0"
+version = "2.0.0"
 description = "A CLI tool to import and export Jira Issues between server and json files."
 readme = "README.md"
 requires-python = ">=3.9"
