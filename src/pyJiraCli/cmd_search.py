@@ -89,7 +89,8 @@ def register(subparser) -> argparse.ArgumentParser:
                                    type=int,
                                    metavar='<MAX>',
                                    help="Maximum number of issues that may be found." +
-                                   "Default is 50.")
+                                   "Default is 50." +
+                                   "If set to 0, all issues will be searched.")
 
     sub_parser_search.add_argument('--save',
                                    type=str,
