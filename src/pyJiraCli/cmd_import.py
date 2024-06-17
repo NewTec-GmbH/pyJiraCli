@@ -42,7 +42,7 @@ from jira.client import JIRA
 
 from pyJiraCli.jira_server import Server
 from pyJiraCli.file_handler import FileHandler as File
-from pyJiraCli.printer import Printer, PrintType
+from pyJiraCli.printer import Printer
 from pyJiraCli.ret import Ret
 ################################################################################
 # Variables
@@ -151,15 +151,11 @@ def _create_issues(jira: JIRA,
         external_id = issue.pop('externalId', None)
 
         if external_id is None:
-            ret_status = Ret.CODE.RET_ERROR
-            LOG.print_error(
-                PrintType.ERROR, "External ID must be specified.")
+            ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
             break
 
         if external_id in id_cross_ref_dict:
-            ret_status = Ret.CODE.RET_ERROR
-            LOG.print_error(
-                PrintType.ERROR, f"External ID {external_id} is not unique.")
+            ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
             break
 
         # Set the project key.
@@ -170,8 +166,6 @@ def _create_issues(jira: JIRA,
 
         if created_issue is None:
             ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
-            LOG.print_error(
-                PrintType.ERROR, f"Issue {external_id} could not be created.")
             break
 
         # Store the external ID and the created issue key in a dictionary for later reference.
@@ -220,17 +214,12 @@ def _create_sub_issues(jira: JIRA,
 
             if parent_external_id is None:
                 # Both parent key and external ID are missing.
-                ret_status = Ret.CODE.RET_ERROR
-                LOG.print_error(
-                    PrintType.ERROR, "Parent key or external ID must be specified.")
+                ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
                 break
 
             if parent_external_id not in id_cross_ref_dict:
                 # Parent external ID does not exist.
-                ret_status = Ret.CODE.RET_ERROR
-                LOG.print_error(
-                    PrintType.ERROR, f"Parent external ID\
-                            {parent_external_id} does not exist.")
+                ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
                 break
 
             # Set the parent key from the cross reference dictionary,
@@ -245,8 +234,7 @@ def _create_sub_issues(jira: JIRA,
 
         if created_issue is None:
             ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
-            LOG.print_error(
-                PrintType.ERROR, f"Sub-issue {external_id} could not be created.")
+            LOG.print_info(f"Sub-issue {external_id} could not be created.")
             break
 
         LOG.print_info(
@@ -281,9 +269,7 @@ def _cmd_import(input_file: str, server: Server) -> Ret.CODE:
         project_key = issue_dict.get('projectKey', {}).get('key')
 
         if project_key is None:
-            ret_status = Ret.CODE.RET_ERROR
-            LOG.print_error(
-                PrintType.ERROR, "Project key must be specified.")
+            ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
 
     if Ret.CODE.RET_OK == ret_status:
         issues_list = []

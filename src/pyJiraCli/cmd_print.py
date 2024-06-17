@@ -90,8 +90,7 @@ def execute(args, server: Server) -> Ret.CODE:
 
     # pylint: disable=R0801
     if server is None:
-        LOG.print_error(
-            "Connection to server is not established. Please login first.")
+        ret_status = Ret.CODE.RET_ERROR_JIRA_LOGIN
     else:
         ret_status = _cmd_print(args.issueKey, server)
 

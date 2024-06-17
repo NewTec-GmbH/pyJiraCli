@@ -36,7 +36,7 @@
 import json
 import argparse
 
-from pyJiraCli.printer import Printer
+from pyJiraCli.printer import Printer, PrintType
 from pyJiraCli.file_handler import FileHandler as File
 from pyJiraCli.jira_server import Server
 from pyJiraCli.ret import Ret
@@ -96,12 +96,11 @@ def execute(args, server: Server) -> Ret.CODE:
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
-    ret_status = Ret.CODE.RET_ERROR
+    ret_status = Ret.CODE.RET_ERROR_JIRA_LOGIN
 
     # pylint: disable=R0801
     if server is None:
-        LOG.print_error(
-            "Connection to server is not established. Please login first.")
+        LOG.print_error(PrintType.ERROR, ret_status)
     else:
         ret_status = _cmd_get_sprints(args.board, args.file, server)
 
