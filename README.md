@@ -205,18 +205,19 @@ The output depends on the fields configured by the Jira server.
 
 ### Profile
 
-Add, delete or update server profiles. At least one server profile is needed to use the pyJiraCli tool.
+Add, delete or update server profiles.
 
 The profile contains following data:
 
-* name: A Unique profile name by which you can reference your profile. (required)
+* name: A unique profile name by which you can reference your profile. (required)
 * url: The server url where your jira server is located. (required)
 * token: An api token to allow for faster access. (optional)
 * certificate: A server certificate for your company/jira instance. (optional)
 
-When adding a profile, the profile name and the server url are required.
-The token and certificate are optional and can also be added later on,
+When adding a profile, the server url and token are required.
+The certificate is optional and can also be added later on,
 with the --update option.
+Username and password are not valid to create a profile for security reasons.
 
 ```cmd
 pyJiraCli profile --help
@@ -225,17 +226,15 @@ pyJiraCli profile --help
 Output:
 
 ```cmd
-usage: pyJiraCli profile [-h] [--url <profile url>] [--token <api token>] [--cert <certificate path>] (--add | --remove | --update) <profile name>
+usage: pyJiraCli profile [-h] [--cert <certificate path>] (--add | --remove | --update) <profile name>
 
 options:
   -h, --help            show this help message and exit
 
 Profile Data:
   <profile name>        The Name under which the profile will be saved.
-  --url <profile url>   The server url for the profile.
-  --token <api token>   The api token for login with this server profile
   --cert <certificate path>
-                        The server url for the profile.
+                        The server SSL certificate.
 
 profile operations:
   Only one operation type can be processed at a time.
@@ -248,7 +247,7 @@ profile operations:
 Example:
 
 ```cmd
-pyJiraCli profile new_profile --url https://my-jira-instance.com --token This-Is-an-Example-Token --cert C:\\Path\\To\\Certificate.crt --add
+pyJiraCli --server https://my-jira-instance.com --token This-Is-an-Example-Token profile --add new_profile --cert C:\\Path\\To\\Certificate.crt 
 ```
 
 or
