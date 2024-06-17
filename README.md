@@ -47,7 +47,7 @@ pyJiraCli --help
 Output:
 
 ```cmd
-usage: pyJiraCli [-h] [--user <username>] [--password <password>] [--version] [--verbose] {export,import,search,login,delete,print} ...
+usage: pyJiraCli [-h] [--profile <profile>] [-u <user>] [-p <password>] [-t <token>] [-s <server URL>] [--version] [-v] {export,import,search,print,profile,get_sprints} ...
 
 A CLI tool to import and export Jira issues between server and JSON files.
 
@@ -55,17 +55,24 @@ positional arguments:
   {export,import,search,print,profile,get_sprints}
     export              Export a ticket from a Jira Server to a JSON file.
     import              Import a Jira Issue from a JSON file.
-    search              Search for the Jira server for issues using the specified filter string.
+    search              Search for the Jira server for issuesusing the specified filter string.
     print               Print the Jira Issue details to the console.
     profile             Add, update or delete server profiles.
     get_sprints         Get all sprints in a board and save the sprint data into a JSON file.
 
-options:
+optional arguments:
   -h, --help            show this help message and exit
-  --profile <server profile>
-                        The name of the server profile which shall be used for this process
-  --version, -v         show program's version number and exit
-  --verbose             Print full command details before executing the command. Enables logs of type INFO and WARNING.
+  --profile <profile>   The name of the server profile which shall be used for this process
+  -u <user>, --user <user>
+                        The user to authenticate with the Jira server
+  -p <password>, --password <password>
+                        The password to authenticate with the Jira server
+  -t <token>, --token <token>
+                        The token to authenticate with the Jira server
+  -s <server URL>, --server <server URL>
+                        The Jira server URL to connect to.
+  --version             show program's version number and exit
+  -v, --verbose         Print full command details before executing the command. Enables logs of type INFO and WARNING.
 
 Copyright (c) 2024 NewTec GmbH - BSD 3-Clause - Find the project on GitHub: documentation, https://github.com/NewTec-GmbH/pyJiraCli
 ```
@@ -198,17 +205,19 @@ The output depends on the fields configured by the Jira server.
 
 ### Profile
 
-Add, delete or update server profiles. At least one server profile is needed to use the pyJiraCli tool.
+Add, delete or update server profiles.
 
 The profile contains following data:
-  - name: A Unique profile name by which you can reference your profile. (required)
-  - url: The server url where your jira server is located. (required)
-  - token: An api token to allow for faster access. (optional)
-  - certificate: A server certificate for your company/jira instance. (optional)
 
-When adding a profile, the profile name and the server url are required. 
-The token and certificate are optional and can also be added later on, 
+* name: A unique profile name by which you can reference your profile. (required)
+* url: The server url where your jira server is located. (required)
+* token: An api token to allow for faster access. (optional)
+* certificate: A server certificate for your company/jira instance. (optional)
+
+When adding a profile, the server url and token are required.
+The certificate is optional and can also be added later on,
 with the --update option.
+Username and password are not valid to create a profile for security reasons.
 
 ```cmd
 pyJiraCli profile --help
@@ -217,17 +226,15 @@ pyJiraCli profile --help
 Output:
 
 ```cmd
-usage: pyJiraCli profile [-h] [--url <profile url>] [--token <api token>] [--cert <certificate path>] (--add | --remove | --update) <profile name>
+usage: pyJiraCli profile [-h] [--cert <certificate path>] (--add | --remove | --update) <profile name>
 
 options:
   -h, --help            show this help message and exit
 
 Profile Data:
   <profile name>        The Name under which the profile will be saved.
-  --url <profile url>   The server url for the profile.
-  --token <api token>   The api token for login with this server profile
   --cert <certificate path>
-                        The server url for the profile.
+                        The server SSL certificate.
 
 profile operations:
   Only one operation type can be processed at a time.
@@ -240,9 +247,11 @@ profile operations:
 Example:
 
 ```cmd
-pyJiraCli profile new_profile --url https://my-jira-instance.com --token This-Is-an-Example-Token --cert C:\\Path\\To\\Certificate.crt --add
+pyJiraCli --server https://my-jira-instance.com --token This-Is-an-Example-Token profile --add new_profile --cert C:\\Path\\To\\Certificate.crt 
 ```
+
 or
+
 ```cmd
 pyJiraCli profile new_profile --url https://my-jira-instance.com --add
 pyJiraCli profile new_profile --token This-Is-an-Example-Token --cert C:\\Path\\To\\Certificate.crt --update
@@ -339,23 +348,25 @@ def execute(args):
 from pyJiraCli import cmd_import
 from pyJiraCli import cmd_export
 from pyJiraCli import cmd_search
-from pyJiraCli import cmd_login
 from pyJiraCli import cmd_print
+from pyJiraCli import cmd_profile
+from pyJiraCli import cmd_get_sprints
 
 from pyJiraCli import cmd_custom # import your module
 
 ################################################################################
 # Variables
 ################################################################################
-# add commando modules here
-_CMD_MODULS = [
+
+# Add command modules here
+_CMD_MODULES = [
     cmd_export,
     cmd_import,
     cmd_search,
-    cmd_login,
     cmd_print,
-    cmd_custom # add your command module to the module list
-    ]
+    cmd_profile,
+    cmd_get_sprints
+]
 ```
 
 </p>

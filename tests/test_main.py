@@ -38,9 +38,9 @@ def test_help():
     Test the help argument of the pyJiraCli and all its commands.
     """
 
-    # No arguments should return the help message.
+    # No arguments should return the help message but fail as a required arg is missing.
     ret = run_pyjiracli([])
-    assert Ret.CODE.RET_OK == ret.returncode  # Expect success.
+    assert Ret.CODE.RET_ERROR_ARGPARSE == ret.returncode  # Expect error.
 
     # Test the help argument of the pyJiraCli.
     ret = run_pyjiracli(["--help"])
@@ -60,6 +60,7 @@ def test_help():
     for command in command_list:
         ret = run_pyjiracli([command, "--help"])
         assert Ret.CODE.RET_OK == ret.returncode
+
 
 def test_export():
     """
@@ -86,6 +87,7 @@ def test_import():
 
     # Further tests will be done in the future, as the command will change.
 
+
 def test_print():
     """
     Test the print command of the pyJiraCli.
@@ -110,6 +112,7 @@ def test_search():
     assert Ret.CODE.RET_ERROR_ARGPARSE == ret.returncode
 
     # Further tests will be done in the future, as the command will change.
+
 
 def test_profile():
     """

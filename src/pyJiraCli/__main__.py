@@ -45,8 +45,9 @@ from pyJiraCli import cmd_print
 from pyJiraCli import cmd_profile
 from pyJiraCli import cmd_get_sprints
 
-from pyJiraCli.printer import Printer, PrintType
+from pyJiraCli.printer import Printer
 from pyJiraCli.ret import Ret
+from pyJiraCli.jira_server import Server
 from pyJiraCli.version import __version__, __author__, __email__, __repository__, __license__
 
 ################################################################################
@@ -54,7 +55,7 @@ from pyJiraCli.version import __version__, __author__, __email__, __repository__
 ################################################################################
 
 # Add command modules here
-_CMD_MODULS = [
+_CMD_MODULES = [
     cmd_export,
     cmd_import,
     cmd_search,
@@ -62,6 +63,12 @@ _CMD_MODULS = [
     cmd_profile,
     cmd_get_sprints
 ]
+
+PROG_NAME = "pyJiraCli"
+PROG_DESC = "A CLI tool to import and export Jira issues between server and JSON files."
+PROG_COPYRIGHT = "Copyright (c) 2024 NewTec GmbH - " + __license__
+PROG_GITHUB = "Find the project on GitHub: " + __repository__
+PROG_EPILOG = PROG_COPYRIGHT + " - " + PROG_GITHUB
 
 ################################################################################
 # Classes
@@ -83,23 +90,45 @@ def add_parser() -> argparse.ArgumentParser:
     Returns:
         obj:  The parser object for commandline arguments.
     """
-    parser = argparse.ArgumentParser(prog='pyJiraCli',
-                                     description="A CLI tool to import and export Jira issues \
-                                                  between server and JSON files.",
-                                     epilog="Copyright (c) 2024 NewTec GmbH - " +
-                                     __license__ +
-                                     " - Find the project on GitHub: " + __repository__)
+    parser = argparse.ArgumentParser(prog=PROG_NAME,
+                                     description=PROG_DESC,
+                                     epilog=PROG_EPILOG)
 
     parser.add_argument('--profile',
                         type=str,
-                        metavar='<server profile>',
+                        metavar='<profile>',
                         help="The name of the server profile which shall be used for this process")
 
-    parser.add_argument("--version", "-v",
+    parser.add_argument('-u',
+                        '--user',
+                        type=str,
+                        metavar='<user>',
+                        help="The user to authenticate with the Jira server")
+
+    parser.add_argument('-p',
+                        '--password',
+                        type=str,
+                        metavar='<password>',
+                        help="The password to authenticate with the Jira server")
+
+    parser.add_argument('-t',
+                        '--token',
+                        type=str,
+                        metavar='<token>',
+                        help="The token to authenticate with the Jira server")
+
+    parser.add_argument('-s',
+                        '--server',
+                        type=str,
+                        metavar='<server URL>',
+                        help="The Jira server URL to connect to.")
+
+    parser.add_argument("--version",
                         action="version",
                         version="%(prog)s " + __version__)
 
-    parser.add_argument("--verbose",
+    parser.add_argument("-v",
+                        "--verbose",
                         action="store_true",
                         help="Print full command details before executing the command.\
                             Enables logs of type INFO and WARNING.")
@@ -107,7 +136,7 @@ def add_parser() -> argparse.ArgumentParser:
     subparser = parser.add_subparsers(required='True')
 
     # Register command modules und argparser arguments
-    for mod in _CMD_MODULS:
+    for mod in _CMD_MODULES:
         cmd_parser = mod.register(subparser)
         cmd_parser.set_defaults(func=mod.execute)
 
@@ -122,14 +151,8 @@ def main() -> Ret.CODE:
     """
     ret_status = Ret.CODE.RET_OK
     printer = Printer()
+    server = Server()
     args = None
-
-    # Get all arguments except the program name.
-    input_arguments = sys.argv[1:]
-
-    # If no arguments are given, show help. Required by Python 3.8.
-    if 0 == len(input_arguments):
-        input_arguments.append("--help")
 
     # Older windows consoles doesn't support ANSI color codes by default.
     # Enable the Windows built-in ANSI support.
@@ -138,25 +161,37 @@ def main() -> Ret.CODE:
     # Get parser
     parser = add_parser()
 
-    args = parser.parse_args(input_arguments)
+    # Parse command line arguments.
+    # If error occurs, exits the program from this point with code 2.
+    args = parser.parse_args()
 
-    assert args is not None
-    assert args.func is not None
+    if args is None:
+        ret_status = Ret.CODE.RET_ERROR_ARGPARSE
+    else:
+        # In verbose mode print all program arguments
+        if args.verbose:
+            printer.set_verbose()
+            print("Program arguments: ")
 
-    # In verbose mode print all program arguments
-    if args.verbose:
-        printer.set_verbose()
-        print("Program arguments: ")
+            for arg in vars(args):
+                print(f"* {arg} = {vars(args)[arg]}")
+            print("\n")
 
-        for arg in vars(args):
-            print(f"* {arg} = {vars(args)[arg]}")
-        print("\n")
+        # Login to Jira server
+        ret_status = server.login(args.profile,
+                                  args.server,
+                                  args.token,
+                                  args.user,
+                                  args.password)
 
-    # call command function and return exit status
-    ret_status = args.func(args)
+        if Ret.CODE.RET_OK != ret_status:
+            # Login unsuccessful.
+            # Passed to the command function as None.
+            # The command decides if it needs a server connection.
+            server = None
 
-    if ret_status != Ret.CODE.RET_OK:
-        printer.print_error(PrintType.ERROR, ret_status)
+        # Call command function and return exit status
+        ret_status = args.func(args, server)
 
     return ret_status
 
