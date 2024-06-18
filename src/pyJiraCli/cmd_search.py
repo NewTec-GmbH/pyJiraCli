@@ -78,7 +78,7 @@ def register(subparser) -> argparse.ArgumentParser:
     # subparser for the 'search' command
     sub_parser_search: argparse.ArgumentParser = \
         subparser.add_parser('search',
-                             help="Search for the Jira server for issues" +
+                             help="Search for the Jira server for issues " +
                              "using the specified filter string.")
 
     sub_parser_search.add_argument('filter',
