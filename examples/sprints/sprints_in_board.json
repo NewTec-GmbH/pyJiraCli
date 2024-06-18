@@ -1,0 +1,45 @@
+{
+    "board": "BSP_BOARD: COMPONENT_1",
+    "sprints": [
+        {
+            "id": 1,
+            "self": "https://jira.company.zz/rest/sprint/1",
+            "state": "closed",
+            "name": "BSP_BOARD Sprint 1",
+            "startDate": "2023-05-03T11:33:00.000+02:00",
+            "endDate": "2023-05-24T11:33:00.000+02:00",
+            "completeDate": "2023-05-27T16:16:32.020+02:00",
+            "activatedDate": "2023-05-03T11:38:34.757+02:00",
+            "originBoardId": 135,
+            "goal": "",
+            "synced": false,
+            "autoStartStop": false
+        },
+        {
+            "id": 2,
+            "self": "https://jira.company.zz/rest/sprint/2",
+            "state": "closed",
+            "name": "BSP_BOARD Sprint 2",
+            "startDate": "2023-05-25T16:56:00.000+02:00",
+            "endDate": "2023-06-15T16:56:00.000+02:00",
+            "completeDate": "2023-06-18T08:21:31.175+02:00",
+            "activatedDate": "2023-05-27T16:16:45.705+02:00",
+            "originBoardId": 135,
+            "synced": false,
+            "autoStartStop": false
+        },
+        {
+            "id": 3,
+            "self": "https://jira.company.zz/rest/sprint/3",
+            "state": "active",
+            "name": "BSP_BOARD Sprint 3",
+            "startDate": "2024-06-16T16:56:00.000+02:00",
+            "endDate": "2024-07-05T16:56:00.000+02:00",
+            "activatedDate": "2024-06-18T08:22:05.030+02:00",
+            "originBoardId": 135,
+            "goal": "",
+            "synced": false,
+            "autoStartStop": false
+        }
+    ]
+}
