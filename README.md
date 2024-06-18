@@ -404,7 +404,7 @@ class Warnings(IntEnum):
 </details>
 
 ## Examples
-check out the all the [Examples](./examples) on how to use the pyJiraCli tool.
+Check out the all the [Examples](./examples) on how to use the pyJiraCli tool.
 
 ## Used Libraries
 
