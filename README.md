@@ -18,7 +18,6 @@ pyJiraCli is a command-line tool designed for handling Jira tickets efficiently.
   * [Get_Sprints](#get_sprints)
 * [Add a command](#add-a-command)
 * [Examples](#examples)
-  * [JSON example file](#json-example-file)
 * [Used Libraries](#used-libraries)
 * [Issues, Ideas And Bugs](#issues-ideas-and-bugs)
 * [License](#license)
@@ -405,23 +404,7 @@ class Warnings(IntEnum):
 </details>
 
 ## Examples
-
-### JSON example file
-
-  With version v1 the generated JSON files will have following format:
-
-```ticket.json```
-
-```json
-{
-    "issue_key" : "ISSUE-TEST-1043",
-    "project" : "ISSUE-TEST",
-    "duedate" : "08-23-2024",
-    "assignee" : "somebody else",
-}
-```
-
-  In further versions this might change with the possibility for the user to provide file templates on how JSON files shall be read and written
+check out the all the [Examples](./examples) on how to use the pyJiraCli tool.
 
 ## Used Libraries
 
@@ -429,7 +412,6 @@ Used 3rd party libraries which are not part of the standard Python package:
 
 * [jira](https://pypi.org/project/jira/) - Python library for interacting with JIRA via REST APIs - BSD License (BSD-2-Clause).
 * [colorama](https://github.com/tartley/colorama) - ANSI color support - BSD-3 License
-* [cryptography](https://pypi.org/project/cryptography/) - cryptography is a package which provides cryptographic recipes and primitives to Python developers. - Apache Software License, BSD License (Apache-2.0 OR BSD-3-Clause)
 * [toml](https://github.com/uiri/toml) - Parsing [TOML](https://en.wikipedia.org/wiki/TOML) - MIT License
 
 ## Issues, Ideas And Bugs
