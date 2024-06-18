@@ -47,3 +47,7 @@ if result.returncode != 0:
 ## Conclusion
 
 By integrating `pyJiraCli` into your Python scripts using the `subprocess` module, you can automate and streamline your Jira workflows. This guide provides a basic structure for running `pyJiraCli` commands within Python scripts. Modify this structure to fit your specific requirements and enhance your Jira management processes.
+
+## Examples
+
+To see how a script that utelizes pyJiraCli check out the example [here](./track_sprint_progress/README.md).
