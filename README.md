@@ -55,12 +55,12 @@ positional arguments:
   {export,import,search,print,profile,get_sprints}
     export              Export a ticket from a Jira Server to a JSON file.
     import              Import a Jira Issue from a JSON file.
-    search              Search for the Jira server for issuesusing the specified filter string.
+    search              Search for the Jira server for issues using the specified filter string.
     print               Print the Jira Issue details to the console.
     profile             Add, update or delete server profiles.
     get_sprints         Get all sprints in a board and save the sprint data into a JSON file.
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   --profile <profile>   The name of the server profile which shall be used for this process
   -u <user>, --user <user>
@@ -92,16 +92,17 @@ pyJiraCli export --help
 Output:
 
 ```cmd
-usage: pyJiraCli export [-h] [--path <folder_path>] [--filename <filename>] issue
+usage: pyJiraCli export [-h] [--file <path to file>] issue
 
 positional arguments:
   issue                 Jira issue key
 
 options:
   -h, --help            show this help message and exit
-  --path <folder_path>  Destination folder for the output file. Folder must exist.
-  --filename <filename>
-                        Name of the output file. Default is the issue key.
+  --file <path to file>
+                        Absolute file path or filepath relative to the current working directory. 
+                        The file format must be JSON.
+                        If a different file format is provided, the file extension will be replaced. 
 ```
 
 Example:
@@ -157,14 +158,15 @@ pyJiraCli search --help
 Output:
 
 ```cmd
-usage: pyJiraCli search [-h] [--max <MAX>] filter
+usage: pyJiraCli search [-h] [--max <MAX>] [--save <PATH TO FILE>] filter
 
 positional arguments:
-  filter       Filter string to search for. Must be in JQL format.
+  filter                Filter string to search for. Must be in JQL format.
 
 options:
-  -h, --help   show this help message and exit
-  --max <MAX>  Maximum number of issues that may be found. Default is 50.
+  -h, --help            show this help message and exit
+  --max <MAX>           Maximum number of issues that may be found.Default is 50.If set to 0, all issues will be searched.
+  --save <PATH TO FILE> Absolute filepath or filepath relative to the current work directory to a JSON file.
 ```
 
 Example:
@@ -212,7 +214,7 @@ Add, delete or update server profiles.
 The profile contains following data:
 
 * name: A unique profile name by which you can reference your profile. (required)
-* url: The server url where your jira server is located. (required)
+* server: The server url where your jira server is located. (required)
 * token: An api token to allow for faster access. (optional)
 * certificate: A server certificate for your company/jira instance. (optional)
 
@@ -250,13 +252,6 @@ Example:
 
 ```cmd
 pyJiraCli --server https://my-jira-instance.com --token This-Is-an-Example-Token profile --add new_profile --cert C:\\Path\\To\\Certificate.crt 
-```
-
-or
-
-```cmd
-pyJiraCli profile new_profile --url https://my-jira-instance.com --add
-pyJiraCli profile new_profile --token This-Is-an-Example-Token --cert C:\\Path\\To\\Certificate.crt --update
 ```
 
 This will create a new profile with the name "new_profile" and saves all possible profile information.
