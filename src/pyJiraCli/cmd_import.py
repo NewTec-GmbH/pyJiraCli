@@ -144,29 +144,28 @@ def _create_components(jira: JIRA, components: list[dict], project_key: str) -> 
         if already_exists:
             LOG.print_info(
                 f"Component {component.get('name')} already exists.")
-            continue
+        else:
+            component_name = component.get("name")
+            component_description = component.get("description")
 
-        component_name = component.get("name")
-        component_description = component.get("description")
+            # Check if the component name and description are specified.
+            if (component_name is None) or (component_description is None):
+                ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
+                break
 
-        # Check if the component name and description are specified.
-        if (component_name is None) or (component_description is None):
-            ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
-            break
+            # Create the component.
+            created_component = jira.create_component(
+                name=component_name,
+                project=project_key,
+                description=component_description)
 
-        # Create the component.
-        created_component = jira.create_component(
-            name=component_name,
-            project=project_key,
-            description=component_description)
+            # Check if the component was created successfully.
+            if created_component is None:
+                ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
+                break
 
-        # Check if the component was created successfully.
-        if created_component is None:
-            ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
-            break
-
-        LOG.print_info(
-            f"Created component {created_component.name}.")
+            LOG.print_info(
+                f"Created component {created_component.name}.")
 
     return ret_status
 
