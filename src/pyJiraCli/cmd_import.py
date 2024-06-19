@@ -133,7 +133,17 @@ def _create_components(jira: JIRA, components: list[dict], project_key: str) -> 
 
     ret_status = Ret.CODE.RET_OK
 
+    # Get the existing components of the project.
+    existing_components = jira.project_components(project_key)
+
     for component in components:
+        # Check if the component already exists.
+        if any((component.get("name") == existing_component.name)
+                for existing_component in existing_components):
+            LOG.print_info(
+                f"Component {component.get('name')} already exists.")
+            continue
+
         component_name = component.get("name")
         component_description = component.get("description")
 
