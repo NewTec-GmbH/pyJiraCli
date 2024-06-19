@@ -138,8 +138,10 @@ def _create_components(jira: JIRA, components: list[dict], project_key: str) -> 
 
     for component in components:
         # Check if the component already exists.
-        if any((component.get("name") == existing_component.name)
-                for existing_component in existing_components):
+        already_exists = any(component.get("name") == existing_component.name
+                             for existing_component in existing_components)
+
+        if already_exists:
             LOG.print_info(
                 f"Component {component.get('name')} already exists.")
             continue
