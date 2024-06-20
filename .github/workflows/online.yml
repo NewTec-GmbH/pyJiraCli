@@ -4,7 +4,7 @@ name: Jira Online Tests
 on:
   pull_request:
     # A pull request to the main branch or a release branch.
-    branches: [main, release/**]
+    branches: [release/**]
   release:
     # A release, pre-release, or draft of a release is published.
     types: [published]
