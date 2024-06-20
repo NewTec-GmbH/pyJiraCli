@@ -158,9 +158,25 @@ def _cmd_search(filter_str: str, results: int, save_file: str, server: Server) -
             }
 
             issue_list = []
+            jira = server.get_handle()
 
             for issue in found_issues:
-                issue_list.append(issue.raw)
+                issue_dict = issue.raw
+
+                # Worklogs are requested for the issue.
+                if "worklog" in issue_dict["fields"]:
+
+                    # Get the worklogs for the issue
+                    # Itereate over all worklogs and store them in a list
+                    worklog_list = [
+                        log.raw for log in jira.worklogs(issue.key)]
+
+                    issue_dict["fields"]["worklog"] = {
+                        "total": len(worklog_list),
+                        "worklogs": worklog_list
+                    }
+
+                issue_list.append(issue_dict)
 
             search_dict['issues'] = issue_list
 
