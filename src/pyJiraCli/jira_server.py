@@ -176,13 +176,14 @@ class Server:
         """
         return self._jira_obj
 
-    def search(self, search_str: str, max_results: int) -> Ret.CODE:
+    def search(self, search_str: str, max_results: int, fields: list[str]) -> Ret.CODE:
         """ Search for jira issues with a search string.
             The maximum of found issues can be set.
 
         Args:
             search_str (str): The string by which to search issues for.
             max_results (int): The maximum number of search results.
+            fields (list[str]): The fields to search for in the work items.
 
         Returns:
             Ret.CODE:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
@@ -196,7 +197,8 @@ class Server:
         else:
             try:
                 self._search_result = self._jira_obj.search_issues(search_str,
-                                                                   maxResults=max_results)
+                                                                   maxResults=max_results,
+                                                                   fields=fields)
 
             except exceptions.JIRAError as e:
                 print(e.text)

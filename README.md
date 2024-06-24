@@ -157,7 +157,7 @@ pyJiraCli search --help
 Output:
 
 ```cmd
-usage: pyJiraCli search [-h] [--max <MAX>] [--file <PATH TO FILE>] filter
+usage: pyJiraCli search [-h] [--max <MAX>] [--file <PATH TO FILE>] [--full] [--field <field>] filter
 
 positional arguments:
   filter                Filter string to search for. Must be in JQL format.
@@ -165,16 +165,19 @@ positional arguments:
 options:
   -h, --help            show this help message and exit
   --max <MAX>           Maximum number of issues that may be found.Default is 50.If set to 0, all issues will be searched.
-  --file <PATH TO FILE> Absolute filepath or filepath relative to the current work directory to a JSON file.
+  --file <PATH TO FILE>
+                        Absolute filepath or filepath relative to the current work directory to a JSON file.
+  --full                Get the full information of the issues. Can be slow in case of many issues.
+  --field <field>       The field to search for in the issues. Can be used multiple times to search for multiple fields.
 ```
 
 Example:
 
 ```cmd
-pyJiraCli search --max 50 "project=PROJ order by created desc"
+pyJiraCli search --max 50 "project=PROJ order by created desc" --field issuetype
 ```
 
-This will find the 50 latest issues in project PROJ and display them by descending creation date.
+This will find the 50 latest issues in project PROJ and display them by descending creation date. The only information displayed will the `key` be and the `issuetype`.
 
 More examples can be found in [the examples folder](./examples/search/README.md).
 
