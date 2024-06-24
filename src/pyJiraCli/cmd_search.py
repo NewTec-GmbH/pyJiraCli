@@ -48,6 +48,7 @@ from pyJiraCli.ret import Ret
 
 DEFAULT_FIELDS = ['project', 'summary', 'created', 'creator']
 COLUMN_WIDTH = 25
+MAX_FIELDS_PRINTED = len(DEFAULT_FIELDS)
 
 LOG = Printer()
 
@@ -219,7 +220,7 @@ def _print_table(search_dict: dict, fields: list[str]) -> None:
         fields = DEFAULT_FIELDS
 
     issues = search_dict['issues']
-    number_of_fields = min(len(fields), 5)
+    number_of_fields = min(len(fields), MAX_FIELDS_PRINTED)
 
     print(f"{'Key':<{COLUMN_WIDTH}}", end="")
 
@@ -236,14 +237,15 @@ def _print_table(search_dict: dict, fields: list[str]) -> None:
             field_value = issue["fields"][field]
 
             if not isinstance(field_value, str):
-                field_value = "<complex>"
+                field_value = "Complex Type:" + type(field_value).__name__
             else:
                 try:  # Try to convert the field value to a datetime object
                     res = datetime.datetime.strptime(
                         field_value, "%Y-%m-%dT%H:%M:%S.%f%z")
                     field_value = res.strftime("%Y-%m-%d %H:%M:%S")
                 except ValueError:
-                    pass  # Do nothing
+                    # Do nothing. The field value is not a datetime object.
+                    pass
 
             if len(field_value) > COLUMN_WIDTH-1:
                 field_value = field_value[:COLUMN_WIDTH-4] + "..."
