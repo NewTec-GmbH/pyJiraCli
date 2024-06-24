@@ -46,6 +46,7 @@ DATE_CELL = "L3"
 TICKETS_NO_TIME_TRACKING = "no_time_tracking"
 TICKETS_NO_SPENT_TIME = "no_spent_time"
 
+
 class Formulas:
     """Contains static methods to return Excel formulas as strings."""
 
@@ -53,10 +54,10 @@ class Formulas:
     def timebuffer_f(row: int) -> str:
         """
         Return the formula to calculate time buffer for a given row.
-        
+
         Args:
             row (int): The row number.
-        
+
         Returns:
             str: The formula for the time buffer.
         """
@@ -66,10 +67,10 @@ class Formulas:
     def processed_time_units_f(row: int) -> str:
         """
         Return the formula to calculate processed time units for a given row.
-        
+
         Args:
             row (int): The row number.
-        
+
         Returns:
             str: The formula for the processed time units.
         """
@@ -79,10 +80,10 @@ class Formulas:
     def efficiency_f(row: int) -> str:
         """
         Return the formula to calculate efficiency for a given row.
-        
+
         Args:
             row (int): The row number.
-        
+
         Returns:
             str: The formula for efficiency.
         """
@@ -92,35 +93,36 @@ class Formulas:
     def progress_f(row: int) -> str:
         """
         Return the formula to calculate progress for a given row.
-        
+
         Args:
             row (int): The row number.
-        
+
         Returns:
             str: The formula for progress.
         """
         return f"=(R{row}+N{row}/2)/(R{row}+M{row}+N{row})"
 
     @staticmethod
-    def sum_f(length: int, col:str) -> str:
+    def sum_f(length: int, col: str) -> str:
         """
         Return the formula to calculate the sum of a column over a given length.
-        
+
         Args:
             length (int): The number of rows.
             col (str): The column letter.
-        
+
         Returns:
             str: The formula for the sum.
         """
         return f"=SUM({col}{INITIAL_ROW}:{col}{INITIAL_ROW + (length - 1)})"
 
+
 class Cells(IntEnum):
     """Enum for the different cell positions in the Excel sheet."""
     SPRINT_NAME = 0
-    START_DATE  = 1
-    END_DATE    = 2
-    DELTA_DAYS  = 3
+    START_DATE = 1
+    END_DATE = 2
+    DELTA_DAYS = 3
     TIME_EST_IDLE = 4
     TIME_REM_OPEN = 5
     TIME_SPENT_DONE = 6
@@ -130,60 +132,63 @@ class Cells(IntEnum):
     EFFICIENCY = 10
     PROGRESS = 11
 
+
 class Conclusions(IntEnum):
     """Enum for the conclusion rows in the Excel sheet."""
-    TOTAL_TIME_EST_IDLE        = 13
-    TOTAL_TIME_REM_OPEN        = 14
-    TOTAL_TIME_SPENT_DONE      = 15
-    TOTAL_ORIGINAL_EST         = 16
-    TOTAL_TIME_BUFFER          = 17
+    TOTAL_TIME_EST_IDLE = 13
+    TOTAL_TIME_REM_OPEN = 14
+    TOTAL_TIME_SPENT_DONE = 15
+    TOTAL_ORIGINAL_EST = 16
+    TOTAL_TIME_BUFFER = 17
     TOTAL_PROCESSED_TIME_UNITS = 18
 
+
 DICT_KEYS = {
-    Cells.SPRINT_NAME     : 'sprint_name',
-    Cells.START_DATE      : 'startDate',
-    Cells.END_DATE        : 'endDate',
-    Cells.DELTA_DAYS      : 'delta_days',
-    Cells.TIME_EST_IDLE   : 'time_est_idle',
-    Cells.TIME_REM_OPEN   : 'time_remaining_open',
-    Cells.TIME_SPENT_DONE : 'time_spent_done',
-    Cells.ORIGINAL_EST    : 'total_time_est'
+    Cells.SPRINT_NAME: 'sprint_name',
+    Cells.START_DATE: 'startDate',
+    Cells.END_DATE: 'endDate',
+    Cells.DELTA_DAYS: 'delta_days',
+    Cells.TIME_EST_IDLE: 'time_est_idle',
+    Cells.TIME_REM_OPEN: 'time_remaining_open',
+    Cells.TIME_SPENT_DONE: 'time_spent_done',
+    Cells.ORIGINAL_EST: 'total_time_est'
 }
 
 EXCEL_COLS = {
-    Cells.SPRINT_NAME          : 'L',
-    Cells.START_DATE           : 'U',
-    Cells.END_DATE             : 'V',
-    Cells.DELTA_DAYS           : 'W',
-    Cells.TIME_EST_IDLE        : 'M',
-    Cells.TIME_REM_OPEN        : 'N',
-    Cells.TIME_SPENT_DONE      : 'O',
-    Cells.ORIGINAL_EST         : 'P',
-    Cells.TIME_BUFFER          : 'Q',
-    Cells.PROCESSED_TIME_UNITS : 'R',
-    Cells.EFFICIENCY           : 'S',
-    Cells.PROGRESS             : 'T'
+    Cells.SPRINT_NAME: 'L',
+    Cells.START_DATE: 'U',
+    Cells.END_DATE: 'V',
+    Cells.DELTA_DAYS: 'W',
+    Cells.TIME_EST_IDLE: 'M',
+    Cells.TIME_REM_OPEN: 'N',
+    Cells.TIME_SPENT_DONE: 'O',
+    Cells.ORIGINAL_EST: 'P',
+    Cells.TIME_BUFFER: 'Q',
+    Cells.PROCESSED_TIME_UNITS: 'R',
+    Cells.EFFICIENCY: 'S',
+    Cells.PROGRESS: 'T'
 }
 
 CONCLUSION_COLS = {
-    Conclusions.TOTAL_TIME_EST_IDLE        : EXCEL_COLS.get(Cells.TIME_EST_IDLE),
-    Conclusions.TOTAL_TIME_REM_OPEN        : EXCEL_COLS.get(Cells.TIME_REM_OPEN),
-    Conclusions.TOTAL_TIME_SPENT_DONE      : EXCEL_COLS.get(Cells.TIME_SPENT_DONE),
-    Conclusions.TOTAL_ORIGINAL_EST         : EXCEL_COLS.get(Cells.ORIGINAL_EST),
-    Conclusions.TOTAL_TIME_BUFFER          : EXCEL_COLS.get(Cells.TIME_BUFFER),
-    Conclusions.TOTAL_PROCESSED_TIME_UNITS : EXCEL_COLS.get(Cells.PROCESSED_TIME_UNITS),
+    Conclusions.TOTAL_TIME_EST_IDLE: EXCEL_COLS.get(Cells.TIME_EST_IDLE),
+    Conclusions.TOTAL_TIME_REM_OPEN: EXCEL_COLS.get(Cells.TIME_REM_OPEN),
+    Conclusions.TOTAL_TIME_SPENT_DONE: EXCEL_COLS.get(Cells.TIME_SPENT_DONE),
+    Conclusions.TOTAL_ORIGINAL_EST: EXCEL_COLS.get(Cells.ORIGINAL_EST),
+    Conclusions.TOTAL_TIME_BUFFER: EXCEL_COLS.get(Cells.TIME_BUFFER),
+    Conclusions.TOTAL_PROCESSED_TIME_UNITS: EXCEL_COLS.get(Cells.PROCESSED_TIME_UNITS),
 }
 
 EXCEL_FORMULAS = {
-    Cells.TIME_BUFFER          : Formulas.timebuffer_f,
-    Cells.PROCESSED_TIME_UNITS : Formulas.processed_time_units_f,
-    Cells.EFFICIENCY           : Formulas.efficiency_f,
-    Cells.PROGRESS             : Formulas.progress_f,
+    Cells.TIME_BUFFER: Formulas.timebuffer_f,
+    Cells.PROCESSED_TIME_UNITS: Formulas.processed_time_units_f,
+    Cells.EFFICIENCY: Formulas.efficiency_f,
+    Cells.PROGRESS: Formulas.progress_f,
 }
 
 ################################################################################
 # Functions
 ################################################################################
+
 
 def write_conclusion(sheet, num_sprints):
     """
@@ -193,10 +198,11 @@ def write_conclusion(sheet, num_sprints):
         sheet (Worksheet): The Excel worksheet object.
         num_sprints (int): The number of sprints.
     """
-    for conclusion, col in CONCLUSION_COLS.items(): # pylint: disable=W0612
+    for conclusion, col in CONCLUSION_COLS.items():  # pylint: disable=W0612
         cell_ref = f"{col}{CONCLUSION_ROW}"
         data = Formulas.sum_f(num_sprints, col)
         sheet[cell_ref] = data
+
 
 def write_missing_data_file(tickets_no_timetracking: list, tickets_no_spent_time: list):
     """
@@ -214,6 +220,7 @@ def write_missing_data_file(tickets_no_timetracking: list, tickets_no_spent_time
         file.write("\nClosed tickets with no spent time:\n")
         for (key, url) in tickets_no_spent_time:
             file.write(f"{key} ({url})\n")
+
 
 def write_excel_file(sheet, board_dict: dict) -> tuple:
     """
@@ -238,7 +245,8 @@ def write_excel_file(sheet, board_dict: dict) -> tuple:
         # Write the data to the corresponding cells
         for key, value in sprint_data.items():
             if key in DICT_KEYS.values():
-                col_letter = list(EXCEL_COLS.values())[list(DICT_KEYS.values()).index(key)]
+                col_letter = list(EXCEL_COLS.values())[
+                    list(DICT_KEYS.values()).index(key)]
                 cell = f"{col_letter}{row_num}"
                 sheet[cell] = value
 
@@ -255,6 +263,7 @@ def write_excel_file(sheet, board_dict: dict) -> tuple:
 
     return tickets_no_time_tracking, tickets_no_spent_time
 
+
 def write_data(board_dict: dict) -> None:
     """
     Write sprint data to an Excel file.
@@ -270,7 +279,8 @@ def write_data(board_dict: dict) -> None:
         workbook = load_workbook(EXCEL_FILE)
         sheet = workbook[EXCEL_TABLE]
 
-    tickets_no_time_tracking, tickets_no_spent_time = write_excel_file(sheet, board_dict)
+    tickets_no_time_tracking, tickets_no_spent_time = write_excel_file(
+        sheet, board_dict)
     num_sprints = len(board_dict['sprints'])
 
     write_conclusion(sheet, num_sprints)
@@ -279,7 +289,9 @@ def write_data(board_dict: dict) -> None:
     workbook.save(EXCEL_FILE)
 
     write_missing_data_file(tickets_no_time_tracking, tickets_no_spent_time)
-    print(f"Data from JSON file has been successfully written to '{EXCEL_FILE}'")
+    print(
+        f"Data from JSON file has been successfully written to '{EXCEL_FILE}'")
+
 
 def get_time_est(issue_data: dict) -> int:
     """
@@ -310,6 +322,7 @@ def get_time_est(issue_data: dict) -> int:
 
     return time_est // 3600
 
+
 def get_time_spent(issue_data: dict) -> int:
     """
     Get the total time spent for an issue.
@@ -336,6 +349,7 @@ def get_time_spent(issue_data: dict) -> int:
 
     return time_spent // 3600
 
+
 def convert_date_format(date_str: str) -> str:
     """
     Convert a date string from the original format to a new format.
@@ -352,6 +366,7 @@ def convert_date_format(date_str: str) -> str:
     formatted_date = date_obj.strftime(new_format)
 
     return formatted_date
+
 
 def calculate_days_between_dates(date1_str: str, date2_str: str) -> int:
     """
@@ -371,6 +386,7 @@ def calculate_days_between_dates(date1_str: str, date2_str: str) -> int:
     days_between = difference.days
 
     return days_between
+
 
 def process_sprint(raw_dict: dict) -> dict:
     """
@@ -440,18 +456,19 @@ def process_sprint(raw_dict: dict) -> dict:
         DICT_KEYS.get(Cells.START_DATE): convert_date_format(raw_dict['startdate']),
         DICT_KEYS.get(Cells.END_DATE): convert_date_format(raw_dict['endDate']),
         DICT_KEYS.get(Cells.DELTA_DAYS): calculate_days_between_dates(
-                                            raw_dict['startdate'],
-                                            raw_dict['endDate']),
+            raw_dict['startdate'],
+            raw_dict['endDate']),
         DICT_KEYS.get(Cells.TIME_EST_IDLE): raw_sprint_dict['time_est_idle'],
         DICT_KEYS.get(Cells.TIME_REM_OPEN): raw_sprint_dict['time_remaining_open'],
-        DICT_KEYS.get(Cells.TIME_SPENT_DONE): raw_sprint_dict['time_spent_closed'] + \
-                                              raw_sprint_dict['time_spent_open'],
+        DICT_KEYS.get(Cells.TIME_SPENT_DONE): raw_sprint_dict['time_spent_closed'] +
+        raw_sprint_dict['time_spent_open'],
         DICT_KEYS.get(Cells.ORIGINAL_EST): raw_sprint_dict['total_time_est'],
         TICKETS_NO_TIME_TRACKING: tickets_without_time_tracking,
         TICKETS_NO_SPENT_TIME: closed_tickets_without_spent_time
     }
 
     return processed_dict
+
 
 def process_data(board_dict: dict) -> dict:
     """
@@ -475,6 +492,7 @@ def process_data(board_dict: dict) -> dict:
 
     return processed_dict
 
+
 def get_sprint_data(board: str, profile: str) -> dict:
     """
     Get sprint data for a board using pyJiraCli.
@@ -496,12 +514,13 @@ def get_sprint_data(board: str, profile: str) -> dict:
             with open(TMP_FILE, mode='r', encoding='utf-8') as file:
                 sprint_dict = json.load(file)
             os.remove(TMP_FILE)
-        except Exception as e: #pylint: disable=W0718
+        except Exception as e:  # pylint: disable=W0718
             print(e)
             return None
 
     print(f"Subprocess returned code {result.returncode}")
     return sprint_dict
+
 
 def get_issue_data(sprint: str, profile: str) -> dict:
     """
@@ -518,7 +537,7 @@ def get_issue_data(sprint: str, profile: str) -> dict:
     command = f'pyJiraCli --verbose \
                           --profile {profile} \
                             search "sprint = \'{sprint}\'" \
-                          --save {TMP_FILE}'
+                          --file {TMP_FILE}'
 
     result = subprocess.run(command, shell=True, check=False)
 
@@ -527,12 +546,13 @@ def get_issue_data(sprint: str, profile: str) -> dict:
             with open(TMP_FILE, mode='r', encoding='utf-8') as file:
                 issue_dict = json.load(file)
             os.remove(TMP_FILE)
-        except Exception as e: #pylint: disable=W0718
+        except Exception as e:  # pylint: disable=W0718
             print(e)
             return None
 
     print(f"Subprocess returned code {result.returncode}")
     return issue_dict
+
 
 def get_board_data(board: str, profile: str) -> dict:
     """
@@ -563,13 +583,16 @@ def get_board_data(board: str, profile: str) -> dict:
             issue_dict = get_issue_data(sprint['name'], profile)
 
             if 'issues' in issue_dict:
-                board_dict['sprints'][sprint['name']]['issues'] = issue_dict['issues']
+                board_dict['sprints'][sprint['name']
+                                      ]['issues'] = issue_dict['issues']
 
     return board_dict
 
 ################################################################################
 # main
 ################################################################################
+
+
 def main():
     """
     Main function to execute the script.
@@ -581,6 +604,7 @@ def main():
         write_data(processed_data)
     else:
         print("Some error occurred")
+
 
 ################################################################################
 # system entry

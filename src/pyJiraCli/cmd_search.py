@@ -92,7 +92,7 @@ def register(subparser) -> argparse.ArgumentParser:
                                    "Default is 50." +
                                    "If set to 0, all issues will be searched.")
 
-    sub_parser_search.add_argument('--save',
+    sub_parser_search.add_argument('--file',
                                    type=str,
                                    metavar='<PATH TO FILE>',
                                    help="Absolute filepath or filepath relative " +
@@ -119,7 +119,7 @@ def execute(args, server: Server) -> Ret.CODE:
         LOG.print_error(
             "Connection to server is not established. Please login first.")
     else:
-        ret_status = _cmd_search(args.filter, args.max, args.save, server)
+        ret_status = _cmd_search(args.filter, args.max, args.file, server)
 
     return ret_status
 
