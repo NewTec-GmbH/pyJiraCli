@@ -156,7 +156,7 @@ def _export_ticket_to_file(issue_key: str, file: File, server: Server) -> Ret.CO
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
-    ret_status = server.search(f"key = {issue_key}", max_results=1)
+    ret_status = server.search(f"key = {issue_key}", max_results=1, fields=[])
 
     if ret_status == Ret.CODE.RET_OK:
 

@@ -109,7 +109,7 @@ def _cmd_print(issue_key: str, server: Server) -> Ret.CODE:
         Ret.CODE: The return status of the module.
     """
     ret_status = Ret.CODE.RET_OK
-    ret_status = server.search(f"key = {issue_key}", max_results=1)
+    ret_status = server.search(f"key = {issue_key}", max_results=1, fields=[])
 
     if ret_status == Ret.CODE.RET_OK:
         issue = server.get_search_result().pop().raw
