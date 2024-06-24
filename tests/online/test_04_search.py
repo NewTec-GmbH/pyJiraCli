@@ -80,7 +80,7 @@ def test_search(helpers: Helpers):
     ret = helpers.run_pyjiracli(
         credentials + ["search",
                        "--max", str(max_number_of_issues),
-                       "--save", OUTPUT_FILE_NAME,
+                       "--file", OUTPUT_FILE_NAME,
                        jql_string])
 
     # Expect OK.

@@ -157,7 +157,7 @@ pyJiraCli search --help
 Output:
 
 ```cmd
-usage: pyJiraCli search [-h] [--max <MAX>] [--save <PATH TO FILE>] filter
+usage: pyJiraCli search [-h] [--max <MAX>] [--file <PATH TO FILE>] filter
 
 positional arguments:
   filter                Filter string to search for. Must be in JQL format.
@@ -165,7 +165,7 @@ positional arguments:
 options:
   -h, --help            show this help message and exit
   --max <MAX>           Maximum number of issues that may be found.Default is 50.If set to 0, all issues will be searched.
-  --save <PATH TO FILE> Absolute filepath or filepath relative to the current work directory to a JSON file.
+  --file <PATH TO FILE> Absolute filepath or filepath relative to the current work directory to a JSON file.
 ```
 
 Example:
@@ -404,6 +404,7 @@ class Warnings(IntEnum):
 </details>
 
 ## Examples
+
 Check out the all the [Examples](./examples) on how to use the pyJiraCli tool.
 
 ## Used Libraries

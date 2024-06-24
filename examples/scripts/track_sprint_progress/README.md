@@ -44,7 +44,7 @@ The script uses the `subprocess` module to run `pyJiraCli` commands. This allows
 1. **Fetching Sprint Data:**
 
    The `get_sprint_data` function uses `pyJiraCli` to fetch sprint data for a specified board. The command constructed is:
-   
+
    ```sh
    pyJiraCli --verbose --profile {profile} get_sprints "{board}" --file {TMP_FILE}
    ```
@@ -79,18 +79,18 @@ The script uses the `subprocess` module to run `pyJiraCli` commands. This allows
    The `get_issue_data` function uses `pyJiraCli` to fetch issue data for a specific sprint. The command constructed is:
 
    ```sh
-   pyJiraCli --verbose --profile {profile} search "sprint = '{sprint}'" --save {TMP_FILE}
+   pyJiraCli --verbose --profile {profile} search "sprint = '{sprint}'" --file {TMP_FILE}
    ```
 
    - `--verbose`: Provides detailed output for debugging purposes.
    - `--profile {profile}`: Specifies the server profile configured in `pyJiraCli`.
    - `search "sprint = '{sprint}'"`: Searches for issues in the specified sprint.
-   - `--save {TMP_FILE}`: Saves the output to a temporary JSON file.
+   - `--file {TMP_FILE}`: Saves the output to a temporary JSON file.
 
    The `subprocess.run` function executes this command:
 
    ```python
-   command = f'pyJiraCli --verbose --profile {profile} search "sprint = '{sprint}'" --save {TMP_FILE}'
+   command = f'pyJiraCli --verbose --profile {profile} search "sprint = '{sprint}'" --file {TMP_FILE}'
    result = subprocess.run(command, shell=True, check=False)
    ```
 
