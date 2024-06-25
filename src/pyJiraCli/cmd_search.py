@@ -128,6 +128,7 @@ def execute(args, server: Server) -> Ret.CODE:
         LOG.print_error(
             "Connection to server is not established. Please login first.")
     else:
+        # Get the fields to search for in the issues
         fields = DEFAULT_FIELDS
 
         if args.full is True:
@@ -135,6 +136,7 @@ def execute(args, server: Server) -> Ret.CODE:
         elif args.field is not None:
             fields = args.field  # Get the fields provided by the user
 
+        # Search for the issues
         ret_status = _cmd_search(
             args.filter, args.max, args.file, server, fields)
 
@@ -164,9 +166,11 @@ def _cmd_search(filter_str: str,
     if results is None:
         results = 50
 
+    # Search for the issues on the server.
     ret_status = server.search(filter_str, results, fields)
 
     if ret_status == Ret.CODE.RET_OK:
+        # Retrieve the search result.
         found_issues = server.get_search_result()
         LOG.print_info('Search string:', filter_str)
         LOG.print_info('Found Issues:', str(len(found_issues)))
@@ -174,10 +178,11 @@ def _cmd_search(filter_str: str,
         search_dict = {
             'search': filter_str,
             'max': results,
-            'found': len(found_issues)
+            'found': len(found_issues),
+            'issues': []
         }
 
-        issue_list = []
+        # Get the Jira handle to request extra data if required.
         jira = server.get_handle()
 
         for issue in found_issues:
@@ -196,9 +201,7 @@ def _cmd_search(filter_str: str,
                     "worklogs": worklog_list
                 }
 
-            issue_list.append(issue_dict)
-
-        search_dict['issues'] = issue_list
+            search_dict['issues'].append(issue_dict)
 
         if save_file is not None:
             ret_status = _save_search(save_file, search_dict)
@@ -216,28 +219,36 @@ def _print_table(search_dict: dict, fields: list[str]) -> None:
         search_dict (dict): dict with all found issues and search metadata.
     """
 
+    # If all fields are requested, only print the default fields.
     if fields == []:
         fields = DEFAULT_FIELDS
 
+    # Print a maximum of MAX_FIELDS_PRINTED fields.
     issues = search_dict['issues']
     number_of_fields = min(len(fields), MAX_FIELDS_PRINTED)
 
+    # Print the header
     print(f"{'Key':<{COLUMN_WIDTH}}", end="")
 
-    for field in range(number_of_fields):
-        print(f"{fields[field]:<{COLUMN_WIDTH}}", end="")
+    for field_idx in range(number_of_fields):
+        print(f"{fields[field_idx]:<{COLUMN_WIDTH}}", end="")
     print()
 
+    # Print the issues
     for issue in issues:
         issue_key = issue['key']
         print(f"{issue_key:<{COLUMN_WIDTH}}", end="")
 
-        for key in range(number_of_fields):
-            field = fields[key]
-            field_value = issue["fields"][field]
+        for key_idx in range(number_of_fields):
+            field_idx = fields[key_idx]
+            field_value = issue["fields"][field_idx]
 
+            # If the field value is not a string, try to find its name or print its type.
             if not isinstance(field_value, str):
-                field_value = "Complex Type:" + type(field_value).__name__
+                if isinstance(field_value, dict) and "name" in field_value:
+                    field_value = field_value["name"]
+                else:
+                    field_value = "Complex Type:" + type(field_value).__name__
             else:
                 try:  # Try to convert the field value to a datetime object
                     res = datetime.datetime.strptime(
@@ -247,9 +258,12 @@ def _print_table(search_dict: dict, fields: list[str]) -> None:
                     # Do nothing. The field value is not a datetime object.
                     pass
 
+            # Value is too long for the column and one space.
             if len(field_value) > COLUMN_WIDTH-1:
+                # Cut the string by 3 characters and one space, and add "...".
                 field_value = field_value[:COLUMN_WIDTH-4] + "..."
 
+            # Print the field value
             print(f"{field_value:<{COLUMN_WIDTH}}", end="")
         print()
 

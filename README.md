@@ -177,7 +177,7 @@ Example:
 pyJiraCli search --max 50 "project=PROJ order by created desc" --field issuetype
 ```
 
-This will find the 50 latest issues in project PROJ and display them by descending creation date. The only information displayed will the `key` be and the `issuetype`.
+This will find the 50 latest issues in project PROJ and display them by descending creation date. The only information displayed will be the `key` and the `issuetype`.
 
 More examples can be found in [the examples folder](./examples/search/README.md).
 
