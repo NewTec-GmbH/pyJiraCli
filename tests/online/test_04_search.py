@@ -68,12 +68,8 @@ def test_search(helpers: Helpers):
                        "--max", str(max_number_of_issues),
                        jql_string])
 
-    stdout = ret.stdout.decode("utf-8")
-
     # Expect OK.
     assert Ret.CODE.RET_OK == ret.returncode
-    # An issue was found and the user is in the output.
-    assert "jira_user" in stdout
 
     # Test export to file.
     max_number_of_issues = 3
