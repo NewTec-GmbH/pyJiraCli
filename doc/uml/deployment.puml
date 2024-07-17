@@ -1,0 +1,28 @@
+@startuml DeploymentDiagram
+
+database "DB Server" {
+    component "Database" as jiraDb
+}
+
+node "JIRA"<<virtual-machine>> as jira
+
+interface "REST API" as jiraRestApi
+
+jira --- jiraRestApi
+jira -- jiraDb
+
+
+node "Continuous Integration Server"<<virtual-machine>> {
+
+    package "scripts" {
+        component "pyJiraCli" as pyJiraCli
+    }
+}
+
+jiraRestApi )-- pyJiraCli
+
+note top of jira
+    Issue tracking system.
+end note
+
+@enduml

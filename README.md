@@ -6,9 +6,25 @@ pyJiraCli is a command-line tool designed for handling Jira tickets efficiently.
 [![Repo Status](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![CI](https://github.com/NewTec-GmbH/pyJiraCli/actions/workflows/ci.yml/badge.svg)](https://github.com/NewTec-GmbH/pyJiraCli/actions/workflows/ci.yml)
 
+- [Overview](#overview)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Flags](#flags)
+  - [Login options](#login-options)
+- [Commands](#commands)
+- [Examples](#examples)
+- [Add a command](#add-a-command)
+- [Compile into an executable](#compile-into-an-executable)
+- [Used Libraries](#used-libraries)
+- [Issues, Ideas And Bugs](#issues-ideas-and-bugs)
+- [License](#license)
+- [Contribution](#contribution)
+
 ## Overview
 
 ![overview](https://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/NewTec-GmbH/pyJiraCli/main/doc/uml/context.puml)
+
+More information on the deployment and architecture can be found in the [doc](./doc/README.md) folder.
 
 ## Installation
 
