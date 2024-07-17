@@ -1,0 +1,25 @@
+@startuml ArchitectureDiagram
+
+package "pyJiraCli" as pyJiraCli {
+    component "Main Entry Point" as main
+    component "jira_server" as server
+    component "Commands" <<command>> as cmd
+}
+
+package "Python Jira" {
+    component "jira.client.JIRA" as jira
+}
+
+package "Python" as python {
+    component "Argparse" as argparse
+    component "Requests" as requests
+}
+
+main *--> server
+main o--> cmd : 0..*
+main *--> argparse
+
+server *--> jira
+jira *--> requests
+
+@enduml
