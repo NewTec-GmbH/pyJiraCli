@@ -71,43 +71,92 @@ def register(subparser) -> argparse.ArgumentParser:
         obj:    the command parser of this module
     """
     # subparser for the 'search' command
-    sub_parser_search: argparse.ArgumentParser = \
-        subparser.add_parser('search',
-                             help="Search for the Jira server for issues " +
-                             "using the specified filter string.")
+    parser = subparser.add_parser(
+        'search',
+        help="Search for the Jira server for issues using the specified filter string."
+    )
 
-    sub_parser_search.add_argument('filter',
-                                   type=str,
-                                   help="Filter string to search for. Must be in JQL format.")
+    parser.add_argument(
+        '--profile',
+        type=str,
+        metavar='<profile>',
+        help="The name of the server profile which shall be used for this process."
+    )
 
-    sub_parser_search.add_argument('--max',
-                                   type=int,
-                                   metavar='<MAX>',
-                                   help="Maximum number of issues that may be found." +
-                                   "Default is 50." +
-                                   "If set to 0, all issues will be searched.")
+    parser.add_argument(
+        '-u',
+        '--user',
+        type=str,
+        metavar='<user>',
+        help="The user to authenticate with the Jira server."
+    )
 
-    sub_parser_search.add_argument('--file',
-                                   type=str,
-                                   metavar='<PATH TO FILE>',
-                                   help="Absolute filepath or filepath relative " +
-                                   "to the current work directory to a JSON file.")
+    parser.add_argument(
+        '-p',
+        '--password',
+        type=str,
+        metavar='<password>',
+        help="The password to authenticate with the Jira server."
+    )
 
-    sub_parser_search.add_argument('--full',
-                                   action='store_true',
-                                   required=False,
-                                   help="Get the full information of the issues. " +
-                                   "Can be slow in case of many issues.")
+    parser.add_argument(
+        '-t',
+        '--token',
+        type=str,
+        metavar='<token>',
+        help="The token to authenticate with the Jira server."
+    )
 
-    sub_parser_search.add_argument("--field",
-                                   type=str,
-                                   action="append",
-                                   metavar="<field>",
-                                   required=False,
-                                   help="The field to search for in the issues. " +
-                                   "Can be used multiple times to search for multiple fields.")
+    parser.add_argument(
+        '-s',
+        '--server',
+        type=str,
+        metavar='<server URL>',
+        help="The Jira server URL to connect to."
+    )
 
-    return sub_parser_search
+    parser.add_argument(
+        'filter',
+        type=str,
+        help="Filter string to search for. Must be in JQL format."
+    )
+
+    parser.add_argument(
+        '--max',
+        type=int,
+        metavar='<MAX>',
+        help="Maximum number of issues that may be found." +
+        "Default is 50." +
+        "If set to 0, all issues will be searched."
+    )
+
+    parser.add_argument(
+        '--file',
+        type=str,
+        metavar='<PATH TO FILE>',
+        help="Absolute filepath or filepath relative " +
+        "to the current work directory to a JSON file."
+    )
+
+    parser.add_argument(
+        '--full',
+        action='store_true',
+        required=False,
+        help="Get the full information of the issues. " +
+        "Can be slow in case of many issues."
+    )
+
+    parser.add_argument(
+        "--field",
+        type=str,
+        action="append",
+        metavar="<field>",
+        required=False,
+        help="The field to search for in the issues. " +
+        "Can be used multiple times to search for multiple fields."
+    )
+
+    return parser
 
 
 def execute(args, server: Server) -> Ret.CODE:
@@ -121,10 +170,14 @@ def execute(args, server: Server) -> Ret.CODE:
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
-    ret_status = Ret.CODE.RET_ERROR
+    server = Server()
+    ret_status = server.login(  args.profile,
+                                args.server,
+                                args.token,
+                                args.user,
+                                args.password)
 
-    # pylint: disable=R0801
-    if server is None:
+    if Ret.CODE.RET_OK != ret_status:
         LOG.print_error(
             "Connection to server is not established. Please login first.")
     else:

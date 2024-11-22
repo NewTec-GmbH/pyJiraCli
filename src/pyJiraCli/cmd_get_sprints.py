@@ -66,40 +66,86 @@ def register(subparser) -> argparse.ArgumentParser:
         obj:    The commmand parser object of this module.
     """
 
-    sub_parser_get_sprints: argparse.ArgumentParser = \
-        subparser.add_parser('get_sprints',
-                             help="Get all sprints in a board and \
-                             save the sprint data into a JSON file.")
+    parser = subparser.add_parser(
+        'get_sprints',
+        help="Get all sprints in a board and save the sprint data into a JSON file."
+    )
 
-    sub_parser_get_sprints.add_argument('board',
-                                        type=str,
-                                        help="The board for which the sprints shall be stored.")
+    parser.add_argument(
+        '--profile',
+        type=str,
+        metavar='<profile>',
+        help="The name of the server profile which shall be used for this process."
+    )
 
-    sub_parser_get_sprints.add_argument('--file',
-                                        type=str,
-                                        metavar='<path to file>',
-                                        help="Absolute file path or filepath relativ " +
-                                        "to the current working directory. " +
-                                        "The file format must be JSON. ")
+    parser.add_argument(
+        '-u',
+        '--user',
+        type=str,
+        metavar='<user>',
+        help="The user to authenticate with the Jira server."
+    )
 
-    return sub_parser_get_sprints
+    parser.add_argument(
+        '-p',
+        '--password',
+        type=str,
+        metavar='<password>',
+        help="The password to authenticate with the Jira server."
+    )
+
+    parser.add_argument(
+        '-t',
+        '--token',
+        type=str,
+        metavar='<token>',
+        help="The token to authenticate with the Jira server."
+    )
+
+    parser.add_argument(
+        '-s',
+        '--server',
+        type=str,
+        metavar='<server URL>',
+        help="The Jira server URL to connect to."
+    )
+
+    parser.add_argument(
+        'board',
+        type=str,
+        help="The board for which the sprints shall be stored."
+    )
+
+    parser.add_argument(
+        '--file',
+        type=str,
+        metavar='<path to file>',
+        help="Absolute file path or filepath relativ " +
+        "to the current working directory. " +
+        "The file format must be JSON. "
+    )
+
+    return parser
 
 
-def execute(args, server: Server) -> Ret.CODE:
+def execute(args) -> Ret.CODE:
     """ This function servers as entry point for the command 'print'.
         It will be stored as callback for this moduls subparser command.
 
     Args: 
         args (obj): The command line arguments.
-        server (Server): The server object to interact with the Jira server.
 
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
-    ret_status = Ret.CODE.RET_ERROR_JIRA_LOGIN
+    server = Server()
+    ret_status = server.login(  args.profile,
+                                args.server,
+                                args.token,
+                                args.user,
+                                args.password)
 
-    # pylint: disable=R0801
-    if server is None:
+    if Ret.CODE.RET_OK != ret_status:
         LOG.print_error(PrintType.ERROR, ret_status)
     else:
         ret_status = _cmd_get_sprints(args.board, args.file, server)

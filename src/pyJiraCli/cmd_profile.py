@@ -66,59 +66,118 @@ def register(subparser) -> argparse.ArgumentParser:
         obj:    The command parser object of this module.
     """
 
-    sub_parser_profile: argparse.ArgumentParser = \
-        subparser.add_parser('profile',
-                             help="Add, update or delete server profiles.")
+    parser = subparser.add_parser(
+        'profile',
+        help="Add, update or delete server profiles."
+    )
 
-    login_group = sub_parser_profile.add_argument_group("Profile Data")
+    parser.add_argument(
+        '--profile',
+        type=str,
+        metavar='<profile>',
+        help="The name of the server profile which shall be used for this process."
+    )
 
-    login_group.add_argument('profile_name',
-                             type=str,
-                             metavar="<profile name>",
-                             help="The Name under which the profile will be saved.")
+    parser.add_argument(
+        '-u',
+        '--user',
+        type=str,
+        metavar='<user>',
+        help="The user to authenticate with the Jira server."
+    )
 
-    login_group.add_argument('--cert',
-                             type=str,
-                             metavar="<certificate path>",
-                             required=False,
-                             help="The server SSL certificate.")
+    parser.add_argument(
+        '-p',
+        '--password',
+        type=str,
+        metavar='<password>',
+        help="The password to authenticate with the Jira server."
+    )
 
-    datatype_desc = sub_parser_profile.add_argument_group(
+    parser.add_argument(
+        '-t',
+        '--token',
+        type=str,
+        metavar='<token>',
+        help="The token to authenticate with the Jira server."
+    )
+
+    parser.add_argument(
+        '-s',
+        '--server',
+        type=str,
+        metavar='<server URL>',
+        help="The Jira server URL to connect to."
+    )
+
+    login_group = parser.add_argument_group("Profile Data")
+
+    login_group.add_argument(
+        'profile_name',
+        type=str,
+        metavar="<profile name>",
+        help="The Name under which the profile will be saved."
+    )
+
+    login_group.add_argument(
+        '--cert',
+        type=str,
+        metavar="<certificate path>",
+        required=False,
+        help="The server SSL certificate."
+    )
+
+    datatype_desc = parser.add_argument_group(
         title='profile operations',
         description='Only one operation type can be processed at a time.'
     )
 
     option_grp = datatype_desc.add_mutually_exclusive_group(required=True)
 
-    option_grp.add_argument('--add',
-                            '-a',
-                            action="store_true",
-                            help="Add a new server profile.")
+    option_grp.add_argument(
+        '--add',
+        '-a',
+        action="store_true",
+        help="Add a new server profile."
+    )
 
-    option_grp.add_argument('--remove',
-                            '-r',
-                            action="store_true",
-                            help="Delete an existing server profile.")
+    option_grp.add_argument(
+        '--remove',
+        '-r',
+        action="store_true",
+        help="Delete an existing server profile."
+    )
 
-    option_grp.add_argument('--update',
-                            '-u',
-                            action="store_true",
-                            help="Update an existing server profile with new data.")
+    option_grp.add_argument(
+        '--update',
+        '-upd',
+        action="store_true",
+        help="Update an existing server profile with new data."
+    )
 
-    return sub_parser_profile
+    return parser
 
 
-def execute(args, server: Server) -> Ret.CODE:
+def execute(args) -> Ret.CODE:
     """ This function servers as entry point for the command 'profile'.
         It will be stored as callback for this modules subparser command.
 
     Args: 
         args (obj): The command line arguments.
-        server (Server): The server object to interact with the Jira server.
 
     Returns:
         Ret.CODE:   Returns Ret.RET_OK if successful or else the corresponding error code.
     """
+    server = Server()
+    ret_status = server.login(  args.profile,
+                                args.server,
+                                args.token,
+                                args.user,
+                                args.password)
+
+    if Ret.CODE.RET_OK != ret_status:
+        server = None
+
     return _cmd_profile(args, server)
 
 

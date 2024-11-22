@@ -47,7 +47,6 @@ from pyJiraCli import cmd_get_sprints
 
 from pyJiraCli.printer import Printer
 from pyJiraCli.ret import Ret
-from pyJiraCli.jira_server import Server
 from pyJiraCli.version import __version__, __author__, __email__, __repository__, __license__
 
 ################################################################################
@@ -94,35 +93,6 @@ def add_parser() -> argparse.ArgumentParser:
                                      description=PROG_DESC,
                                      epilog=PROG_EPILOG)
 
-    parser.add_argument('--profile',
-                        type=str,
-                        metavar='<profile>',
-                        help="The name of the server profile which shall be used for this process")
-
-    parser.add_argument('-u',
-                        '--user',
-                        type=str,
-                        metavar='<user>',
-                        help="The user to authenticate with the Jira server")
-
-    parser.add_argument('-p',
-                        '--password',
-                        type=str,
-                        metavar='<password>',
-                        help="The password to authenticate with the Jira server")
-
-    parser.add_argument('-t',
-                        '--token',
-                        type=str,
-                        metavar='<token>',
-                        help="The token to authenticate with the Jira server")
-
-    parser.add_argument('-s',
-                        '--server',
-                        type=str,
-                        metavar='<server URL>',
-                        help="The Jira server URL to connect to.")
-
     parser.add_argument("--version",
                         action="version",
                         version="%(prog)s " + __version__)
@@ -151,7 +121,6 @@ def main() -> Ret.CODE:
     """
     ret_status = Ret.CODE.RET_OK
     printer = Printer()
-    server = Server()
     args = None
 
     # Older windows consoles doesn't support ANSI color codes by default.
@@ -177,21 +146,8 @@ def main() -> Ret.CODE:
                 print(f"* {arg} = {vars(args)[arg]}")
             print("\n")
 
-        # Login to Jira server
-        ret_status = server.login(args.profile,
-                                  args.server,
-                                  args.token,
-                                  args.user,
-                                  args.password)
-
-        if Ret.CODE.RET_OK != ret_status:
-            # Login unsuccessful.
-            # Passed to the command function as None.
-            # The command decides if it needs a server connection.
-            server = None
-
         # Call command function and return exit status
-        ret_status = args.func(args, server)
+        ret_status = args.func(args)
 
     return ret_status
 

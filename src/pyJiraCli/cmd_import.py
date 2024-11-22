@@ -68,33 +68,77 @@ def register(subparser) -> argparse.ArgumentParser:
     Returns:
         obj:  The command parser object of this module.
     """
-    sub_parser_import: argparse.ArgumentParser = \
-        subparser.add_parser('import',
-                             help="Import a Jira Issue from a JSON file.")
+    parser = subparser.add_parser(
+        'import',
+        help="Import a Jira Issue from a JSON file."
+    )
 
-    sub_parser_import.add_argument('file',
-                                   type=str,
-                                   help="Path to the input file.")
+    parser.add_argument(
+        '--profile',
+        type=str,
+        metavar='<profile>',
+        help="The name of the server profile which shall be used for this process."
+    )
 
-    return sub_parser_import
+    parser.add_argument(
+        '-u',
+        '--user',
+        type=str,
+        metavar='<user>',
+        help="The user to authenticate with the Jira server."
+    )
+
+    parser.add_argument(
+        '-p',
+        '--password',
+        type=str,
+        metavar='<password>',
+        help="The password to authenticate with the Jira server."
+    )
+
+    parser.add_argument(
+        '-t',
+        '--token',
+        type=str,
+        metavar='<token>',
+        help="The token to authenticate with the Jira server."
+    )
+
+    parser.add_argument(
+        '-s',
+        '--server',
+        type=str,
+        metavar='<server URL>',
+        help="The Jira server URL to connect to."
+    )
+
+    parser.add_argument(
+        'file',
+        type=str,
+        help="Path to the input file."
+    )
+
+    return parser
 
 
-def execute(args, server: Server) -> Ret.CODE:
+def execute(args) -> Ret.CODE:
     """ This function servers as entry point for the command 'import'.
         It will be stored as callback for this modules subparser command.
 
     Args: 
         args (obj):   The command line arguments.
-        server (Server): The server object to interact with the Jira server.
 
     Returns:
         Ret:   Ret.CODE.RET_OK if successful, corresponding error code if not
     """
+    server = Server()
+    ret_status = server.login(  args.profile,
+                                args.server,
+                                args.token,
+                                args.user,
+                                args.password)
 
-    ret_status = Ret.CODE.RET_ERROR
-
-    # pylint: disable=R0801
-    if server is None:
+    if Ret.CODE.RET_OK != ret_status:
         LOG.print_error(
             "Connection to server is not established. Please login first.")
     else:
