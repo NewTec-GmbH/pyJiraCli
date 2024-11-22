@@ -79,22 +79,6 @@ def register(subparser) -> argparse.ArgumentParser:
     )
 
     parser.add_argument(
-        '-u',
-        '--user',
-        type=str,
-        metavar='<user>',
-        help="The user to authenticate with the Jira server."
-    )
-
-    parser.add_argument(
-        '-p',
-        '--password',
-        type=str,
-        metavar='<password>',
-        help="The password to authenticate with the Jira server."
-    )
-
-    parser.add_argument(
         '-t',
         '--token',
         type=str,
@@ -150,7 +134,7 @@ def register(subparser) -> argparse.ArgumentParser:
 
     option_grp.add_argument(
         '--update',
-        '-upd',
+        '-u',
         action="store_true",
         help="Update an existing server profile with new data."
     )
@@ -172,8 +156,8 @@ def execute(args) -> Ret.CODE:
     ret_status = server.login(  args.profile,
                                 args.server,
                                 args.token,
-                                args.user,
-                                args.password)
+                                None,
+                                None)
 
     if Ret.CODE.RET_OK != ret_status:
         server = None
@@ -195,11 +179,11 @@ def _cmd_profile(args, server: Server) -> Ret.CODE:
 
     ret_status = Ret.CODE.RET_ERROR
 
-    if (args.add is not None) and (server is not None):
+    if (args.add is True) and (server is not None):
         ret_status = _add_profile(args)
-    elif args.remove is not None:
+    elif args.remove is True:
         ret_status = _remove_profile(args.profile_name)
-    elif (args.update is not None) and (server is not None):
+    elif (args.update is True) and (server is not None):
         ret_status = _update_profile(args)
 
     return ret_status

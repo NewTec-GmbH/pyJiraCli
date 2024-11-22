@@ -159,13 +159,12 @@ def register(subparser) -> argparse.ArgumentParser:
     return parser
 
 
-def execute(args, server: Server) -> Ret.CODE:
+def execute(args) -> Ret.CODE:
     """ This function servers as entry point for the command 'search'.
         It will be stored as callback for this modules subparser command.
 
     Args: 
         args (obj): The command line arguments.
-        server (Server): The server object to interact with the Jira server.
 
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.

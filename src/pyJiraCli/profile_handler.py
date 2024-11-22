@@ -41,9 +41,11 @@ import json
 from pyJiraCli.file_handler import FileHandler as File
 from pyJiraCli.ret import Ret, Warnings
 from pyJiraCli.printer import Printer, PrintType
+
 ################################################################################
 # Variables
 ################################################################################
+
 PATH_TO_PROFILE_FOLDER   = "/.pyJiraCli/.profiles/"
 CERT_FILE = ".cert.crt"
 DATA_FILE = ".data.json"
@@ -52,9 +54,11 @@ URL_KEY = 'url'
 TOKEN_KEY = 'token'
 
 FILE_ATTRIBUTE_HIDDEN = 0x02
+
 ################################################################################
 # Classes
 ################################################################################
+
 class ProfileHandler:
     """ The ProfileHandler class handles all 
         processes regarding server profiles.
