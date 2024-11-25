@@ -192,7 +192,7 @@ def _profile_add(args) -> Ret.CODE:
 
     return ret_status
 
-def _profile_list(args) -> Ret.CODE:
+def _profile_list(_) -> Ret.CODE:
     """ List all stored profiles.
 
     Args:
