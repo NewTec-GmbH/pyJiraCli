@@ -262,8 +262,7 @@ class ProfileHandler:
         return ret_status
 
     def get_config_data(self) -> dict:
-        """ This function will format and return all
-            available config data so that it can
+        """ This function will format and return all available config data so that it can
             be used by the other modules.
 
         Returns:
@@ -321,6 +320,21 @@ class ProfileHandler:
             str: The API token used by the profile for authentication.
         """
         return self._profile_token
+
+    def get_profiles(self) -> [str]:
+        """ Get a list of all stored profiles.
+
+        Returns:
+            [str]: List of all stored profiles.
+        """
+        profiles_path = _get_path_to_login_folder()
+        profile_names = []
+
+        for file_name in os.listdir(profiles_path):
+            if os.path.isfile(os.path.join(profiles_path, file_name)) is False:
+                profile_names.append(file_name)
+
+        return profile_names
 
 ################################################################################
 # Functions

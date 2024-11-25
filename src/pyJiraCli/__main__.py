@@ -87,7 +87,7 @@ def add_parser() -> argparse.ArgumentParser:
 
 
     Returns:
-        obj:  The parser object for commandline arguments.
+        obj:  The parser object for command line arguments.
     """
     parser = argparse.ArgumentParser(prog=PROG_NAME,
                                      description=PROG_DESC,

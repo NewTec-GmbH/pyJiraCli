@@ -159,7 +159,7 @@ def execute(args) -> Ret.CODE:
 def _cmd_export(args, server: Server) -> Ret.CODE:
     """ Export a jira ticket to a JSON file.
 
-        The function takes the commandline arguments and extracts the
+        The function takes the command line arguments and extracts the
         provided filepath from -path and -file option.
 
         If the option -file (filename) is not provided, the function will 

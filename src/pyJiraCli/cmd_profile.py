@@ -41,6 +41,7 @@ from pyJiraCli.jira_server import Server
 from pyJiraCli.printer import Printer, PrintType
 from pyJiraCli.profile_handler import ProfileHandler
 from pyJiraCli.ret import Ret
+
 ################################################################################
 # Variables
 ################################################################################
@@ -71,39 +72,37 @@ def register(subparser) -> argparse.ArgumentParser:
         help="Add, update or delete server profiles."
     )
 
-    parser.add_argument(
-        '--profile',
+    sub_parsers = parser.add_subparsers(required=True)
+
+    sub_parser_add = sub_parsers.add_parser("add")
+    sub_parser_add.set_defaults(func=_profile_add)
+
+    sub_parser_add.add_argument(
+        'profile_name',
         type=str,
-        metavar='<profile>',
-        help="The name of the server profile which shall be used for this process."
+        metavar="<profile name>",
+        help="The name of the profile."
     )
 
-    parser.add_argument(
+    sub_parser_add.add_argument(
         '-t',
         '--token',
         type=str,
         metavar='<token>',
+        required=True,
         help="The token to authenticate with the Jira server."
     )
 
-    parser.add_argument(
+    sub_parser_add.add_argument(
         '-s',
         '--server',
         type=str,
         metavar='<server URL>',
+        required=True,
         help="The Jira server URL to connect to."
     )
 
-    login_group = parser.add_argument_group("Profile Data")
-
-    login_group.add_argument(
-        'profile_name',
-        type=str,
-        metavar="<profile name>",
-        help="The Name under which the profile will be saved."
-    )
-
-    login_group.add_argument(
+    sub_parser_add.add_argument(
         '--cert',
         type=str,
         metavar="<certificate path>",
@@ -111,39 +110,58 @@ def register(subparser) -> argparse.ArgumentParser:
         help="The server SSL certificate."
     )
 
-    datatype_desc = parser.add_argument_group(
-        title='profile operations',
-        description='Only one operation type can be processed at a time.'
+    sub_parser_list = sub_parsers.add_parser("list")
+    sub_parser_list.set_defaults(func=_profile_list)
+
+    sub_parser_remove = sub_parsers.add_parser("remove")
+    sub_parser_remove.set_defaults(func=_profile_remove)
+
+    sub_parser_remove.add_argument(
+        'profile_name',
+        type=str,
+        metavar="<profile name>",
+        help="The name of the profile."
     )
 
-    option_grp = datatype_desc.add_mutually_exclusive_group(required=True)
+    sub_parser_update = sub_parsers.add_parser("update")
+    sub_parser_update.set_defaults(func=_profile_update)
 
-    option_grp.add_argument(
-        '--add',
-        '-a',
-        action="store_true",
-        help="Add a new server profile."
+    sub_parser_update.add_argument(
+        'profile_name',
+        type=str,
+        metavar="<profile name>",
+        help="The name of the profile."
     )
 
-    option_grp.add_argument(
-        '--remove',
-        '-r',
-        action="store_true",
-        help="Delete an existing server profile."
+    sub_parser_update.add_argument(
+        '-t',
+        '--token',
+        type=str,
+        metavar='<token>',
+        help="The token to authenticate with the Jira server."
     )
 
-    option_grp.add_argument(
-        '--update',
-        '-u',
-        action="store_true",
-        help="Update an existing server profile with new data."
+    sub_parser_update.add_argument(
+        '-s',
+        '--server',
+        type=str,
+        metavar='<server URL>',
+        help="The Jira server URL to connect to."
+    )
+
+    sub_parser_update.add_argument(
+        '--cert',
+        type=str,
+        metavar="<certificate path>",
+        required=False,
+        help="The server SSL certificate."
     )
 
     return parser
 
 
-def execute(args) -> Ret.CODE:
-    """ This function servers as entry point for the command 'profile'.
+def execute(_) -> Ret.CODE:
+    """ This function serves as entry point for the command 'profile'.
         It will be stored as callback for this modules subparser command.
 
     Args: 
@@ -152,39 +170,86 @@ def execute(args) -> Ret.CODE:
     Returns:
         Ret.CODE:   Returns Ret.RET_OK if successful or else the corresponding error code.
     """
-    server = Server()
-    ret_status = server.login(  args.profile,
-                                args.server,
-                                args.token,
-                                None,
-                                None)
+    ret_status = Ret.CODE.RET_OK
 
-    if Ret.CODE.RET_OK != ret_status:
-        server = None
+    # Nothing to do.
 
-    return _cmd_profile(args, server)
+    return ret_status
 
-
-def _cmd_profile(args, server: Server) -> Ret.CODE:
-    """ Process the 'profile' command and its 
-        commandline arguments.
+def _profile_add(args) -> Ret.CODE:
+    """ Store a new profile.
 
     Args:
-        args (obj): The commandline arguments.
-        server (Server): The server object to interact with the Jira server.
+        args (obj): The command line arguments.
 
     Returns:
         Ret.CODE: The return status of the module.
     """
+    ret_status = _check_profile(args)
 
-    ret_status = Ret.CODE.RET_ERROR
-
-    if (args.add is True) and (server is not None):
+    if ret_status is Ret.CODE.RET_OK:
         ret_status = _add_profile(args)
-    elif args.remove is True:
+
+    return ret_status
+
+def _profile_list(args) -> Ret.CODE:
+    """ List all stored profiles.
+
+    Args:
+        args (obj): The command line arguments.
+
+    Returns:
+        Ret.CODE: The return status of the module.
+    """
+    ret_status = _list_profiles()
+
+    return ret_status
+
+def _profile_remove(args) -> Ret.CODE:
+    """ Remove a dedicated profile from filesystem.
+
+    Args:
+        args (obj): The command line arguments.
+
+    Returns:
+        Ret.CODE: The return status of the module.
+    """
+    ret_status = _check_profile(args)
+
+    if ret_status is Ret.CODE.RET_OK:
         ret_status = _remove_profile(args.profile_name)
-    elif (args.update is True) and (server is not None):
+
+    return ret_status
+
+def _profile_update(args) -> Ret.CODE:
+    """ Update a dedicated existing profile.
+
+    Args:
+        args (obj): The command line arguments.
+
+    Returns:
+        Ret.CODE: The return status of the module.
+    """
+    ret_status = _check_profile(args)
+
+    if ret_status is Ret.CODE.RET_OK:
         ret_status = _update_profile(args)
+
+    return ret_status
+
+
+def _check_profile(args) -> Ret.CODE:
+    """ Check whether the profile information is valid by login to JIRA.
+
+    Returns:
+        Ret.CODE: If successful it will return Ret.CODE.RET_OK otherwise a error.
+    """
+    server = Server()
+    ret_status = server.login(  args.profile,
+                                args.server,
+                                args.token,
+                                args.user,
+                                args.password)
 
     return ret_status
 
@@ -193,7 +258,7 @@ def _add_profile(args) -> Ret.CODE:
     """ Adds a new profile to the configuration using provided arguments.
 
     Args:
-        args (obj): Object containing the commandline arguments for profile addition.
+        args (obj): Object containing the command line arguments for profile addition.
 
     Returns:
         Ret.CODE: Status code indicating the success or failure of the profile addition.
@@ -219,6 +284,24 @@ def _add_profile(args) -> Ret.CODE:
     return ret_status
 
 
+def _list_profiles() -> Ret.CODE:
+    """ List all stored profiles.
+
+    Returns:
+        Ret.CODE: Status code indicating the success or failure of the command.
+    """
+    ret_status = Ret.CODE.RET_OK
+    profile_handler = ProfileHandler()
+    profile_list = profile_handler.get_profiles()
+
+    print("Profiles:")
+
+    for profile_name in profile_list:
+        print(f"\t{profile_name}")
+
+    return ret_status
+
+
 def _remove_profile(profile_name: str) -> Ret.CODE:
     """ Removes a profile from the profile folder by name.
 
@@ -239,7 +322,7 @@ def _update_profile(args) -> Ret.CODE:
     """Updates an existing profile in the configuration using provided arguments.
 
     Args:
-        args (obj):  Object containing the commandline arguments for the profile update.
+        args (obj):  Object containing the command line arguments for the profile update.
 
     Returns:
         Ret.CODE: Status code indicating the success or failure of the profile update.
