@@ -117,7 +117,7 @@ class Server:
                 self._server_url = _profile.get_server_url()
                 api_token = _profile.get_api_token()
 
-                _printer.print_info('Loggin in to:', self._server_url)
+                _printer.print_info('Login in to:', self._server_url)
 
                 if self._cert_path is None:
                     _printer.print_error(
@@ -139,7 +139,7 @@ class Server:
                 _printer.print_error(
                     PrintType.WARNING, Warnings.CODE.WARNING_UNSAVE_CONNECTION)
 
-            _printer.print_info('Loggin in to:', self._server_url)
+            _printer.print_info('Login in to:', self._server_url)
 
             if arg_token is not None:
                 # Login with token

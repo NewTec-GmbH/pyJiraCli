@@ -12,15 +12,18 @@ import subprocess
 from enum import IntEnum
 from datetime import datetime
 from openpyxl import Workbook, load_workbook
+
 ################################################################################
 # Configuration
 ################################################################################
+
 __author__ = ""
 __date__ = datetime.now().strftime('%d.%m.%Y')
 
 ###############################################
 # Project configurations
 ###############################################
+
 # The board for which the sprints shall be analyzed
 BOARD = "BSP_BOARD: COMPONENT_1"
 
@@ -33,9 +36,11 @@ EXCEL_TABLE = "Tabelle1"
 # The files where the data will be stored
 EXCEL_FILE = f"C:/project/{BOARD.replace(' ','_').replace(':', '')}_JiraProjectProgress.xlsx"
 MISSING_DATA_FILE = f"C:/project/{BOARD.replace(' ','_').replace(':', '')}_MissingTicketData.txt"
+
 ################################################################################
 # Variables
 ################################################################################
+
 TMP_FILE = ".\\tmp.json"
 
 HEADER_ROW = 5

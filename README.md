@@ -66,7 +66,7 @@ There are two options for providing the server credentials to the tool:
 |[import](./doc/commands/import.md)           | Import a ticket from a JSON file.                   |
 |[search](./doc/commands/search.md)           | Search the Jira server for issues .                 |
 |[print](./doc/commands/print.md)             | Print the Jira Issue details to the console.        |
-|[profile](./doc/commands/profile.md)         | Add, delete or update server profiles.              |
+|[profile](./doc/commands/profile.md)         | Add, list, delete or update server profiles.        |
 |[get_sprints](./doc/commands/get_sprints.md) | Get raw Sprint data.                                |
 
 ## Examples

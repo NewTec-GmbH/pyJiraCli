@@ -66,41 +66,88 @@ def register(subparser) -> argparse.ArgumentParser:
         obj:    The command parser obj of this module.
     """
 
-    sub_parser_export: argparse.ArgumentParser = \
-        subparser.add_parser('export',
-                             help="Export a ticket from a Jira Server to a JSON file.")
+    parser = subparser.add_parser(
+        'export',
+        help="Export a ticket from a Jira Server to a JSON file."
+    )
 
-    sub_parser_export.add_argument('issue',
-                                   type=str,
-                                   help="Jira issue key")
+    parser.add_argument(
+        'issue',
+        type=str,
+        help="Jira issue key"
+    )
 
-    sub_parser_export.add_argument('--file',
-                                   type=str,
-                                   metavar='<path to file>',
-                                   help="Absolute file path or filepath relative " +
-                                   "to the current working directory. " +
-                                   "The file format must be JSON. "
-                                   "If a different file format is provided, " +
-                                   "the file extension will be replaced.")
+    parser.add_argument(
+        '--profile',
+        type=str,
+        metavar='<profile>',
+        help="The name of the server profile which shall be used for this process."
+    )
 
-    return sub_parser_export
+    parser.add_argument(
+        '-u',
+        '--user',
+        type=str,
+        metavar='<user>',
+        help="The user to authenticate with the Jira server."
+    )
+
+    parser.add_argument(
+        '-p',
+        '--password',
+        type=str,
+        metavar='<password>',
+        help="The password to authenticate with the Jira server."
+    )
+
+    parser.add_argument(
+        '-t',
+        '--token',
+        type=str,
+        metavar='<token>',
+        help="The token to authenticate with the Jira server."
+    )
+
+    parser.add_argument(
+        '-s',
+        '--server',
+        type=str,
+        metavar='<server URL>',
+        help="The Jira server URL to connect to."
+    )
+
+    parser.add_argument(
+        '--file',
+        type=str,
+        metavar='<path to file>',
+        help="Absolute file path or filepath relative " +
+        "to the current working directory. " +
+        "The file format must be JSON. "
+        "If a different file format is provided, " +
+        "the file extension will be replaced."
+    )
+
+    return parser
 
 
-def execute(args, server: Server) -> Ret.CODE:
+def execute(args) -> Ret.CODE:
     """ This function servers as entry point for the command 'export'.
         It will be stored as callback for this modules subparser command.
 
     Args: 
         args (obj): The command line arguments.
-        server (Server): The server object to interact with the Jira server.
 
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
-    ret_status = Ret.CODE.RET_ERROR
+    server = Server()
+    ret_status = server.login(  args.profile,
+                                args.server,
+                                args.token,
+                                args.user,
+                                args.password)
 
-    # pylint: disable=R0801
-    if server is None:
+    if Ret.CODE.RET_OK != ret_status:
         LOG.print_error(
             "Connection to server is not established. Please login first.")
     else:
@@ -112,7 +159,7 @@ def execute(args, server: Server) -> Ret.CODE:
 def _cmd_export(args, server: Server) -> Ret.CODE:
     """ Export a jira ticket to a JSON file.
 
-        The function takes the commandline arguments and extracts the
+        The function takes the command line arguments and extracts the
         provided filepath from -path and -file option.
 
         If the option -file (filename) is not provided, the function will 

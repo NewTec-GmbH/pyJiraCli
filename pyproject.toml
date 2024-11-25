@@ -10,7 +10,9 @@ readme = "README.md"
 requires-python = ">=3.9"
 authors = [
     { name = "Timo Heitzmann", email = "heitzmann_timo@web.de" },
-    { name = "Gabryel Reyes", email = "gabryelrdiaz@gmail.com" }
+    { name = "Gabryel Reyes", email = "gabryelrdiaz@gmail.com" },
+    { name = "Juliane Kerpe", email = "juliane.kerpe@newtec.de" },
+    { name = "Andreas Merkle", email = "andreas.merkle@newtec.de" }
 ]
 license = {text = "BSD 3-Clause"}
 classifiers = [

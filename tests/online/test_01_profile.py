@@ -88,7 +88,7 @@ def test_profile_operation(helpers: Helpers):
 
     # Update the profile.
     ret = helpers.run_pyjiracli(
-        [Helpers.PROFILE_COMMAND, "--update", Helpers.CI_PROFILE_NAME, "--cert", CERT_NAME])
+        [Helpers.PROFILE_COMMAND, "update", "--cert", CERT_NAME, Helpers.CI_PROFILE_NAME])
 
     # Expect OK.
     assert Ret.CODE.RET_OK == ret.returncode
