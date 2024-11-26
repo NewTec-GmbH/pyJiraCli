@@ -64,32 +64,77 @@ def register(subparser) -> argparse.ArgumentParser:
         obj:    The command parser object of this module.
     """
 
-    sub_parser_print: argparse.ArgumentParser = \
-        subparser.add_parser('print',
-                             help="Print the Jira Issue details to the console.")
+    parser = subparser.add_parser(
+        'print',
+        help="Print the Jira Issue details to the console."
+    )
 
-    sub_parser_print.add_argument('issueKey',
-                                  type=str,
-                                  help="The Jira Issue Key of the Issue to print.")
+    parser.add_argument(
+        '--profile',
+        type=str,
+        metavar='<profile>',
+        help="The name of the server profile which shall be used for this process."
+    )
 
-    return sub_parser_print
+    parser.add_argument(
+        '-u',
+        '--user',
+        type=str,
+        metavar='<user>',
+        help="The user to authenticate with the Jira server."
+    )
+
+    parser.add_argument(
+        '-p',
+        '--password',
+        type=str,
+        metavar='<password>',
+        help="The password to authenticate with the Jira server."
+    )
+
+    parser.add_argument(
+        '-t',
+        '--token',
+        type=str,
+        metavar='<token>',
+        help="The token to authenticate with the Jira server."
+    )
+
+    parser.add_argument(
+        '-s',
+        '--server',
+        type=str,
+        metavar='<server URL>',
+        help="The Jira server URL to connect to."
+    )
+
+    parser.add_argument(
+        'issueKey',
+        type=str,
+        help="The Jira issue key of the issue to print."
+    )
+
+    return parser
 
 
-def execute(args, server: Server) -> Ret.CODE:
+def execute(args) -> Ret.CODE:
     """ This function servers as entry point for the command 'print'.
         It will be stored as callback for this modules subparser command.
 
     Args: 
         args (obj): The command line arguments.
-        server (Server): The server object to interact with the Jira server.
 
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
-    ret_status = Ret.CODE.RET_ERROR
+    server = Server()
+    ret_status = server.login(  args.profile,
+                                args.server,
+                                args.token,
+                                args.user,
+                                args.password)
 
-    # pylint: disable=R0801
-    if server is None:
+    if Ret.CODE.RET_OK != ret_status:
         ret_status = Ret.CODE.RET_ERROR_JIRA_LOGIN
     else:
         ret_status = _cmd_print(args.issueKey, server)

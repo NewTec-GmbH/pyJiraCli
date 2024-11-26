@@ -31,7 +31,7 @@ def register(subparser):
     sub_parser_cmd.add_argument('--bool_option',
                           action="store_true",
                           help="store 'True'' in args.bool_option if the option \
-                                is set on the commandline \
+                                is set on the command line \
                                 otherwise store 'False'")
     
     # make sure to return the command parser

@@ -1,6 +1,6 @@
 # Profile
 
-Add, delete or update server profiles.
+Add, list, delete or update server profiles.
 
 The profile contains following data:
 
@@ -15,34 +15,31 @@ with the --update option.
 Username and password are not valid to create a profile for security reasons.
 
 ```cmd
-pyJiraCli profile --help
+pyJiraCli profile add --help
 ```
 
 Output:
 
 ```cmd
-usage: pyJiraCli profile [-h] [--cert <certificate path>] (--add | --remove | --update) <profile name>
+usage: pyJiraCli profile add [-h] -t <token> -s <server URL> [--cert <certificate path>] <profile name>
 
-options:
+positional arguments:
+  <profile name>        The name of the profile.
+
+optional arguments:
   -h, --help            show this help message and exit
-
-Profile Data:
-  <profile name>        The Name under which the profile will be saved.
+  -t <token>, --token <token>
+                        The token to authenticate with the Jira server.
+  -s <server URL>, --server <server URL>
+                        The Jira server URL to connect to.
   --cert <certificate path>
                         The server SSL certificate.
-
-profile operations:
-  Only one operation type can be processed at a time.
-
-  --add, -a             Add a new server profile.
-  --remove, -r          Delete an existing server profile.
-  --update, -u          Update an existing server profile with new data.
 ```
 
 Example:
 
 ```cmd
-pyJiraCli --server https://my-jira-instance.com --token This-Is-an-Example-Token profile --add new_profile --cert C:\\Path\\To\\Certificate.crt 
+pyJiraCli profile add --server https://my-jira-instance.com --token This-Is-an-Example-Token profile --cert C:\\Path\\To\\Certificate.crt new_profile
 ```
 
 This will create a new profile with the name "new_profile" and saves all possible profile information.

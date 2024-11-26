@@ -91,9 +91,9 @@ class Helpers:  # pylint: disable=too-few-public-methods
             subprocess.CompletedProcess[bytes]: The result of the command. 
             Includes return code, stdout and stderr.
         """
-        return Helpers.run_pyjiracli(["--server", Helpers.CI_JIRA_SERVER_URL,
+        return Helpers.run_pyjiracli([Helpers.PROFILE_COMMAND, "add",
+                                      "--server", Helpers.CI_JIRA_SERVER_URL,
                                       "--token", Helpers.CI_JIRA_USER_TOKEN,
-                                      Helpers.PROFILE_COMMAND, "--add",
                                       Helpers.CI_PROFILE_NAME])
 
     @staticmethod
@@ -106,7 +106,7 @@ class Helpers:  # pylint: disable=too-few-public-methods
             subprocess.CompletedProcess[bytes]: The result of the command. 
             Includes return code, stdout and stderr.
         """
-        return Helpers.run_pyjiracli([Helpers.PROFILE_COMMAND, "--remove", Helpers.CI_PROFILE_NAME])
+        return Helpers.run_pyjiracli([Helpers.PROFILE_COMMAND, "remove", Helpers.CI_PROFILE_NAME])
 
 ################################################################################
 # Functions
