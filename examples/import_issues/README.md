@@ -20,6 +20,7 @@ The JSON file that describes the issues to be imported requires the following fo
 - To determine which issue types and fields are available, please contact your Jira administrator.
 
 Note:
+
 The `id` key for `issuetype` is not used in the examples as it can lead to errors in the test server. However it looks like this:
 
 ```json
@@ -36,6 +37,24 @@ The `id` key for `issuetype` is not used in the examples as it can lead to error
       },
       "summary":"Fix tool documentation.",
       "labels" : ["label1", "label2"]
+    }
+  ]
+}
+```
+
+The JIRA custom fields are more difficult, because the custom field id must be known, as well as its type. If you don't know the custom field id or even which ones are custom fields, export one issue and have a look to the JSON output.
+
+```json
+{
+  ...
+
+  "issues":[
+    {
+      ...
+
+      "customfield_XXXXX": {
+        "value": "my value"
+      }
     }
   ]
 }
