@@ -29,7 +29,7 @@ jobs:
     needs: intro
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
 
     # Steps represent a sequence of tasks that will be executed as part of the job.
     steps:
@@ -57,7 +57,7 @@ jobs:
     needs: intro
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
 
     # Steps represent a sequence of tasks that will be executed as part of the job.
     steps:
@@ -85,7 +85,7 @@ jobs:
     needs: intro
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
 
     # Steps represent a sequence of tasks that will be executed as part of the job.
     steps:
