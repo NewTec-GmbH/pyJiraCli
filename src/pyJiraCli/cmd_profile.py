@@ -185,7 +185,14 @@ def _profile_add(args) -> Ret.CODE:
     Returns:
         Ret.CODE: The return status of the module.
     """
+    # Buffer profile name so the check can be run without it.
+    temp_profile_name = args.profile_name
+    args.profile_name = None
     ret_status = _check_profile(args)
+
+    args.profile_name = temp_profile_name
+
+    print(ret_status)
 
     if ret_status is Ret.CODE.RET_OK:
         ret_status = _add_profile(args)
@@ -214,7 +221,6 @@ def _profile_remove(args) -> Ret.CODE:
     Returns:
         Ret.CODE: The return status of the module.
     """
-    ret_status = _check_profile(args)
 
     if ret_status is Ret.CODE.RET_OK:
         ret_status = _remove_profile(args.profile_name)
@@ -245,11 +251,11 @@ def _check_profile(args) -> Ret.CODE:
         Ret.CODE: If successful it will return Ret.CODE.RET_OK otherwise a error.
     """
     server = Server()
-    ret_status = server.login(  args.profile,
+    ret_status = server.login(  args.profile_name,
                                 args.server,
                                 args.token,
-                                args.user,
-                                args.password)
+                                None,
+                                None)
 
     return ret_status
 
