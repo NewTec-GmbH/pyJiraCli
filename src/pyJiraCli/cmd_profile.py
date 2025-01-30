@@ -185,14 +185,20 @@ def _profile_add(args) -> Ret.CODE:
     Returns:
         Ret.CODE: The return status of the module.
     """
+    ret_status = Ret.CODE.RET_OK
+
+    # Do not overwrite existing profiles.
+    profile_handler = ProfileHandler()
+    profile_list = profile_handler.get_profiles()
+    if args.profile_name in profile_list:
+        ret_status = Ret.CODE.RET_ERROR_PROFILE_ALREADY_EXISTS
+
     # Buffer profile name so the check can be run without it.
-    temp_profile_name = args.profile_name
-    args.profile_name = None
-    ret_status = _check_profile(args)
-
-    args.profile_name = temp_profile_name
-
-    print(ret_status)
+    if ret_status is Ret.CODE.RET_OK:
+        temp_profile_name = args.profile_name
+        args.profile_name = None
+        ret_status = _check_profile(args)
+        args.profile_name = temp_profile_name
 
     if ret_status is Ret.CODE.RET_OK:
         ret_status = _add_profile(args)

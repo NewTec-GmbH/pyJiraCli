@@ -62,6 +62,7 @@ class Ret():
         RET_ERROR_INVALID_URL            = 12
         RET_ERROR_JIRA_LOGIN             = 13
         RET_ERROR_BOARD_NOT_FOUND        = 14
+        RET_ERROR_PROFILE_ALREADY_EXISTS = 15
 
     MSG = {
         CODE.RET_OK:                           "Process successful.",
@@ -81,7 +82,9 @@ class Ret():
         CODE.RET_ERROR_INVALID_URL:            "The provided server url is invalid",
         CODE.RET_ERROR_JIRA_LOGIN:             "Login to jira server was not possible",
         CODE.RET_ERROR_BOARD_NOT_FOUND:        "The jira board does not exist or " +\
-                                               "you have no access to it."
+                                               "you have no access to it.",
+        CODE.RET_ERROR_PROFILE_ALREADY_EXISTS: "The profile you want to add already exists.\n" +\
+                                               "Use the 'update' command to update it."
     }
 
 
