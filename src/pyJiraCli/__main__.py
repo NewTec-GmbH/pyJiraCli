@@ -149,6 +149,9 @@ def main() -> Ret.CODE:
         # Call command function and return exit status
         ret_status = args.func(args)
 
+    if ret_status is not Ret.CODE.RET_OK:
+        print(Ret.MSG[ret_status])
+
     return ret_status
 
 ################################################################################
