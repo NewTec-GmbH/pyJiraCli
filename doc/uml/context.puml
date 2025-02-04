@@ -1,83 +1,84 @@
 @startuml pyJiraCli_components
+
 top to bottom direction
 skinparam Linetype ortho
 
 file "issue key" as key
 file "input file" as i_file
 file "search string" as filter
-file "profile data" as input_profile
+file "profile data" as profile_data
 
-package "pyJiraCli"{
-    [main] as main
+package "pyJiraCli" {
+  [main]
 
-    [cmd_import] as import
-    [cmd_export] as export
-    [cmd_profile]  as profile
-    [cmd_print]  as print
-    [cmd_search] as search
+  [cmd_import] as import
+  [cmd_export] as export
+  [cmd_profile] as profile
+  [cmd_print] as print
+  [cmd_search] as search
 }
 
-key .down...> export        : <<flow>>
-key .down...> print         : <<flow>>
-input_profile .down...> profile : <<flow>>
-filter .down...> search     : <<flow>>
-i_file .down...> import     : <<flow>>
+key .down...> export : <<flow>>
+key .down...> print : <<flow>>
+profile_data .down...> profile : <<flow>>
+filter .down...> search : <<flow>>
+i_file .down...> import : <<flow>>
 
-database "Jira Server"{
-file "jira Issue" as jira_issue
+database "Jira Server" {
+  file "Jira issue" as jira_issue
 }
-
 
 database filesystem {
-file "login data" as log_data
-file "JSON file" as file
+  file "profile data" as profile_data_files
+  file "JSON file" as file
 }
 
 main .down.> import : <<flow>>
 main .down.> export : <<flow>>
-main .down.> profile  : <<flow>>
-main .down.> print  : <<flow>>
+main .down.> profile : <<flow>>
+main .down.> print : <<flow>>
 main .down.> search : <<flow>>
 
-profile ...down.> log_data    : <<flow>>\n<<store/delete>>    
-export ...down.> file       : <<flow>>\n<<create>>
+profile ...down.> profile_data_files : <<flow>>\n<<store/delete/update>>
+export ...down.> file : <<flow>>\n<<create>>
 import ....> jira_issue : <<flow>>\n<<create>>
 
-' notes '
-note bottom of log_data
-    username and password or 
-    API token is stored in an
-    encrypted file
+'Notes
+note bottom of profile_data_files
+  Server URL and user API token
+  are stored in a JSON file.
+  The server certificate is placed
+  in the same folder (optional).
 end note
 
 note bottom of file
-    the ticket data is stored
-    in a JSON file
+  The retrieved ticket data is
+  stored in a JSON file.
 end note
 
 note top of key
-    unique issue key for
-    an existing jira issue
+  Unique issue key for
+  an existing Jira issue.
 end note
 
-note top of input_profile
-    the server url, a user api token
-    and a server certificate are stored
-    in a profile folder
-    the profile is reference
-    by a unique name
+note top of profile_data
+  The server URL, a user API token
+  and a server certificate are stored
+  in a profile folder.
+  The profile is referenced
+  by a unique (folder) name.
 end note
 
 note top of filter
-    a jira search string 
-    to find all fitting
-    jira issues
+  A Jira search string
+  to find all matching
+  Jira issues.
 end note
 
 note top of i_file
-    JSON file
-    with jira ticket
-    information
+  JSON file
+  with Jira ticket
+  information
 end note
 
-@endumlsss
+@enduml

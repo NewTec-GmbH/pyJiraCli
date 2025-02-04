@@ -74,7 +74,7 @@ There are two options for providing the server credentials to the tool:
 Import an issue:
 
 ```cmd
-pyJiraCli --profile my_profile import ./examples/import_issues/single_issue.json
+pyJiraCli import ./examples/import_issues/single_issue.json --profile my_profile
 ```
 
 Check out the all the [Examples](./examples) on how to use the pyJiraCli tool.
