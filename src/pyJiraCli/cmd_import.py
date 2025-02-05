@@ -403,7 +403,7 @@ def _read_file(input_file: str) -> tuple[Ret.CODE, dict]:
     if Ret.CODE.RET_OK == ret_status:
         # Check if file is a JSON file and open it.
         if file.get_file_extension() != '.json':
-            ret_status = Ret.CODE.RET_ERROR_WORNG_FILE_FORMAT
+            ret_status = Ret.CODE.RET_ERROR_WRONG_FILE_FORMAT
         elif Ret.CODE.RET_OK != file.open_file(file_mode='r'):
             ret_status = Ret.CODE.RET_ERROR_FILE_OPEN_FAILED
         else:

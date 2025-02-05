@@ -244,7 +244,7 @@ def _cmd_search(filter_str: str,
             if "worklog" in issue_dict["fields"]:
 
                 # Get the worklogs for the issue
-                # Itereate over all worklogs and store them in a list
+                # Iterate over all worklogs and store them in a list
                 worklog_list = [
                     log.raw for log in jira.worklogs(issue.key)]
 

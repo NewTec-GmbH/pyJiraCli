@@ -51,7 +51,7 @@ class Ret():
         RET_ERROR                        = 1
         RET_ERROR_ARGPARSE               = 2 # Must be 2 to match the argparse error code.
         RET_ERROR_FILEPATH_INVALID       = 3
-        RET_ERROR_WORNG_FILE_FORMAT      = 4
+        RET_ERROR_WRONG_FILE_FORMAT      = 4
         RET_ERROR_ISSUE_NOT_FOUND        = 5
         RET_ERROR_FILE_OPEN_FAILED       = 6
         RET_ERROR_NO_USERINFORMATION     = 7
@@ -63,13 +63,14 @@ class Ret():
         RET_ERROR_JIRA_LOGIN             = 13
         RET_ERROR_BOARD_NOT_FOUND        = 14
         RET_ERROR_PROFILE_ALREADY_EXISTS = 15
+        RET_ERROR_INVALID_PROFILE_TYPE   = 16
 
     MSG = {
         CODE.RET_OK:                           "Process successful.",
         CODE.RET_ERROR:                        "Error occurred.",
         CODE.RET_ERROR_ARGPARSE:               "Error while parsing arguments.",
         CODE.RET_ERROR_FILEPATH_INVALID:       "The provided filepath does not exist.",
-        CODE.RET_ERROR_WORNG_FILE_FORMAT:      "Wrong file format for save file provided.",
+        CODE.RET_ERROR_WRONG_FILE_FORMAT:      "Wrong file format for save file provided.",
         CODE.RET_ERROR_ISSUE_NOT_FOUND:        "Jira issue not found.",
         CODE.RET_ERROR_FILE_OPEN_FAILED:       "Failed to open file.",
         CODE.RET_ERROR_NO_USERINFORMATION:     "No user information was provided " + \
@@ -84,7 +85,8 @@ class Ret():
         CODE.RET_ERROR_BOARD_NOT_FOUND:        "The jira board does not exist or " +\
                                                "you have no access to it.",
         CODE.RET_ERROR_PROFILE_ALREADY_EXISTS: "The profile you want to add already exists.\n" +\
-                                               "Use the 'update' command to update it."
+                                               "Use the 'update' command to update it.",
+        CODE.RET_ERROR_INVALID_PROFILE_TYPE:   "The provided profile type is invalid."
     }
 
 

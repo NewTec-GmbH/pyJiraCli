@@ -88,7 +88,7 @@ _CMD_MODULES = [
 </p>
 </details>
 
-3. Import ```retval.py``` and add further error codes and messages if needed.
+3. Import ```ret.py``` and add further error codes and messages if needed.
 
 <details>
 <summary>Code</summary>
@@ -101,7 +101,7 @@ class Ret(IntEnum):
     RET_ERROR                        = 1
     RET_ERROR_JIRA_LOGIN             = 2
     RET_ERROR_FILEPATH_INVALID       = 3
-    RET_ERROR_WORNG_FILE_FORMAT      = 4
+    RET_ERROR_WRONG_FILE_FORMAT      = 4
     RET_ERROR_ISSUE_NOT_FOUND        = 5
     RET_ERROR_FILE_OPEN_FAILED       = 6
     RET_ERROR_NO_USERINFORMATION     = 7

@@ -1,5 +1,5 @@
 """ The Profile class.
-    Handles adding, deleting or changimg server
+    Handles adding, deleting or changing server
     profiles.
 """
 # BSD 3-Clause License
@@ -38,6 +38,8 @@ import os
 import ctypes
 import json
 
+from enum import StrEnum
+
 from pyJiraCli.file_handler import FileHandler as File
 from pyJiraCli.ret import Ret, Warnings
 from pyJiraCli.printer import Printer, PrintType
@@ -50,8 +52,17 @@ PATH_TO_PROFILE_FOLDER   = "/.pyJiraCli/.profiles/"
 CERT_FILE = ".cert.crt"
 DATA_FILE = ".data.json"
 
-URL_KEY = 'url'
+PASSWORD_KEY = 'password'
+SERVER_URL_KEY = 'server'
+TYPE_KEY = 'type'
 TOKEN_KEY = 'token'
+USER_KEY = 'user'
+
+class ProfileType(StrEnum):
+    """ The profile types."""
+    JIRA = 'jira'
+    POLARION = 'polarion'
+    SUPERSET = 'superset'
 
 FILE_ATTRIBUTE_HIDDEN = 0x02
 
@@ -67,21 +78,22 @@ class ProfileHandler:
     """
     def __init__(self):
         self._profile_name = None
-        self._profile_url = None
+        self._profile_type = None
+        self._profile_server_url = None
         self._profile_token = None
         self._profile_cert = None
         self._profile_config = None
 
     def add(self,
             profile_name:str,
-            profile_url:str,
+            server_url:str,
             login_token:str,
             cert_path:str) -> Ret.CODE:
         """ Adds a new profile with the provided details.
 
         Args:
             profile_name (str): The unique name of the profile.
-            profile_url (str): The URL associated with the profile.
+            server_url (str): The server URL associated with the profile.
             login_token (str): The login token for profile authentication.
             cert_path (str): The file path to the profile's server certificate.
 
@@ -94,8 +106,8 @@ class ProfileHandler:
         add_profile = True
 
         write_dict = {
-            URL_KEY : profile_url
-            }
+            SERVER_URL_KEY : server_url
+        }
 
         if login_token is None:
             _printer.print_error(PrintType.WARNING, Warnings.CODE.WARNING_TOKEN_RECOMMENDED)
@@ -190,7 +202,7 @@ class ProfileHandler:
         self.load(profile_name)
 
         write_dict = {
-            URL_KEY   : self._profile_url,
+            SERVER_URL_KEY : self._profile_server_url,
             TOKEN_KEY : api_token
         }
 
@@ -249,7 +261,10 @@ class ProfileHandler:
                 _file.open_file('r')
                 profile_dict = json.load(_file.get_file())
 
-                self._profile_url = profile_dict[URL_KEY]
+                self._profile_type = profile_dict[TYPE_KEY]
+                if not self._profile_type in ProfileType:
+                    return Ret.CODE.RET_ERROR_INVALID_PROFILE_TYPE
+                self._profile_server_url = profile_dict[SERVER_URL_KEY]
 
                 if TOKEN_KEY in profile_dict:
                     self._profile_token = profile_dict[TOKEN_KEY]
@@ -311,7 +326,7 @@ class ProfileHandler:
         Returns:
             str: The server URL used by the profile.
         """
-        return self._profile_url
+        return self._profile_server_url
 
     def get_api_token(self) -> str:
         """ Retrieves the API token associated with the profile.

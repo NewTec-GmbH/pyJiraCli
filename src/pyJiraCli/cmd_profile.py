@@ -40,6 +40,7 @@ import argparse
 from pyJiraCli.jira_server import Server
 from pyJiraCli.printer import Printer, PrintType
 from pyJiraCli.profile_handler import ProfileHandler
+from pyJiraCli.profile_handler import ProfileType
 from pyJiraCli.ret import Ret
 
 ################################################################################
@@ -198,7 +199,7 @@ def _profile_add(args) -> Ret.CODE:
     if ret_status is Ret.CODE.RET_OK:
         temp_profile_name = args.profile_name
         args.profile_name = None
-        ret_status = _check_profile(args)
+        ret_status = _check_jira_profile(args)
         args.profile_name = temp_profile_name
 
     if ret_status is Ret.CODE.RET_OK:
@@ -238,7 +239,7 @@ def _profile_remove(args) -> Ret.CODE:
 
 
 def _profile_update(args) -> Ret.CODE:
-    """ Update a dedicated existing profile.
+    """ Updates an existing profile.
 
     Args:
         args (obj): The command line arguments.
@@ -246,7 +247,7 @@ def _profile_update(args) -> Ret.CODE:
     Returns:
         Ret.CODE: The return status of the module.
     """
-    ret_status = _check_profile(args)
+    ret_status = _check_jira_profile(args)
 
     if ret_status is Ret.CODE.RET_OK:
         ret_status = _update_profile(args)
@@ -254,12 +255,16 @@ def _profile_update(args) -> Ret.CODE:
     return ret_status
 
 
-def _check_profile(args) -> Ret.CODE:
-    """ Check whether the profile information is valid by login to JIRA.
+def _check_jira_profile(args) -> Ret.CODE:
+    """ Checks whether the profile information is valid by login to Jira.
 
     Returns:
         Ret.CODE: If successful it will return Ret.CODE.RET_OK otherwise a error.
     """
+
+    if args.type != ProfileType.JIRA:
+        return Ret.CODE.RET_ERROR_INVALID_PROFILE_TYPE
+
     server = Server()
     ret_status = server.login(  args.profile_name,
                                 args.server,
@@ -292,10 +297,10 @@ def _add_profile(args) -> Ret.CODE:
               "Please provide a token using the --token option.")
     else:
         name = args.profile_name
-        url = args.server
+        server = args.server
         token = args.token
         certificate = args.cert
-        ret_status = _profile.add(name, url, token, certificate)
+        ret_status = _profile.add(name, server, token, certificate)
 
     return ret_status
 
