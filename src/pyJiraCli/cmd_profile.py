@@ -1,5 +1,5 @@
 """ Command for the profile function.
-    This module caan add, remove or configure server profiles.
+    This module can add, remove or configure server profiles.
     The profiles contain server url, login data, the server certificate
     and configuration data for a specific jira server instance.
 """
@@ -176,6 +176,7 @@ def execute(_) -> Ret.CODE:
 
     return ret_status
 
+
 def _profile_add(args) -> Ret.CODE:
     """ Store a new profile.
 
@@ -205,6 +206,7 @@ def _profile_add(args) -> Ret.CODE:
 
     return ret_status
 
+
 def _profile_list(_) -> Ret.CODE:
     """ List all stored profiles.
 
@@ -217,6 +219,7 @@ def _profile_list(_) -> Ret.CODE:
     ret_status = _list_profiles()
 
     return ret_status
+
 
 def _profile_remove(args) -> Ret.CODE:
     """ Remove a dedicated profile from filesystem.
@@ -232,6 +235,7 @@ def _profile_remove(args) -> Ret.CODE:
         ret_status = _remove_profile(args.profile_name)
 
     return ret_status
+
 
 def _profile_update(args) -> Ret.CODE:
     """ Update a dedicated existing profile.
