@@ -38,7 +38,14 @@ import os
 import ctypes
 import json
 
-from enum import StrEnum
+try:
+    from enum import StrEnum  # Available in Python 3.11+
+except ImportError:
+    from enum import Enum
+
+    class StrEnum(str, Enum):
+        ''' Custom StrEnum class for Python versions < 3.11 '''
+
 from dataclasses import dataclass
 
 from pyJiraCli.file_handler import FileHandler as File
