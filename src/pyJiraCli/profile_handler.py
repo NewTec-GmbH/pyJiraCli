@@ -37,8 +37,7 @@
 import os
 import ctypes
 import json
-
-from enum import StrEnum
+import enum
 
 from pyJiraCli.file_handler import FileHandler as File
 from pyJiraCli.ret import Ret, Warnings
@@ -58,7 +57,7 @@ TYPE_KEY = 'type'
 TOKEN_KEY = 'token'
 USER_KEY = 'user'
 
-class ProfileType(StrEnum):
+class ProfileType(enum.StrEnum):
     """ The profile types."""
     JIRA = 'jira'
     POLARION = 'polarion'
