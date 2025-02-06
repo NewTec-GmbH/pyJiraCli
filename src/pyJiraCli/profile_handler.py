@@ -34,10 +34,12 @@
 ################################################################################
 # Imports
 ################################################################################
-from enum import StrEnum
 import os
 import ctypes
 import json
+
+from enum import StrEnum
+from dataclasses import dataclass
 
 from pyJiraCli.file_handler import FileHandler as File
 from pyJiraCli.ret import Ret, Warnings
@@ -57,12 +59,12 @@ TYPE_KEY = 'type'
 TOKEN_KEY = 'token'
 USER_KEY = 'user'
 
-class ProfileType(StrEnum):  # pylint: disable=too-few-public-methods, no-name-in-module
+@dataclass
+class ProfileType(StrEnum):
     """ The profile types."""
     JIRA = 'jira'
     POLARION = 'polarion'
     SUPERSET = 'superset'
-
 
 FILE_ATTRIBUTE_HIDDEN = 0x02
 
