@@ -60,11 +60,11 @@ PATH_TO_PROFILE_FOLDER = "/.pyJiraCli/.profiles/"
 CERT_FILE = ".cert.crt"
 DATA_FILE = ".data.json"
 
-PASSWORD_KEY = 'password'
-SERVER_URL_KEY = 'server'
 TYPE_KEY = 'type'
+SERVER_URL_KEY = 'server'
 TOKEN_KEY = 'token'
 USER_KEY = 'user'
+PASSWORD_KEY = 'password'
 
 @dataclass
 class ProfileType(StrEnum):
@@ -92,20 +92,25 @@ class ProfileHandler:
         self._profile_type = None
         self._profile_server_url = None
         self._profile_token = None
+        self._profile_user = None
+        self._profile_password = None
         self._profile_cert = None
-        self._profile_config = None
 
     def add(self,
             profile_name: str,
+            profile_type: ProfileType,
             server_url: str,
-            login_token: str,
+            token: str,
+            user: str,
+            password: str,
             cert_path: str) -> Ret.CODE:
         """ Adds a new profile with the provided details.
 
         Args:
             profile_name (str): The unique name of the profile.
             server_url (str): The server URL associated with the profile.
-            login_token (str): The login token for profile authentication.
+            token (str): The login token for authentication at the server (preferred).
+            user/password (str): The user/password for authentication at the server.
             cert_path (str): The file path to the profile's server certificate.
 
         Returns:
@@ -117,14 +122,23 @@ class ProfileHandler:
         add_profile = True
 
         write_dict = {
-            SERVER_URL_KEY: server_url
+            TYPE_KEY: profile_type,
+            SERVER_URL_KEY: server_url,
         }
 
-        if login_token is None:
+        # Check if the token is provided and add it to the profile.
+        if token is not None:
+            write_dict[TOKEN_KEY] = token
+        # Else require user/password for authentication.
+        else:
             _printer.print_error(
                 PrintType.WARNING, Warnings.CODE.WARNING_TOKEN_RECOMMENDED)
-        else:
-            write_dict[TOKEN_KEY] = login_token
+
+            if user is not None and password is not None:
+                write_dict[USER_KEY] = user
+                write_dict[PASSWORD_KEY] = password
+            else:
+                return Ret.CODE.RET_ERROR_MISSING_CREDENTIALS
 
         profile_path = _get_path_to_login_folder() + f"{profile_name}/"
 
@@ -252,11 +266,10 @@ class ProfileHandler:
         return ret_status
 
     def load(self, profile_name: str) -> Ret.CODE:
-        """ Loads the server profile information 
-            for the specified profile.
+        """ Loads the profile with the specified name.
 
         Args:
-            profile_name (str): Name of the server profile to load.
+            profile_name (str): The name of the server profile to load.
 
         Returns:
             Ret.CODE: Status code indicating the success or failure of the load operation.
@@ -281,6 +294,10 @@ class ProfileHandler:
 
                 if TOKEN_KEY in profile_dict:
                     self._profile_token = profile_dict[TOKEN_KEY]
+
+                if USER_KEY in profile_dict and PASSWORD_KEY in profile_dict:
+                    self._profile_user = profile_dict[USER_KEY]
+                    self._profile_password = profile_dict[PASSWORD_KEY]
 
                 if os.path.exists(profile_path + CERT_FILE):
                     self._profile_cert = profile_path + CERT_FILE
@@ -312,17 +329,18 @@ class ProfileHandler:
         profile_path = _get_path_to_login_folder() + f"{profile_name}/"
 
         if os.path.exists(profile_path):
-            os.remove(profile_path + DATA_FILE)
+            if os.path.exists(profile_path + DATA_FILE):
+                os.remove(profile_path + DATA_FILE)
 
             if os.path.exists(profile_path + CERT_FILE):
                 os.remove(profile_path + CERT_FILE)
 
             os.rmdir(profile_path)
 
-            _printer.print_info("Successfully removed profile:", profile_name)
+            _printer.print_info("Successfully removed profile: ", profile_name)
 
         else:
-            _printer.print_info("Can't delete profile:", profile_name,
+            _printer.print_info("Profile folder does not exist: ", profile_name,
                                 "A profile with this name does not exist.")
 
     def get_cert_path(self) -> str:
@@ -348,6 +366,22 @@ class ProfileHandler:
             str: The API token used by the profile for authentication.
         """
         return self._profile_token
+
+    def get_user(self) -> str:
+        """ Retrieves the username associated with the profile.
+
+        Returns:
+            str: The username provided in the profile for authentication at the server.
+        """
+        return self._profile_user
+
+    def get_password(self) -> str:
+        """ Retrieves the password associated with the profile.
+
+        Returns:
+            str: The password provided in the profile for authentication at the server.
+        """
+        return self._profile_password
 
     def get_profiles(self) -> [str]:
         """ Get a list of all stored profiles.

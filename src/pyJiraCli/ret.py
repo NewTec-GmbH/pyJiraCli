@@ -64,6 +64,7 @@ class Ret():
         RET_ERROR_BOARD_NOT_FOUND        = 14
         RET_ERROR_PROFILE_ALREADY_EXISTS = 15
         RET_ERROR_INVALID_PROFILE_TYPE   = 16
+        RET_ERROR_MISSING_CREDENTIALS    = 17
 
     MSG = {
         CODE.RET_OK:                           "Process successful.",
@@ -78,15 +79,16 @@ class Ret():
         CODE.RET_ERROR_PROFILE_NOT_FOUND:      "The server profile does not exist.",
         CODE.RET_ERROR_NO_SERVER_URL:          "To add a new profile, the server url must " + \
                                                "be provided with the --url option",
-        CODE.RET_ERROR_CREATING_TICKET_FAILED: "creating the ticket on the jira server failed",
-        CODE.RET_ERROR_INVALID_SEARCH:         "search string returned a jira error",
+        CODE.RET_ERROR_CREATING_TICKET_FAILED: "creating the ticket on the Jira server failed",
+        CODE.RET_ERROR_INVALID_SEARCH:         "search string returned a Jira error",
         CODE.RET_ERROR_INVALID_URL:            "The provided server url is invalid",
-        CODE.RET_ERROR_JIRA_LOGIN:             "Login to jira server was not possible",
-        CODE.RET_ERROR_BOARD_NOT_FOUND:        "The jira board does not exist or " +\
+        CODE.RET_ERROR_JIRA_LOGIN:             "Login to Jira server was not possible",
+        CODE.RET_ERROR_BOARD_NOT_FOUND:        "The Jira board does not exist or " +\
                                                "you have no access to it.",
         CODE.RET_ERROR_PROFILE_ALREADY_EXISTS: "The profile you want to add already exists.\n" +\
                                                "Use the 'update' command to update it.",
-        CODE.RET_ERROR_INVALID_PROFILE_TYPE:   "The provided profile type is invalid."
+        CODE.RET_ERROR_INVALID_PROFILE_TYPE:   "The provided profile type is invalid.",
+        CODE.RET_ERROR_MISSING_CREDENTIALS:    "Failed to provide server credentials.",
     }
 
 
@@ -109,7 +111,7 @@ class Warnings():
                                              "JSON file will be created.",
         CODE.WARNING_TOKEN_RECOMMENDED:      "No api token was found in this server profile. " + \
                                              "Its recommended to add a token to your server " +\
-                                             "profile."
+                                             "profile.",
     }
 
 ################################################################################
