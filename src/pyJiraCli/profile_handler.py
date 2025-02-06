@@ -96,6 +96,7 @@ class ProfileHandler:
         self._profile_password = None
         self._profile_cert = None
 
+    # pylint: disable=R0912, R0913
     def add(self,
             profile_name: str,
             profile_type: ProfileType,
