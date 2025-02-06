@@ -34,10 +34,10 @@
 ################################################################################
 # Imports
 ################################################################################
+from enum import StrEnum
 import os
 import ctypes
 import json
-import enum
 
 from pyJiraCli.file_handler import FileHandler as File
 from pyJiraCli.ret import Ret, Warnings
@@ -47,7 +47,7 @@ from pyJiraCli.printer import Printer, PrintType
 # Variables
 ################################################################################
 
-PATH_TO_PROFILE_FOLDER   = "/.pyJiraCli/.profiles/"
+PATH_TO_PROFILE_FOLDER = "/.pyJiraCli/.profiles/"
 CERT_FILE = ".cert.crt"
 DATA_FILE = ".data.json"
 
@@ -57,11 +57,12 @@ TYPE_KEY = 'type'
 TOKEN_KEY = 'token'
 USER_KEY = 'user'
 
-class ProfileType(enum.StrEnum):
+class ProfileType(StrEnum):  # pylint: disable=too-few-public-methods, no-member
     """ The profile types."""
     JIRA = 'jira'
     POLARION = 'polarion'
     SUPERSET = 'superset'
+
 
 FILE_ATTRIBUTE_HIDDEN = 0x02
 
@@ -69,12 +70,14 @@ FILE_ATTRIBUTE_HIDDEN = 0x02
 # Classes
 ################################################################################
 
+
 class ProfileHandler:
     """ The ProfileHandler class handles all 
         processes regarding server profiles.
         This includes adding, deleting or configuring
         Profile data. 
     """
+
     def __init__(self):
         self._profile_name = None
         self._profile_type = None
@@ -84,10 +87,10 @@ class ProfileHandler:
         self._profile_config = None
 
     def add(self,
-            profile_name:str,
-            server_url:str,
-            login_token:str,
-            cert_path:str) -> Ret.CODE:
+            profile_name: str,
+            server_url: str,
+            login_token: str,
+            cert_path: str) -> Ret.CODE:
         """ Adds a new profile with the provided details.
 
         Args:
@@ -105,11 +108,12 @@ class ProfileHandler:
         add_profile = True
 
         write_dict = {
-            SERVER_URL_KEY : server_url
+            SERVER_URL_KEY: server_url
         }
 
         if login_token is None:
-            _printer.print_error(PrintType.WARNING, Warnings.CODE.WARNING_TOKEN_RECOMMENDED)
+            _printer.print_error(
+                PrintType.WARNING, Warnings.CODE.WARNING_TOKEN_RECOMMENDED)
         else:
             write_dict[TOKEN_KEY] = login_token
 
@@ -118,7 +122,8 @@ class ProfileHandler:
         if not os.path.exists(profile_path):
             os.mkdir(profile_path)
         else:
-            print("A profile with this name already exists. Do you want to override this profile?")
+            print(
+                "A profile with this name already exists. Do you want to override this profile?")
             response = input("(y/n): ")
 
             if response == 'y':
@@ -142,7 +147,7 @@ class ProfileHandler:
 
         return ret_status
 
-    def add_certificate(self, profile_name:str, cert_path:str) -> Ret.CODE:
+    def add_certificate(self, profile_name: str, cert_path: str) -> Ret.CODE:
         """ Adds a server certificate to the specified profile.
 
         Args:
@@ -159,7 +164,7 @@ class ProfileHandler:
         profile_path = _get_path_to_login_folder() + f"{profile_name}/"
 
         if os.path.exists(cert_path):
-            ret_status =_file.set_filepath(cert_path)
+            ret_status = _file.set_filepath(cert_path)
         else:
             ret_status = Ret.CODE.RET_ERROR_FILEPATH_INVALID
 
@@ -168,7 +173,7 @@ class ProfileHandler:
 
         if ret_status == Ret.CODE.RET_OK:
             cert_data = _file.get_file_content()
-            ret_status =_file.set_filepath(profile_path + CERT_FILE)
+            ret_status = _file.set_filepath(profile_path + CERT_FILE)
 
         if ret_status == Ret.CODE.RET_OK:
             if os.path.exists(profile_path + CERT_FILE):
@@ -178,11 +183,11 @@ class ProfileHandler:
             _file.hide_file()
 
             _printer.print_info("Successfully added a certificate to profile:",
-                               profile_name)
+                                profile_name)
 
         return ret_status
 
-    def add_token(self, profile_name:str, api_token:str) -> Ret.CODE:
+    def add_token(self, profile_name: str, api_token: str) -> Ret.CODE:
         """ Adds an API token to the specified profile.
 
         Args:
@@ -201,15 +206,15 @@ class ProfileHandler:
         self.load(profile_name)
 
         write_dict = {
-            SERVER_URL_KEY : self._profile_server_url,
-            TOKEN_KEY : api_token
+            SERVER_URL_KEY: self._profile_server_url,
+            TOKEN_KEY: api_token
         }
 
         os.remove(profile_path + DATA_FILE)
 
         profile_data = json.dumps(write_dict, indent=4)
 
-        ret_status =_file.set_filepath(profile_path + DATA_FILE)
+        ret_status = _file.set_filepath(profile_path + DATA_FILE)
 
         if ret_status == Ret.CODE.RET_OK:
             _file.write_file(profile_data)
@@ -219,7 +224,7 @@ class ProfileHandler:
 
         return ret_status
 
-    def add_config(self, issue_config_file:str, project_config_file:str) -> Ret.CODE:
+    def add_config(self, issue_config_file: str, project_config_file: str) -> Ret.CODE:
         """ Adds configuration settings from specified files to the profile.
 
         Args:
@@ -237,7 +242,7 @@ class ProfileHandler:
 
         return ret_status
 
-    def load(self, profile_name:str) -> Ret.CODE:
+    def load(self, profile_name: str) -> Ret.CODE:
         """ Loads the server profile information 
             for the specified profile.
 
@@ -288,7 +293,7 @@ class ProfileHandler:
 
         return config_dict
 
-    def delete(self, profile_name:str) -> None:
+    def delete(self, profile_name: str) -> None:
         """_summary_
 
         Args:
@@ -309,7 +314,7 @@ class ProfileHandler:
 
         else:
             _printer.print_info("Can't delete profile:", profile_name,
-                               "A profile with this name does not exist.")
+                                "A profile with this name does not exist.")
 
     def get_cert_path(self) -> str:
         """ Retrieves the file path to the server certificate.
@@ -353,7 +358,9 @@ class ProfileHandler:
 ################################################################################
 # Functions
 ################################################################################
-def _add_new_profile(write_dict:dict, profile_path:str, cert_path:str) -> Ret.CODE:
+
+
+def _add_new_profile(write_dict: dict, profile_path: str, cert_path: str) -> Ret.CODE:
     """ Adds a new server profile to the configuration.
 
     Args:
@@ -368,7 +375,7 @@ def _add_new_profile(write_dict:dict, profile_path:str, cert_path:str) -> Ret.CO
     _file = File()
     profile_data = json.dumps(write_dict, indent=4)
 
-    ret_status =_file.set_filepath(profile_path + DATA_FILE)
+    ret_status = _file.set_filepath(profile_path + DATA_FILE)
 
     if ret_status == Ret.CODE.RET_OK:
         _file.write_file(profile_data)
@@ -376,7 +383,7 @@ def _add_new_profile(write_dict:dict, profile_path:str, cert_path:str) -> Ret.CO
 
     if cert_path is not None and \
        os.path.exists(cert_path):
-        ret_status =_file.set_filepath(cert_path)
+        ret_status = _file.set_filepath(cert_path)
 
         if ret_status == Ret.CODE.RET_OK:
             ret_status = _file.read_file()
@@ -384,7 +391,7 @@ def _add_new_profile(write_dict:dict, profile_path:str, cert_path:str) -> Ret.CO
         if ret_status == Ret.CODE.RET_OK:
             cert_data = _file.get_file_content()
 
-        ret_status =_file.set_filepath(profile_path + CERT_FILE)
+        ret_status = _file.set_filepath(profile_path + CERT_FILE)
 
         if ret_status == Ret.CODE.RET_OK:
             _file.write_file(cert_data)
@@ -392,11 +399,12 @@ def _add_new_profile(write_dict:dict, profile_path:str, cert_path:str) -> Ret.CO
 
     return ret_status
 
+
 def _get_path_to_login_folder() -> str:
     """ Returns the path to the pyJiraCli tool data.
         All tool data (profile/configs) is stored in the users
         home directory.
-    
+
     Returns:
         str: The path to the login data folder.
     """
