@@ -57,7 +57,7 @@ TYPE_KEY = 'type'
 TOKEN_KEY = 'token'
 USER_KEY = 'user'
 
-class ProfileType(StrEnum):  # pylint: disable=too-few-public-methods, no-member
+class ProfileType(StrEnum):  # pylint: disable=too-few-public-methods, no-name-in-module
     """ The profile types."""
     JIRA = 'jira'
     POLARION = 'polarion'
