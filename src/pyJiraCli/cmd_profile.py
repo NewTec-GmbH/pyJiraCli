@@ -321,8 +321,8 @@ def _check_jira_profile(args) -> Ret.CODE:
         Ret.CODE: If successful it will return Ret.CODE.RET_OK otherwise a error.
     """
 
-    # Check if the profile type is 'jira' if given (note that not all commands require a profile type,
-    # so it is not mandatory).
+    # Check if the profile type is 'jira' if given (note that not all
+    # commands require a profile type, so it is not mandatory).
     if (args.profile_type is not None) and (args.profile_type != ProfileType.JIRA):
         return Ret.CODE.RET_ERROR_INVALID_PROFILE_TYPE
 
