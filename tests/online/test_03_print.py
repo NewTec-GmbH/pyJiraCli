@@ -61,7 +61,7 @@ def test_print(helpers: Helpers):
                    "--token", helpers.CI_JIRA_USER_TOKEN]
 
     ret = helpers.run_pyjiracli(
-        credentials + ["print", ISSUE_KEY])
+        ["print"] + credentials + [ISSUE_KEY])
 
     issue = json.loads(ret.stdout.decode("utf-8"))
 
