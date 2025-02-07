@@ -64,9 +64,7 @@ def test_search(helpers: Helpers):
     jql_string = f"project = {PROJ_KEY}"
 
     ret = helpers.run_pyjiracli(
-        credentials + ["search",
-                       "--max", str(max_number_of_issues),
-                       jql_string])
+        ["search"] + credentials + ["--max", str(max_number_of_issues), jql_string])
 
     # Expect OK.
     assert Ret.CODE.RET_OK == ret.returncode
@@ -74,10 +72,9 @@ def test_search(helpers: Helpers):
     # Test export to file.
     max_number_of_issues = 3
     ret = helpers.run_pyjiracli(
-        credentials + ["search",
-                       "--max", str(max_number_of_issues),
-                       "--file", OUTPUT_FILE_NAME,
-                       jql_string])
+        ["search"] + credentials + ["--max", str(max_number_of_issues),
+                                    "--file", OUTPUT_FILE_NAME,
+                                    jql_string])
 
     # Expect OK.
     assert Ret.CODE.RET_OK == ret.returncode
