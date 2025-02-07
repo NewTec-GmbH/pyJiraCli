@@ -295,6 +295,7 @@ class ProfileHandler:
                         return Ret.CODE.RET_ERROR_INVALID_PROFILE_TYPE
                 except TypeError:
                     # Ignore in case of Python version < 3.11
+                    pass
 
                 self._profile_server_url = profile_dict[SERVER_URL_KEY]
 
