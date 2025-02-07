@@ -37,10 +37,11 @@
 ################################################################################
 import argparse
 
+from pyProfileMgr.profile_mgr import ProfileMgr
+from pyProfileMgr.profile_mgr import ProfileType
+
 from pyJiraCli.jira_server import Server
 from pyJiraCli.printer import Printer, PrintType
-from pyJiraCli.profile_handler import ProfileHandler
-from pyJiraCli.profile_handler import ProfileType
 from pyJiraCli.ret import Ret
 
 ################################################################################
@@ -252,7 +253,7 @@ def _profile_add(args) -> Ret.CODE:
     ret_status = Ret.CODE.RET_OK
 
     # Do not overwrite existing profiles.
-    profile_handler = ProfileHandler()
+    profile_handler = ProfileMgr()
     profile_list = profile_handler.get_profiles()
     if args.profile_name in profile_list:
         ret_status = Ret.CODE.RET_ERROR_PROFILE_ALREADY_EXISTS
@@ -348,7 +349,7 @@ def _add_profile(args) -> Ret.CODE:
         Ret.CODE: Status code indicating the success or failure of the profile addition.
     """
     ret_status = Ret.CODE.RET_OK
-    _profile = ProfileHandler()
+    _profile = ProfileMgr()
 
     if args.server is None:
         ret_status = Ret.CODE.RET_ERROR_NO_SERVER_URL
@@ -379,7 +380,7 @@ def _list_profiles() -> Ret.CODE:
         Ret.CODE: Status code indicating the success or failure of the command.
     """
     ret_status = Ret.CODE.RET_OK
-    profile_handler = ProfileHandler()
+    profile_handler = ProfileMgr()
     profile_list = profile_handler.get_profiles()
 
     print("Profiles:")
@@ -401,7 +402,7 @@ def _remove_profile(profile_name: str) -> Ret.CODE:
     """
     ret_status = Ret.CODE.RET_OK
 
-    ProfileHandler().delete(profile_name)
+    ProfileMgr().delete(profile_name)
 
     return ret_status
 
@@ -417,7 +418,7 @@ def _update_profile(args) -> Ret.CODE:
     """
     # Update cert
     if args.cert is not None:
-        _profile = ProfileHandler()
+        _profile = ProfileMgr()
         ret_status = _profile.load(args.profile_name)
 
         if ret_status == Ret.CODE.RET_OK:
