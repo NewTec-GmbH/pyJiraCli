@@ -289,8 +289,13 @@ class ProfileHandler:
                 profile_dict = json.load(_file.get_file())
 
                 self._profile_type = profile_dict[TYPE_KEY]
-                if not self._profile_type in ProfileType:
-                    return Ret.CODE.RET_ERROR_INVALID_PROFILE_TYPE
+
+                try:
+                    if not self._profile_type in ProfileType:
+                        return Ret.CODE.RET_ERROR_INVALID_PROFILE_TYPE
+                except TypeError:
+                    # Ignore in case of Python version < 3.11
+
                 self._profile_server_url = profile_dict[SERVER_URL_KEY]
 
                 if TOKEN_KEY in profile_dict:
