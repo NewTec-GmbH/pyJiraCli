@@ -63,25 +63,22 @@ def test_import_export(helpers: Helpers):
 
     # Import a single issue.
     ret = helpers.run_pyjiracli(
-        credentials + ["import", "./examples/import_issues/single_issue.json"])
-
+        ["import"] + credentials + ["./examples/import_issues/single_issue.json"])
     assert Ret.CODE.RET_OK == ret.returncode
 
     # Import multiple issues.
     ret = helpers.run_pyjiracli(
-        credentials + ["import", "./examples/import_issues/multiple_issues.json"])
-
+        ["import"] + credentials + ["./examples/import_issues/multiple_issues.json"])
     assert Ret.CODE.RET_OK == ret.returncode
 
     # Import sub-issues.
     ret = helpers.run_pyjiracli(
-        credentials + ["import", "./examples/import_issues/sub_issues.json"])
-
+        ["import"] + credentials + ["./examples/import_issues/sub_issues.json"])
     assert Ret.CODE.RET_OK == ret.returncode
 
     # Export the single issue.
     ret = helpers.run_pyjiracli(
-        credentials + ["export", ISSUE_KEY, "--file", OUTPUT_FILE_NAME])
+        ["export"] + credentials + ["--file", OUTPUT_FILE_NAME, ISSUE_KEY])
 
     assert Ret.CODE.RET_OK == ret.returncode
 
