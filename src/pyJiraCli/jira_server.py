@@ -84,7 +84,7 @@ class Server:
 
         urllib3.disable_warnings()
 
-    # pylint: disable=R0912,R0913
+    # pylint: disable=R0913
     def login(self,
               arg_profile_name: Optional[str],
               arg_server_url: Optional[str],
@@ -106,61 +106,16 @@ class Server:
         """
         ret_status = Ret.CODE.RET_OK
         _printer = Printer()
-        _profile = ProfileHandler()
 
         # Login using settings from profile
         if arg_profile_name is not None:
-            ret_status = _profile.load(arg_profile_name)
-
-            if ret_status == Ret.CODE.RET_OK:
-                self._cert_path = _profile.get_cert_path()
-                self._server_url = _profile.get_server_url()
-                api_token = _profile.get_api_token()
-
-                _printer.print_info('Logging in to Jira server:', self._server_url)
-
-                if self._cert_path is None:
-                    _printer.print_error(
-                        PrintType.WARNING, Warnings.CODE.WARNING_UNSAVE_CONNECTION)
-
-                # Use token (preferred)
-                if api_token is not None:
-                    _printer.print_info('Using token for login.')
-
-                    ret_status = self._login_with_token(api_token)
-                # Else user/password
-                else:
-                    _printer.print_info('Using user/password for login.')
-
-                    self._user = _profile.get_user()
-                    password = _profile.get_password()
-
-                    ret_status = self._login_with_password(self._user, password)
+            ret_status = self._login_using_profile(arg_profile_name)
 
         # Else login with command line parameters
         elif arg_server_url is not None:
 
-            self._server_url = arg_server_url
-
-            if self._cert_path is None:
-                _printer.print_error(
-                    PrintType.WARNING, Warnings.CODE.WARNING_UNSAVE_CONNECTION)
-
-            _printer.print_info('Login in to:', self._server_url)
-
-            if arg_token is not None:
-                # Login with token
-                ret_status = self._login_with_token(arg_token)
-            elif (arg_username is not None) and (arg_password is not None):
-                # Login with user and password
-                ret_status = self._login_with_password(
-                    arg_username, arg_password)
-            else:
-                # No credentials given
-                ret_status = Ret.CODE.RET_ERROR
-                print("Missing credentials (token or user/password) to login.")
-                _printer.print_error(
-                    PrintType.ERROR, Ret.CODE.RET_ERROR_JIRA_LOGIN)
+            ret_status = self._login_using_direct_args(
+                arg_server_url, arg_token, arg_username, arg_password)
 
         else:
             # Neither profile nor command line information given
@@ -171,7 +126,8 @@ class Server:
 
         if Ret.CODE.RET_OK == ret_status:
             if self._user is not None:
-                _printer.print_info('Login successful. Logged in as: ', self._user)
+                _printer.print_info(
+                    'Login successful. Logged in as: ', self._user)
             else:
                 _printer.print_info('Login successful.')
 
@@ -223,6 +179,70 @@ class Server:
             list: A list with all the found issues from the last search.
         """
         return self._search_result
+
+    def _login_using_profile(self, profile_name: str) -> Ret.CODE:
+        ''' Login to Jira server using the profile settings.'''
+        _printer = Printer()
+        _profile = ProfileHandler()
+
+        ret_status = _profile.load(profile_name)
+
+        if ret_status == Ret.CODE.RET_OK:
+            self._cert_path = _profile.get_cert_path()
+            self._server_url = _profile.get_server_url()
+            api_token = _profile.get_api_token()
+
+            _printer.print_info('Logging in to Jira server:', self._server_url)
+
+            if self._cert_path is None:
+                _printer.print_error(
+                    PrintType.WARNING, Warnings.CODE.WARNING_UNSAVE_CONNECTION)
+
+                # Use token (preferred)
+            if api_token is not None:
+                _printer.print_info('Using token for login.')
+
+                ret_status = self._login_with_token(api_token)
+                # Else user/password
+            else:
+                _printer.print_info('Using user/password for login.')
+
+                self._user = _profile.get_user()
+                password = _profile.get_password()
+
+                ret_status = self._login_with_password(self._user, password)
+
+        return ret_status
+
+    def _login_using_direct_args(self, server_url: str,
+                              token: str, username: str, password: str) -> Ret.CODE:
+        ''' Login to Jira server using the command line arguments directly. '''
+        self._server_url = server_url
+
+        _printer = Printer()
+        ret_status = Ret.CODE.RET_OK
+
+        if self._cert_path is None:
+            _printer.print_error(
+                PrintType.WARNING, Warnings.CODE.WARNING_UNSAVE_CONNECTION)
+
+        _printer.print_info('Login in to:', self._server_url)
+
+        if token is not None:
+            # Login with token
+            ret_status = self._login_with_token(token)
+        elif (username is not None) and (password is not None):
+            # Login with user and password
+            ret_status = self._login_with_password(
+                username, password)
+        else:
+            # No credentials given
+            ret_status = Ret.CODE.RET_ERROR
+            print("Missing credentials (token or user/password) to login.")
+            _printer.print_error(
+                PrintType.ERROR, Ret.CODE.RET_ERROR_JIRA_LOGIN)
+
+        return ret_status
 
     def _login_with_token(self, token: str) -> Ret.CODE:
         """ Login to jira with API token.
