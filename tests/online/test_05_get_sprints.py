@@ -64,16 +64,14 @@ def test_get_sprints(helpers: Helpers):
                    "--token", helpers.CI_JIRA_USER_TOKEN]
 
     ret = helpers.run_pyjiracli(
-        credentials + ["get_sprints",
-                       BOARD_NAME])
+        ["get_sprints"] + credentials + [BOARD_NAME])
 
     # Expect OK.
     assert Ret.CODE.RET_OK == ret.returncode
 
     ret = helpers.run_pyjiracli(
-        credentials + ["get_sprints",
-                       BOARD_NAME,
-                       "--file", OUTPUT_FILE_NAME])
+        ["get_sprints"] + credentials +
+        ["--file", OUTPUT_FILE_NAME, BOARD_NAME])
 
     # Expect OK.
     assert Ret.CODE.RET_OK == ret.returncode
