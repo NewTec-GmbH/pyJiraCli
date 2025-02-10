@@ -264,8 +264,6 @@ def _profile_list(_) -> Ret.CODE:
     """
     ret_status = _list_profiles()
 
-    # TODO: Filter profiles by type (only keep JIRA profiles).
-
     return ret_status
 
 
@@ -359,8 +357,8 @@ def _list_profiles() -> Ret.CODE:
         Ret.CODE: Status code indicating the success or failure of the command.
     """
     ret_status = Ret.CODE.RET_OK
-    profile_handler = ProfileMgr()
-    profile_list = profile_handler.get_profiles()
+    profile_mgr = ProfileMgr()
+    profile_list = profile_mgr.get_profiles()
 
     print("Profiles:")
 
