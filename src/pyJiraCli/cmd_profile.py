@@ -1,7 +1,7 @@
 """ Command for the profile function.
     This module can add, remove or configure server profiles.
     The profiles contain server url, login data, the server certificate
-    and configuration data for a specific jira server instance.
+    and configuration data for a specific Jira server instance.
 """
 # BSD 3-Clause License
 #
@@ -88,15 +88,6 @@ def register(subparser) -> argparse.ArgumentParser:
     )
 
     sub_parser_add.add_argument(
-        '-pt',
-        '--profile_type',
-        type=str,
-        required=True,
-        metavar="<profile type>",
-        help="The type of the profile ('jira', 'polarion' or 'superset')."
-    )
-
-    sub_parser_add.add_argument(
         '-s',
         '--server',
         type=str,
@@ -165,15 +156,6 @@ def register(subparser) -> argparse.ArgumentParser:
         type=str,
         metavar="<profile name>",
         help="The name of the profile."
-    )
-
-    sub_parser_update.add_argument(
-        '-pt',
-        '--profile_type',
-        type=str,
-        required=False,
-        metavar="<profile type>",
-        help="The type of the profile ('jira', 'polarion' or 'superset')."
     )
 
     sub_parser_update.add_argument(
@@ -282,6 +264,8 @@ def _profile_list(_) -> Ret.CODE:
     """
     ret_status = _list_profiles()
 
+    # TODO: Filter profiles by type (only keep JIRA profiles).
+
     return ret_status
 
 
@@ -322,11 +306,6 @@ def _check_jira_profile(args) -> Ret.CODE:
         Ret.CODE: If successful it will return Ret.CODE.RET_OK otherwise a error.
     """
 
-    # Check if the profile type is 'jira' if given (note that not all
-    # commands require a profile type, so it is not mandatory).
-    if (args.profile_type is not None) and (args.profile_type != ProfileType.JIRA):
-        return Ret.CODE.RET_ERROR_INVALID_PROFILE_TYPE
-
     server = Server()
     # Login to the server (prefer token over user/password).
     if args.token is not None:
@@ -361,7 +340,7 @@ def _add_profile(args) -> Ret.CODE:
               "Please provide a token using the --token option or --user/--password.")
     else:
         profile_name = args.profile_name
-        profile_type = args.profile_type
+        profile_type = ProfileType.JIRA # Profile type for this cmd is always JIRA.
         server = args.server
         token = args.token
         user = args.user
