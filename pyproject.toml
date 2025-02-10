@@ -29,7 +29,7 @@ dependencies = [
     "jira>=3.8.0",
     "toml>=0.10.2",
     "colorama>=0.4.6",
-    "pyProfileMgr>=1.0.0"
+    "pyProfileMgr @ git+https://github.com/NewTec-GmbH/pyProfileMgr.git#main",
 ]
 
 [project.optional-dependencies]
