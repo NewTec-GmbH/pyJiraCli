@@ -3,30 +3,30 @@
 top to bottom direction
 skinparam Linetype ortho
 
-file "issue key" as key
-file "input file" as i_file
-file "search string" as filter
-file "profile data" as profile_data
+file "Issue key" as key
+file "Input file" as i_file
+file "Search string" as filter
+file "Profile data" as profile_data
 
 package "pyJiraCli" {
   [main]
 
-  [cmd_import] as import
-  [cmd_export] as export
-  [cmd_profile] as profile
-  [cmd_print] as print
-  [cmd_search] as search
+  [Import command] as cmd_import
+  [Export command] as cmd_export
+  [Profile command] as cmd_profile
+  [Print command] as cmd_print
+  [Search command] as cmd_search
 }
 
 package "pyProfileMgr" {
   [Profile manager] as profile_mgr
 }
 
-key .down...> export : <<flow>>
-key .down...> print : <<flow>>
-profile_data .down...> profile : <<flow>>
-filter .down...> search : <<flow>>
-i_file .down...> import : <<flow>>
+key .down...> cmd_export : <<flow>>
+key .down...> cmd_print : <<flow>>
+profile_data .down...> cmd_profile : <<flow>>
+filter .down...> cmd_search : <<flow>>
+i_file .down...> cmd_import : <<flow>>
 
 database "Jira Server" as jira_server {
   file "Jira issue" as jira_issue
@@ -37,17 +37,17 @@ database Filesystem {
   file "JSON file" as file
 }
 
-main .down.> import : <<flow>>
-main .down.> export : <<flow>>
-main .down.> profile : <<flow>>
-main .down.> print : <<flow>>
-main .down.> search : <<flow>>
+main .down.> cmd_import : <<flow>>
+main .down.> cmd_export : <<flow>>
+main .down.> cmd_profile : <<flow>>
+main .down.> cmd_print : <<flow>>
+main .down.> cmd_search : <<flow>>
 
-profile ...down.> profile_mgr : <<flow>>\n<<store/delete/update/list>>
+cmd_profile ...down.> profile_mgr : <<flow>>\n<<store/delete/update/list>>
 profile_mgr ...down.> profile_data_files : <<flow>>\n<<store/delete/update/list>>
 profile_mgr .down...> jira_server : <<authenticate>>
-export ...down.> file : <<flow>>\n<<create>>
-import ....> jira_issue : <<flow>>\n<<create>>
+cmd_export ...down.> file : <<flow>>\n<<create>>
+cmd_import ....> jira_issue : <<flow>>\n<<create>>
 
 'Notes
 note top of key
