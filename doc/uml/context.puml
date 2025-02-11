@@ -18,6 +18,10 @@ package "pyJiraCli" {
   [cmd_search] as search
 }
 
+package "pyProfileMgr" {
+  [Profile manager] as profile_mgr
+}
+
 key .down...> export : <<flow>>
 key .down...> print : <<flow>>
 profile_data .down...> profile : <<flow>>
@@ -28,8 +32,8 @@ database "Jira Server" as jira_server {
   file "Jira issue" as jira_issue
 }
 
-database filesystem {
-  file "profile data" as profile_data_files
+database Filesystem {
+  file "Profile data" as profile_data_files
   file "JSON file" as file
 }
 
@@ -39,25 +43,13 @@ main .down.> profile : <<flow>>
 main .down.> print : <<flow>>
 main .down.> search : <<flow>>
 
-profile ...down.> profile_data_files : <<flow>>\n<<store/delete/update>>
-profile .down...> jira_server : <<authenticate>>
+profile ...down.> profile_mgr : <<flow>>\n<<store/delete/update/list>>
+profile_mgr ...down.> profile_data_files : <<flow>>\n<<store/delete/update/list>>
+profile_mgr .down...> jira_server : <<authenticate>>
 export ...down.> file : <<flow>>\n<<create>>
 import ....> jira_issue : <<flow>>\n<<create>>
 
 'Notes
-note bottom of profile_data_files
-  Server URL, user API token,
-  and/or user and password
-  are stored in a JSON file.
-  The server certificate is placed
-  in the same folder (optional).
-end note
-
-note bottom of file
-  The retrieved ticket data is
-  stored in a JSON file.
-end note
-
 note top of key
   Unique issue key for
   an existing Jira issue.
@@ -82,6 +74,16 @@ note top of i_file
   JSON file
   with Jira ticket
   information
+end note
+
+note bottom of profile_data_files
+  See the pyProfileMgr component
+  documentation for details.
+end note
+
+note bottom of file
+  The retrieved ticket data is
+  stored in a JSON file.
 end note
 
 @enduml
