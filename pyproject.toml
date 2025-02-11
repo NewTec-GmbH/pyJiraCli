@@ -12,7 +12,8 @@ authors = [
     { name = "Timo Heitzmann", email = "heitzmann_timo@web.de" },
     { name = "Gabryel Reyes", email = "gabryelrdiaz@gmail.com" },
     { name = "Juliane Kerpe", email = "juliane.kerpe@newtec.de" },
-    { name = "Andreas Merkle", email = "andreas.merkle@newtec.de" }
+    { name = "Andreas Merkle", email = "andreas.merkle@newtec.de" },
+    { name = "Stefan Vogel", email = "stefan.vogel@newtec.de" }
 ]
 license = {text = "BSD 3-Clause"}
 classifiers = [
