@@ -24,7 +24,7 @@ profile_data .down...> profile : <<flow>>
 filter .down...> search : <<flow>>
 i_file .down...> import : <<flow>>
 
-database "Jira Server" {
+database "Jira Server" as jira_server {
   file "Jira issue" as jira_issue
 }
 
@@ -40,6 +40,7 @@ main .down.> print : <<flow>>
 main .down.> search : <<flow>>
 
 profile ...down.> profile_data_files : <<flow>>\n<<store/delete/update>>
+profile .down...> jira_server : <<authenticate>>
 export ...down.> file : <<flow>>\n<<create>>
 import ....> jira_issue : <<flow>>\n<<create>>
 
