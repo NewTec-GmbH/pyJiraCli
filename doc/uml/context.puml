@@ -18,10 +18,6 @@ package "pyJiraCli" {
   [Search command] as cmd_search
 }
 
-package "pyProfileMgr" {
-  [Profile manager] as profile_mgr
-}
-
 key .down...> cmd_export : <<flow>>
 key .down...> cmd_print : <<flow>>
 profile_data .down...> cmd_profile : <<flow>>
@@ -30,6 +26,10 @@ i_file .down...> cmd_import : <<flow>>
 
 database "Jira Server" as jira_server {
   file "Jira issue" as jira_issue
+}
+
+package "pyProfileMgr" {
+  [Profile manager] as profile_mgr
 }
 
 database Filesystem {
@@ -44,8 +44,8 @@ main .down.> cmd_print : <<flow>>
 main .down.> cmd_search : <<flow>>
 
 cmd_profile ...down.> profile_mgr : <<flow>>\n<<store/delete/update/list>>
+cmd_profile .down...> jira_server : <<authenticate>>
 profile_mgr ...down.> profile_data_files : <<flow>>\n<<store/delete/update/list>>
-profile_mgr .down...> jira_server : <<authenticate>>
 cmd_export ...down.> file : <<flow>>\n<<create>>
 cmd_import ....> jira_issue : <<flow>>\n<<create>>
 
