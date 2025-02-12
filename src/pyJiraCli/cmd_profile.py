@@ -209,7 +209,7 @@ def execute(_) -> Ret.CODE:
     """ This function serves as entry point for the command 'profile'.
         It will be stored as callback for this modules subparser command.
 
-    Args: 
+    Args:
         args (obj): The command line arguments.
 
     Returns:
@@ -262,8 +262,6 @@ def _profile_list(_) -> Ret.CODE:
         Ret.CODE: The return status of the module.
     """
     ret_status = _list_profiles()
-
-    # TODO: Filter profiles by type (only keep JIRA profiles).
 
     return ret_status
 
