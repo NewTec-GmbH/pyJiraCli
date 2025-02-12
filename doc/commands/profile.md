@@ -5,7 +5,6 @@ Add, list, delete or update server profiles.
 The profile contains the following data:
 
 * name: A unique name by which the profile can be referenced. The name is not stored in the data files, but identifies the folder. (required)
-* type: The type of profile. Must be 'jira' here. Possible values are 'jira', 'polarion' and 'superset'. (required)
 * server: The server URL to the Jira server. (required)
 * token: An API token to allow for easier access. (optional)
 * user/password: The credentials to authenticate with the Jira server in case no token is given. (optional)
@@ -21,15 +20,13 @@ pyJiraCli profile add --help
 Output:
 
 ```cmd
-usage: pyJiraCli profile add [-h] -pt <profile type> -s <server URL> [-t <token>] [-u <user>] [-p <password>] [--cert <certificate path>] <profile name>
+usage: pyJiraCli profile add [-h] -s <server URL> [-t <token>] [-u <user>] [-p <password>] [--cert <certificate path>] <profile name>
 
 positional arguments:
   <profile name>        The name of the profile.
 
 options:
   -h, --help            show this help message and exit
-  -pt <profile type>, --profile_type <profile type>
-                        The type of the profile ('jira', 'polarion' or 'superset').
   -s <server URL>, --server <server URL>
                         The Jira server URL to connect to.
   -t <token>, --token <token>
