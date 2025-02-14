@@ -12,7 +12,8 @@ authors = [
     { name = "Timo Heitzmann", email = "heitzmann_timo@web.de" },
     { name = "Gabryel Reyes", email = "gabryelrdiaz@gmail.com" },
     { name = "Juliane Kerpe", email = "juliane.kerpe@newtec.de" },
-    { name = "Andreas Merkle", email = "andreas.merkle@newtec.de" }
+    { name = "Andreas Merkle", email = "andreas.merkle@newtec.de" },
+    { name = "Stefan Vogel", email = "stefan.vogel@newtec.de" }
 ]
 license = {text = "BSD 3-Clause"}
 classifiers = [
@@ -28,7 +29,8 @@ classifiers = [
 dependencies = [
     "jira>=3.8.0",
     "toml>=0.10.2",
-    "colorama>=0.4.6"
+    "colorama>=0.4.6",
+    "pyProfileMgr @ git+https://github.com/NewTec-GmbH/pyProfileMgr.git@feature/profile_mgmt_lib",
 ]
 
 [project.optional-dependencies]

@@ -43,7 +43,8 @@ from jira import JIRA, exceptions
 from requests import exceptions as reqex
 from urllib3 import exceptions as urlex
 
-from pyJiraCli.profile_handler import ProfileHandler
+from pyProfileMgr.profile_mgr import ProfileMgr
+
 from pyJiraCli.printer import Printer, PrintType
 from pyJiraCli.ret import Ret, Warnings
 
@@ -183,14 +184,14 @@ class Server:
     def _login_using_profile(self, profile_name: str) -> Ret.CODE:
         ''' Login to Jira server using the profile settings.'''
         _printer = Printer()
-        _profile = ProfileHandler()
+        _profile_mgr = ProfileMgr()
 
-        ret_status = _profile.load(profile_name)
+        ret_status = _profile_mgr.load(profile_name)
 
         if ret_status == Ret.CODE.RET_OK:
-            self._cert_path = _profile.get_cert_path()
-            self._server_url = _profile.get_server_url()
-            api_token = _profile.get_api_token()
+            self._cert_path = _profile_mgr.get_cert_path()
+            self._server_url = _profile_mgr.get_server_url()
+            api_token = _profile_mgr.get_api_token()
 
             _printer.print_info('Logging in to Jira server:', self._server_url)
 
@@ -207,8 +208,8 @@ class Server:
             else:
                 _printer.print_info('Using user/password for login.')
 
-                self._user = _profile.get_user()
-                password = _profile.get_password()
+                self._user = _profile_mgr.get_user()
+                password = _profile_mgr.get_password()
 
                 ret_status = self._login_with_password(self._user, password)
 

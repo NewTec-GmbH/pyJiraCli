@@ -55,7 +55,6 @@ class Helpers:  # pylint: disable=too-few-public-methods
 
     PROFILE_COMMAND = "profile"
     CI_PROFILE_NAME = "ci_profile"
-    CI_PROFILE_TYPE = "jira"
     CI_JIRA_SERVER_URL = "http://localhost:2990/jira"
     CI_JIRA_USER_TOKEN = os.environ.get("CI_JIRA_USER_TOKEN", "DummyToken")
 
@@ -68,7 +67,7 @@ class Helpers:  # pylint: disable=too-few-public-methods
             arguments (list): List of arguments to pass to pyJiraCli.
 
         Returns:
-            subprocess.CompletedProcess[bytes]: The result of the command. 
+            subprocess.CompletedProcess[bytes]: The result of the command.
             Includes return code, stdout and stderr.
         """
         args = ["pyJiraCli"]  # The executable to run.
@@ -89,11 +88,10 @@ class Helpers:  # pylint: disable=too-few-public-methods
         Found in this class for easier reuse between commands.
 
         Returns:
-            subprocess.CompletedProcess[bytes]: The result of the command. 
+            subprocess.CompletedProcess[bytes]: The result of the command.
             Includes return code, stdout and stderr.
         """
         return Helpers.run_pyjiracli([Helpers.PROFILE_COMMAND, "add",
-                                      "--profile_type", Helpers.CI_PROFILE_TYPE,
                                       "--server", Helpers.CI_JIRA_SERVER_URL,
                                       "--token", Helpers.CI_JIRA_USER_TOKEN,
                                       Helpers.CI_PROFILE_NAME])
@@ -105,7 +103,7 @@ class Helpers:  # pylint: disable=too-few-public-methods
         Found in this class for easier reuse between commands.
 
         Returns:
-            subprocess.CompletedProcess[bytes]: The result of the command. 
+            subprocess.CompletedProcess[bytes]: The result of the command.
             Includes return code, stdout and stderr.
         """
         return Helpers.run_pyjiracli([Helpers.PROFILE_COMMAND, "remove", Helpers.CI_PROFILE_NAME])

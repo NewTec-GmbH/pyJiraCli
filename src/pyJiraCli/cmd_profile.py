@@ -37,10 +37,11 @@
 ################################################################################
 import argparse
 
+from pyProfileMgr.profile_mgr import ProfileMgr
+from pyProfileMgr.profile_mgr import ProfileType
+
 from pyJiraCli.jira_server import Server
 from pyJiraCli.printer import Printer, PrintType
-from pyJiraCli.profile_handler import ProfileHandler
-from pyJiraCli.profile_handler import ProfileType
 from pyJiraCli.ret import Ret
 
 ################################################################################
@@ -234,8 +235,8 @@ def _profile_add(args) -> Ret.CODE:
     ret_status = Ret.CODE.RET_OK
 
     # Do not overwrite existing profiles.
-    profile_handler = ProfileHandler()
-    profile_list = profile_handler.get_profiles()
+    profile_mgr = ProfileMgr()
+    profile_list = profile_mgr.get_profiles()
     if args.profile_name in profile_list:
         ret_status = Ret.CODE.RET_ERROR_PROFILE_ALREADY_EXISTS
 
@@ -325,7 +326,7 @@ def _add_profile(args) -> Ret.CODE:
         Ret.CODE: Status code indicating the success or failure of the profile addition.
     """
     ret_status = Ret.CODE.RET_OK
-    _profile = ProfileHandler()
+    profile_mgr = ProfileMgr()
 
     if args.server is None:
         ret_status = Ret.CODE.RET_ERROR_NO_SERVER_URL
@@ -343,7 +344,7 @@ def _add_profile(args) -> Ret.CODE:
         user = args.user
         password = args.password
         certificate = args.cert
-        ret_status = _profile.add(
+        ret_status = profile_mgr.add(
             profile_name, profile_type, server, token, user, password, certificate)
 
     return ret_status
@@ -356,8 +357,8 @@ def _list_profiles() -> Ret.CODE:
         Ret.CODE: Status code indicating the success or failure of the command.
     """
     ret_status = Ret.CODE.RET_OK
-    profile_handler = ProfileHandler()
-    profile_list = profile_handler.get_profiles()
+    profile_mgr = ProfileMgr()
+    profile_list = profile_mgr.get_profiles()
 
     print("Profiles:")
 
@@ -378,7 +379,7 @@ def _remove_profile(profile_name: str) -> Ret.CODE:
     """
     ret_status = Ret.CODE.RET_OK
 
-    ProfileHandler().delete(profile_name)
+    ProfileMgr().delete(profile_name)
 
     return ret_status
 
@@ -394,11 +395,11 @@ def _update_profile(args) -> Ret.CODE:
     """
     # Update cert
     if args.cert is not None:
-        _profile = ProfileHandler()
-        ret_status = _profile.load(args.profile_name)
+        profile_mgr = ProfileMgr()
+        ret_status = profile_mgr.load(args.profile_name)
 
         if ret_status == Ret.CODE.RET_OK:
             # profile exists
-            ret_status = _profile.add_certificate(args.profile_name, args.cert)
+            ret_status = profile_mgr.add_certificate(args.profile_name, args.cert)
 
     return ret_status
