@@ -1,5 +1,5 @@
 """ Command to search for Jira tickets on the provided server.
-    Searches for tickets by filter or search str provided via the command line 
+    Searches for tickets by filter or search str provided via the command line
     and prints all found tickets to command line. """
 
 # BSD 3-Clause License
@@ -34,14 +34,16 @@
 ################################################################################
 # Imports
 ################################################################################
+
 import json
 import argparse
 import datetime
 
 from pyJiraCli.jira_server import Server
-from pyJiraCli.file_handler import FileHandler as File
 from pyJiraCli.printer import Printer
 from pyJiraCli.ret import Ret
+
+
 ################################################################################
 # Variables
 ################################################################################
@@ -52,14 +54,15 @@ MAX_FIELDS_PRINTED = len(DEFAULT_FIELDS)
 
 LOG = Printer()
 
+
 ################################################################################
 # Classes
 ################################################################################
 
+
 ################################################################################
 # Functions
 ################################################################################
-
 
 def register(subparser) -> argparse.ArgumentParser:
     """ Register subparser commands for the login module.
@@ -163,7 +166,7 @@ def execute(args) -> Ret.CODE:
     """ This function servers as entry point for the command 'search'.
         It will be stored as callback for this modules subparser command.
 
-    Args: 
+    Args:
         args (obj): The command line arguments.
 
     Returns:
@@ -332,16 +335,16 @@ def _save_search(save_file: str, search_dict: dict) -> Ret.CODE:
     """
     ret_status = Ret.CODE.RET_OK
 
-    file = File()
+    try:
+        with open(save_file, 'w', encoding="utf-8") as result_file:
+            result_data = json.dumps(search_dict, indent=4)
 
-    write_data = json.dumps(search_dict, indent=4)
+            result_file.write(result_data)
 
-    ret_status = file.set_filepath(save_file)
-
-    if ret_status == Ret.CODE.RET_OK:
-        ret_status = file.write_file(write_data)
-
-    if ret_status == Ret.CODE.RET_OK:
-        LOG.print_info("Search was saved in file:", save_file)
+            msg = f"Successfully saved search results in '{save_file}'."
+            LOG.print_info(msg)
+            print(msg)
+    except FileNotFoundError:
+        return Ret.CODE.RET_ERROR_FILEPATH_INVALID
 
     return ret_status
