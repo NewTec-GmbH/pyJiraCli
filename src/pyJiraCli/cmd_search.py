@@ -341,7 +341,7 @@ def _save_search(save_file: str, search_dict: dict) -> Ret.CODE:
 
             result_file.write(result_data)
 
-            msg = f"Successfully saved search results in '{save_file}'."
+            msg = f"Successfully saved the search results in '{save_file}'."
             LOG.print_info(msg)
             print(msg)
     except FileNotFoundError:

@@ -35,29 +35,33 @@
 ################################################################################
 # Imports
 ################################################################################
+
 import json
+import os
 
 import argparse
 from jira.client import JIRA
 
 from pyJiraCli.jira_server import Server
-from pyJiraCli.file_handler import FileHandler as File
 from pyJiraCli.printer import Printer
 from pyJiraCli.ret import Ret
+
+
 ################################################################################
 # Variables
 ################################################################################
 
 LOG = Printer()
 
+
 ################################################################################
 # Classes
 ################################################################################
 
+
 ################################################################################
 # Functions
 ################################################################################
-
 
 def register(subparser) -> argparse.ArgumentParser:
     """ Register subparser commands for the import module.
@@ -125,7 +129,7 @@ def execute(args) -> Ret.CODE:
     """ This function servers as entry point for the command 'import'.
         It will be stored as callback for this modules subparser command.
 
-    Args: 
+    Args:
         args (obj):   The command line arguments.
 
     Returns:
@@ -273,7 +277,7 @@ def _create_sub_issues(jira: JIRA,
         printer (obj): The printer object.
         issue_dict (dict): The dictionary containing all the issues.
         sub_issues_list (list): The list of sub-issues.
-        id_cross_ref_dict (dict): The dictionary containing the cross-reference 
+        id_cross_ref_dict (dict): The dictionary containing the cross-reference
         between external IDs and issue keys.
 
     Returns:
@@ -345,7 +349,7 @@ def _cmd_import(input_file: str, server: Server) -> Ret.CODE:
     issue_dict = {}
 
     # Read the data from the file.
-    ret_status, issue_dict = _read_file(input_file)
+    ret_status, issue_dict = _read_json_file(input_file)
 
     if Ret.CODE.RET_OK == ret_status:
         # Get the Jira handle to use the Jira API directly.
@@ -385,7 +389,7 @@ def _cmd_import(input_file: str, server: Server) -> Ret.CODE:
     return ret_status
 
 
-def _read_file(input_file: str) -> tuple[Ret.CODE, dict]:
+def _read_json_file(input_file: str) -> tuple[Ret.CODE, dict]:
     """ Read in the data from a JSON file.
 
     Args:
@@ -394,21 +398,18 @@ def _read_file(input_file: str) -> tuple[Ret.CODE, dict]:
     Returns:
         tuple:  A tuple of the return status and the issue dictionary from the file.
     """
+
     issue_dict = {}
-    file = File()
+    ret_status = Ret.CODE.RET_OK
 
-    # Locate file.
-    ret_status = file.set_filepath(input_file)
+    # Make sure file has .json extension.
+    if os.path.splitext(input_file)[-1] != '.json':
+        return  Ret.CODE.RET_ERROR_WRONG_FILE_FORMAT
 
-    if Ret.CODE.RET_OK == ret_status:
-        # Check if file is a JSON file and open it.
-        if file.get_file_extension() != '.json':
-            ret_status = Ret.CODE.RET_ERROR_WRONG_FILE_FORMAT
-        elif Ret.CODE.RET_OK != file.open_file(file_mode='r'):
-            ret_status = Ret.CODE.RET_ERROR_FILE_OPEN_FAILED
-        else:
-            issue_dict = json.load(file.get_file())
-            file.close_file()
-            ret_status = Ret.CODE.RET_OK
+    try:
+        with open(input_file, 'r', encoding="utf-8") as input_file_handle:
+            issue_dict = json.load(input_file_handle)
+    except FileNotFoundError:
+        ret_status = Ret.CODE.RET_ERROR_FILEPATH_INVALID
 
     return ret_status, issue_dict
