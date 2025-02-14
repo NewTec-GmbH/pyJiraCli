@@ -50,6 +50,8 @@ from pyJiraCli.printer import Printer as LOG
 
 class FileHelper:
     """ The file helper class provides common file operations. """
+    # pylint: disable=too-few-public-methods
+
     def __init__(self):
         pass
 
