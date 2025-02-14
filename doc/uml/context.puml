@@ -45,7 +45,8 @@ import ....> jira_issue : <<flow>>\n<<create>>
 
 'Notes
 note bottom of profile_data_files
-  Server URL and user API token
+  Server URL, user API token,
+  and/or user and password
   are stored in a JSON file.
   The server certificate is placed
   in the same folder (optional).
@@ -62,7 +63,8 @@ note top of key
 end note
 
 note top of profile_data
-  The server URL, a user API token
+  The server URL, user API token,
+  and/or user and password,
   and a server certificate are stored
   in a profile folder.
   The profile is referenced

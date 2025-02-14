@@ -106,65 +106,30 @@ class Server:
         """
         ret_status = Ret.CODE.RET_OK
         _printer = Printer()
-        _profile = ProfileHandler()
 
+        # Login using settings from profile
         if arg_profile_name is not None:
-            # Login with profile
-            ret_status = _profile.load(arg_profile_name)
+            ret_status = self._login_using_profile(arg_profile_name)
 
-            if ret_status == Ret.CODE.RET_OK:
-                self._cert_path = _profile.get_cert_path()
-                self._server_url = _profile.get_server_url()
-                api_token = _profile.get_api_token()
-
-                _printer.print_info('Login in to:', self._server_url)
-
-                if self._cert_path is None:
-                    _printer.print_error(
-                        PrintType.WARNING, Warnings.CODE.WARNING_UNSAVE_CONNECTION)
-
-                if api_token is None:
-                    # prompt user to enter username and password
-                    user, password = _get_user_input()
-                    ret_status = self._login_with_password(user, password)
-                else:
-                    ret_status = self._login_with_token(api_token)
-
+        # Else login with command line parameters
         elif arg_server_url is not None:
-            # Login with server URL
 
-            self._server_url = arg_server_url
-
-            if self._cert_path is None:
-                _printer.print_error(
-                    PrintType.WARNING, Warnings.CODE.WARNING_UNSAVE_CONNECTION)
-
-            _printer.print_info('Login in to:', self._server_url)
-
-            if arg_token is not None:
-                # Login with token
-                ret_status = self._login_with_token(arg_token)
-            elif (arg_username is not None) and (arg_password is not None):
-                # Login with user and password
-                ret_status = self._login_with_password(
-                    arg_username, arg_password)
-            else:
-                # No user information given
-                ret_status = Ret.CODE.RET_ERROR
-                print("Missing user information to login.")
-                _printer.print_error(
-                    PrintType.ERROR, Ret.CODE.RET_ERROR_JIRA_LOGIN)
+            ret_status = self._login_using_direct_args(
+                arg_server_url, arg_token, arg_username, arg_password)
 
         else:
-            # No server information given
+            # Neither profile nor command line information given
             ret_status = Ret.CODE.RET_ERROR
             print("Missing server URL to connect to.")
             _printer.print_error(
                 PrintType.ERROR, Ret.CODE.RET_ERROR_JIRA_LOGIN)
 
-        if (Ret.CODE.RET_OK == ret_status) and (self._user is not None):
-            _printer.print_info(
-                'Login successful. Logged in as:', self._user)
+        if Ret.CODE.RET_OK == ret_status:
+            if self._user is not None:
+                _printer.print_info(
+                    'Login successful. Logged in as: ', self._user)
+            else:
+                _printer.print_info('Login successful.')
 
         return ret_status
 
@@ -214,6 +179,70 @@ class Server:
             list: A list with all the found issues from the last search.
         """
         return self._search_result
+
+    def _login_using_profile(self, profile_name: str) -> Ret.CODE:
+        ''' Login to Jira server using the profile settings.'''
+        _printer = Printer()
+        _profile = ProfileHandler()
+
+        ret_status = _profile.load(profile_name)
+
+        if ret_status == Ret.CODE.RET_OK:
+            self._cert_path = _profile.get_cert_path()
+            self._server_url = _profile.get_server_url()
+            api_token = _profile.get_api_token()
+
+            _printer.print_info('Logging in to Jira server:', self._server_url)
+
+            if self._cert_path is None:
+                _printer.print_error(
+                    PrintType.WARNING, Warnings.CODE.WARNING_UNSAVE_CONNECTION)
+
+                # Use token (preferred)
+            if api_token is not None:
+                _printer.print_info('Using token for login.')
+
+                ret_status = self._login_with_token(api_token)
+                # Else user/password
+            else:
+                _printer.print_info('Using user/password for login.')
+
+                self._user = _profile.get_user()
+                password = _profile.get_password()
+
+                ret_status = self._login_with_password(self._user, password)
+
+        return ret_status
+
+    def _login_using_direct_args(self, server_url: str,
+                              token: str, username: str, password: str) -> Ret.CODE:
+        ''' Login to Jira server using the command line arguments directly. '''
+        self._server_url = server_url
+
+        _printer = Printer()
+        ret_status = Ret.CODE.RET_OK
+
+        if self._cert_path is None:
+            _printer.print_error(
+                PrintType.WARNING, Warnings.CODE.WARNING_UNSAVE_CONNECTION)
+
+        _printer.print_info('Login in to:', self._server_url)
+
+        if token is not None:
+            # Login with token
+            ret_status = self._login_with_token(token)
+        elif (username is not None) and (password is not None):
+            # Login with user and password
+            ret_status = self._login_with_password(
+                username, password)
+        else:
+            # No credentials given
+            ret_status = Ret.CODE.RET_ERROR
+            print("Missing credentials (token or user/password) to login.")
+            _printer.print_error(
+                PrintType.ERROR, Ret.CODE.RET_ERROR_JIRA_LOGIN)
+
+        return ret_status
 
     def _login_with_token(self, token: str) -> Ret.CODE:
         """ Login to jira with API token.
@@ -337,7 +366,7 @@ class Server:
 ################################################################################
 
 
-def _get_user_input() -> tuple[str, str]:
+def _get_user_credentials() -> tuple[str, str]:
     """Prompt the user to enter a username and a password.
     The password input is masked with '*' characters.
 

@@ -23,7 +23,7 @@ Requires a Jira instance to be running.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 # AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICU5LAR PURPOSE ARE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 # DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
 # FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 # DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
@@ -63,25 +63,22 @@ def test_import_export(helpers: Helpers):
 
     # Import a single issue.
     ret = helpers.run_pyjiracli(
-        credentials + ["import", "./examples/import_issues/single_issue.json"])
-
+        ["import"] + credentials + ["./examples/import_issues/single_issue.json"])
     assert Ret.CODE.RET_OK == ret.returncode
 
     # Import multiple issues.
     ret = helpers.run_pyjiracli(
-        credentials + ["import", "./examples/import_issues/multiple_issues.json"])
-
+        ["import"] + credentials + ["./examples/import_issues/multiple_issues.json"])
     assert Ret.CODE.RET_OK == ret.returncode
 
     # Import sub-issues.
     ret = helpers.run_pyjiracli(
-        credentials + ["import", "./examples/import_issues/sub_issues.json"])
-
+        ["import"] + credentials + ["./examples/import_issues/sub_issues.json"])
     assert Ret.CODE.RET_OK == ret.returncode
 
     # Export the single issue.
     ret = helpers.run_pyjiracli(
-        credentials + ["export", ISSUE_KEY, "--file", OUTPUT_FILE_NAME])
+        ["export"] + credentials + ["--file", OUTPUT_FILE_NAME, ISSUE_KEY])
 
     assert Ret.CODE.RET_OK == ret.returncode
 

@@ -23,7 +23,7 @@ Requires a Jira instance to be running.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 # AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICU5LAR PURPOSE ARE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 # DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
 # FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 # DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
@@ -64,9 +64,7 @@ def test_search(helpers: Helpers):
     jql_string = f"project = {PROJ_KEY}"
 
     ret = helpers.run_pyjiracli(
-        credentials + ["search",
-                       "--max", str(max_number_of_issues),
-                       jql_string])
+        ["search"] + credentials + ["--max", str(max_number_of_issues), jql_string])
 
     # Expect OK.
     assert Ret.CODE.RET_OK == ret.returncode
@@ -74,10 +72,9 @@ def test_search(helpers: Helpers):
     # Test export to file.
     max_number_of_issues = 3
     ret = helpers.run_pyjiracli(
-        credentials + ["search",
-                       "--max", str(max_number_of_issues),
-                       "--file", OUTPUT_FILE_NAME,
-                       jql_string])
+        ["search"] + credentials + ["--max", str(max_number_of_issues),
+                                    "--file", OUTPUT_FILE_NAME,
+                                    jql_string])
 
     # Expect OK.
     assert Ret.CODE.RET_OK == ret.returncode

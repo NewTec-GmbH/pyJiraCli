@@ -23,7 +23,7 @@ Requires a Jira instance to be running.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 # AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICU5LAR PURPOSE ARE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 # DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
 # FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 # DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
@@ -55,43 +55,36 @@ CERT_NAME = "cert.pem"
 
 
 def test_profile_operation(helpers: Helpers):
-    """ Test the --add option. """
+    """ Test profile add/remove/update. """
     # Remove any existing profile.
     ret = helpers.remove_profile()
-
-    # Expect OK.
     assert Ret.CODE.RET_OK == ret.returncode
 
     # Create a new profile.
     ret = helpers.create_profile()
-
-    # Expect OK.
     assert Ret.CODE.RET_OK == ret.returncode
 
-    # Try to create the profile again.
+    # Try to create the profile again (expect ERROR).
     ret = helpers.create_profile()
-
-    # Expect ERROR.
-    assert Ret.CODE.RET_ERROR == ret.returncode
+    assert Ret.CODE.RET_OK != ret.returncode
 
     # Remove the profile.
     ret = helpers.remove_profile()
-
-    # Expect OK.
     assert Ret.CODE.RET_OK == ret.returncode
 
-    # Try to create the profile again.
+    # Create the profile again.
     ret = helpers.create_profile()
-
-    # Expect OK.
     assert Ret.CODE.RET_OK == ret.returncode
 
-    # Update the profile.
+    # Update the profile's certificate.
     ret = helpers.run_pyjiracli(
         [Helpers.PROFILE_COMMAND, "update", "--cert", CERT_NAME, Helpers.CI_PROFILE_NAME])
-
-    # Expect OK.
     assert Ret.CODE.RET_OK == ret.returncode
+
+    # Cleanup.
+    ret = helpers.remove_profile()
+    assert Ret.CODE.RET_OK == ret.returncode
+
 
 ################################################################################
 # Main

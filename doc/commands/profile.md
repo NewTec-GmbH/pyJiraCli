@@ -2,17 +2,16 @@
 
 Add, list, delete or update server profiles.
 
-The profile contains following data:
+The profile contains the following data:
 
-* name: A unique profile name by which you can reference your profile. (required)
-* server: The server url where your jira server is located. (required)
-* token: An api token to allow for faster access. (optional)
-* certificate: A server certificate for your company/jira instance. (optional)
+* name: A unique name by which the profile can be referenced. The name is not stored in the data files, but identifies the folder. (required)
+* server: The server URL to the Jira server. (required)
+* token: An API token to allow for easier access. (optional)
+* user/password: The credentials to authenticate with the Jira server in case no token is given. (optional)
+* certificate: A server certificate for your company/Jira instance. (optional)
 
-When adding a profile, the server url and token are required.
-The certificate is optional and can also be added later on,
-with the --update option.
-Username and password are not valid to create a profile for security reasons.
+When adding a profile, the server URL and token (or user/password) are required.
+The certificate is optional and can also be added later on with the --update option.
 
 ```cmd
 pyJiraCli profile add --help
@@ -21,17 +20,21 @@ pyJiraCli profile add --help
 Output:
 
 ```cmd
-usage: pyJiraCli profile add [-h] -t <token> -s <server URL> [--cert <certificate path>] <profile name>
+usage: pyJiraCli profile add [-h] -s <server URL> [-t <token>] [-u <user>] [-p <password>] [--cert <certificate path>] <profile name>
 
 positional arguments:
   <profile name>        The name of the profile.
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
-  -t <token>, --token <token>
-                        The token to authenticate with the Jira server.
   -s <server URL>, --server <server URL>
                         The Jira server URL to connect to.
+  -t <token>, --token <token>
+                        The token to authenticate at the Jira server.
+  -u <user>, --user <user>
+                        The user to authenticate at the Jira server.
+  -p <password>, --password <password>
+                        The password to authenticate at the Jira server.
   --cert <certificate path>
                         The server SSL certificate.
 ```
@@ -39,7 +42,7 @@ optional arguments:
 Example:
 
 ```cmd
-pyJiraCli profile add --server https://my-jira-instance.com --token This-Is-an-Example-Token profile --cert C:\\Path\\To\\Certificate.crt new_profile
+pyJiraCli profile add -pt jira -s https://my-jira-instance.com -t This-Is-an-Example-Token profile --cert C:\\Path\\To\\Certificate.crt new_profile
 ```
 
-This will create a new profile with the name "new_profile" and saves all possible profile information.
+This will create a new Jira profile with the name "new_profile".

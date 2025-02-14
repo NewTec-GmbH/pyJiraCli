@@ -1,7 +1,7 @@
 """ Command for the profile function.
-    This module caan add, remove or configure server profiles.
+    This module can add, remove or configure server profiles.
     The profiles contain server url, login data, the server certificate
-    and configuration data for a specific jira server instance.
+    and configuration data for a specific Jira server instance.
 """
 # BSD 3-Clause License
 #
@@ -40,6 +40,7 @@ import argparse
 from pyJiraCli.jira_server import Server
 from pyJiraCli.printer import Printer, PrintType
 from pyJiraCli.profile_handler import ProfileHandler
+from pyJiraCli.profile_handler import ProfileType
 from pyJiraCli.ret import Ret
 
 ################################################################################
@@ -74,6 +75,7 @@ def register(subparser) -> argparse.ArgumentParser:
 
     sub_parsers = parser.add_subparsers(required=True)
 
+    # Add
     sub_parser_add = sub_parsers.add_parser("add")
     sub_parser_add.set_defaults(func=_profile_add)
 
@@ -85,21 +87,39 @@ def register(subparser) -> argparse.ArgumentParser:
     )
 
     sub_parser_add.add_argument(
-        '-t',
-        '--token',
-        type=str,
-        metavar='<token>',
-        required=True,
-        help="The token to authenticate with the Jira server."
-    )
-
-    sub_parser_add.add_argument(
         '-s',
         '--server',
         type=str,
         metavar='<server URL>',
         required=True,
         help="The Jira server URL to connect to."
+    )
+
+    sub_parser_add.add_argument(
+        '-t',
+        '--token',
+        type=str,
+        metavar='<token>',
+        required=False,
+        help="The token to authenticate at the Jira server."
+    )
+
+    sub_parser_add.add_argument(
+        '-u',
+        '--user',
+        type=str,
+        metavar='<user>',
+        required=False,
+        help="The user to authenticate at the Jira server."
+    )
+
+    sub_parser_add.add_argument(
+        '-p',
+        '--password',
+        type=str,
+        metavar='<password>',
+        required=False,
+        help="The password to authenticate at the Jira server."
     )
 
     sub_parser_add.add_argument(
@@ -110,9 +130,11 @@ def register(subparser) -> argparse.ArgumentParser:
         help="The server SSL certificate."
     )
 
+    # List
     sub_parser_list = sub_parsers.add_parser("list")
     sub_parser_list.set_defaults(func=_profile_list)
 
+    # Remove
     sub_parser_remove = sub_parsers.add_parser("remove")
     sub_parser_remove.set_defaults(func=_profile_remove)
 
@@ -123,6 +145,8 @@ def register(subparser) -> argparse.ArgumentParser:
         help="The name of the profile."
     )
 
+    # Update
+    # KLUDGE: The update command is not yet implemented for anything but the certificate.
     sub_parser_update = sub_parsers.add_parser("update")
     sub_parser_update.set_defaults(func=_profile_update)
 
@@ -134,26 +158,47 @@ def register(subparser) -> argparse.ArgumentParser:
     )
 
     sub_parser_update.add_argument(
-        '-t',
-        '--token',
-        type=str,
-        metavar='<token>',
-        help="The token to authenticate with the Jira server."
-    )
-
-    sub_parser_update.add_argument(
         '-s',
         '--server',
         type=str,
+        required=False,
         metavar='<server URL>',
         help="The Jira server URL to connect to."
     )
 
     sub_parser_update.add_argument(
+        '-t',
+        '--token',
+        type=str,
+        required=False,
+        metavar='<token>',
+        help="The token to authenticate with the Jira server."
+    )
+
+    sub_parser_update.add_argument(
+        '-u',
+        '--user',
+        type=str,
+        required=False,
+        metavar='<user>',
+        help="The user to authenticate at the Jira server."
+    )
+
+    sub_parser_update.add_argument(
+        '-p',
+        '--password',
+        type=str,
+        required=False,
+        metavar='<password>',
+        help="The password to authenticate at the Jira server."
+    )
+
+    sub_parser_update.add_argument(
+        '-c',
         '--cert',
         type=str,
-        metavar="<certificate path>",
         required=False,
+        metavar="<certificate path>",
         help="The server SSL certificate."
     )
 
@@ -164,7 +209,7 @@ def execute(_) -> Ret.CODE:
     """ This function serves as entry point for the command 'profile'.
         It will be stored as callback for this modules subparser command.
 
-    Args: 
+    Args:
         args (obj): The command line arguments.
 
     Returns:
@@ -175,6 +220,7 @@ def execute(_) -> Ret.CODE:
     # Nothing to do.
 
     return ret_status
+
 
 def _profile_add(args) -> Ret.CODE:
     """ Store a new profile.
@@ -197,13 +243,14 @@ def _profile_add(args) -> Ret.CODE:
     if ret_status is Ret.CODE.RET_OK:
         temp_profile_name = args.profile_name
         args.profile_name = None
-        ret_status = _check_profile(args)
+        ret_status = _check_jira_profile(args)
         args.profile_name = temp_profile_name
 
     if ret_status is Ret.CODE.RET_OK:
         ret_status = _add_profile(args)
 
     return ret_status
+
 
 def _profile_list(_) -> Ret.CODE:
     """ List all stored profiles.
@@ -218,6 +265,7 @@ def _profile_list(_) -> Ret.CODE:
 
     return ret_status
 
+
 def _profile_remove(args) -> Ret.CODE:
     """ Remove a dedicated profile from filesystem.
 
@@ -228,13 +276,11 @@ def _profile_remove(args) -> Ret.CODE:
         Ret.CODE: The return status of the module.
     """
 
-    if ret_status is Ret.CODE.RET_OK:
-        ret_status = _remove_profile(args.profile_name)
+    return _remove_profile(args.profile_name)
 
-    return ret_status
 
 def _profile_update(args) -> Ret.CODE:
-    """ Update a dedicated existing profile.
+    """ Updates an existing profile.
 
     Args:
         args (obj): The command line arguments.
@@ -242,7 +288,7 @@ def _profile_update(args) -> Ret.CODE:
     Returns:
         Ret.CODE: The return status of the module.
     """
-    ret_status = _check_profile(args)
+    ret_status = _check_jira_profile(args)
 
     if ret_status is Ret.CODE.RET_OK:
         ret_status = _update_profile(args)
@@ -250,18 +296,21 @@ def _profile_update(args) -> Ret.CODE:
     return ret_status
 
 
-def _check_profile(args) -> Ret.CODE:
-    """ Check whether the profile information is valid by login to JIRA.
+def _check_jira_profile(args) -> Ret.CODE:
+    """ Checks whether the profile information is valid by login to Jira.
 
     Returns:
         Ret.CODE: If successful it will return Ret.CODE.RET_OK otherwise a error.
     """
+
     server = Server()
-    ret_status = server.login(  args.profile_name,
-                                args.server,
-                                args.token,
-                                None,
-                                None)
+    # Login to the server (prefer token over user/password).
+    if args.token is not None:
+        ret_status = server.login(
+            args.profile_name, args.server, args.token, None, None)
+    else:
+        ret_status = server.login(
+            args.profile_name, args.server, None, args.user, args.password)
 
     return ret_status
 
@@ -281,17 +330,21 @@ def _add_profile(args) -> Ret.CODE:
     if args.server is None:
         ret_status = Ret.CODE.RET_ERROR_NO_SERVER_URL
         LOG.print_error(PrintType.ERROR, ret_status)
-    elif args.token is None:
+    elif args.token is None and (args.user is None or args.password is None):
         ret_status = Ret.CODE.RET_ERROR_NO_USERINFORMATION
         LOG.print_error(PrintType.ERROR, ret_status)
-        print("Profiles can only be created using a token." +
-              "Please provide a token using the --token option.")
+        print("Profiles can only be created using login credentials." +
+              "Please provide a token using the --token option or --user/--password.")
     else:
-        name = args.profile_name
-        url = args.server
+        profile_name = args.profile_name
+        profile_type = ProfileType.JIRA # Profile type for this cmd is always JIRA.
+        server = args.server
         token = args.token
+        user = args.user
+        password = args.password
         certificate = args.cert
-        ret_status = _profile.add(name, url, token, certificate)
+        ret_status = _profile.add(
+            profile_name, profile_type, server, token, user, password, certificate)
 
     return ret_status
 

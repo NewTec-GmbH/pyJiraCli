@@ -22,7 +22,7 @@ This file contains fixtures that are used by all tests in the tests folder.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 # AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICU5LAR PURPOSE ARE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 # DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
 # FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 # DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
@@ -55,6 +55,7 @@ class Helpers:  # pylint: disable=too-few-public-methods
 
     PROFILE_COMMAND = "profile"
     CI_PROFILE_NAME = "ci_profile"
+    CI_PROFILE_TYPE = "jira"
     CI_JIRA_SERVER_URL = "http://localhost:2990/jira"
     CI_JIRA_USER_TOKEN = os.environ.get("CI_JIRA_USER_TOKEN", "DummyToken")
 
@@ -92,6 +93,7 @@ class Helpers:  # pylint: disable=too-few-public-methods
             Includes return code, stdout and stderr.
         """
         return Helpers.run_pyjiracli([Helpers.PROFILE_COMMAND, "add",
+                                      "--profile_type", Helpers.CI_PROFILE_TYPE,
                                       "--server", Helpers.CI_JIRA_SERVER_URL,
                                       "--token", Helpers.CI_JIRA_USER_TOKEN,
                                       Helpers.CI_PROFILE_NAME])

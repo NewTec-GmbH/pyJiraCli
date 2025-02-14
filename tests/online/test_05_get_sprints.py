@@ -23,7 +23,7 @@ Requires a Jira instance to be running.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 # AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICU5LAR PURPOSE ARE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 # DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
 # FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 # DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
@@ -64,16 +64,14 @@ def test_get_sprints(helpers: Helpers):
                    "--token", helpers.CI_JIRA_USER_TOKEN]
 
     ret = helpers.run_pyjiracli(
-        credentials + ["get_sprints",
-                       BOARD_NAME])
+        ["get_sprints"] + credentials + [BOARD_NAME])
 
     # Expect OK.
     assert Ret.CODE.RET_OK == ret.returncode
 
     ret = helpers.run_pyjiracli(
-        credentials + ["get_sprints",
-                       BOARD_NAME,
-                       "--file", OUTPUT_FILE_NAME])
+        ["get_sprints"] + credentials +
+        ["--file", OUTPUT_FILE_NAME, BOARD_NAME])
 
     # Expect OK.
     assert Ret.CODE.RET_OK == ret.returncode
