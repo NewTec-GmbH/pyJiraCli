@@ -34,9 +34,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
+
       - name: Start Jira docker instance
-        run: docker run -dit -p 2990:2990 --name jira-python-${{ matrix.python-version }} addono/jira-software-standalone --version 8.17.1
+        run: docker run -dit -p 2990:2990 --name jira-python-${{ matrix.python-version }} addono/jira-software-standalone --version 9.11.3
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
@@ -58,7 +58,7 @@ jobs:
         run: |
           echo ${{ env.CI_JIRA_USER_TOKEN }}
           pytest tests/online -v --cov=./src/pyJiraCli --cov-report=html:coverage_report
-  
+
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
