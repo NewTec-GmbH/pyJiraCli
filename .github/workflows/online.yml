@@ -36,7 +36,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Start Jira docker instance
-        run: docker run -p 2990:2990 --name jira-srv -e TZ='Europe/Berlin' haxqer/jira:9.17.5
+        run: docker run -dit -p 2990:2990 --name jira-srv -e TZ='Europe/Berlin' haxqer/jira:9.17.5
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
