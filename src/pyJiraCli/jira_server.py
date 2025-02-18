@@ -85,14 +85,14 @@ class Server:
 
         urllib3.disable_warnings()
 
-    # pylint: disable=R0913
+    # pylint: disable=R0913,R0917
     def login(self,
               arg_profile_name: Optional[str],
               arg_server_url: Optional[str],
               arg_token: Optional[str],
               arg_username: Optional[str],
               arg_password: Optional[str]) -> Ret.CODE:
-        """ Login to Jira server with user info or login info from 
+        """ Login to Jira server with user info or login info from
             stored token or user file.
 
         Args:
@@ -173,7 +173,7 @@ class Server:
         return ret_status
 
     def get_search_result(self) -> list:
-        """ Return the results from a 
+        """ Return the results from a
             successful search.
 
         Returns:

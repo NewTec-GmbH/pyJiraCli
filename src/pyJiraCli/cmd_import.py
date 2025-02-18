@@ -42,6 +42,7 @@ import os
 import argparse
 from jira.client import JIRA
 
+from pyJiraCli.file_helper import FileHelper
 from pyJiraCli.jira_server import Server
 from pyJiraCli.printer import Printer
 from pyJiraCli.ret import Ret
@@ -407,9 +408,10 @@ def _read_json_file(input_file: str) -> tuple[Ret.CODE, dict]:
         return  Ret.CODE.RET_ERROR_WRONG_FILE_FORMAT
 
     try:
-        with open(input_file, 'r', encoding="utf-8") as input_file_handle:
+        with FileHelper.open_file(input_file, 'r') as input_file_handle:
             issue_dict = json.load(input_file_handle)
-    except FileNotFoundError:
+
+    except IOError:
         ret_status = Ret.CODE.RET_ERROR_FILEPATH_INVALID
 
     return ret_status, issue_dict

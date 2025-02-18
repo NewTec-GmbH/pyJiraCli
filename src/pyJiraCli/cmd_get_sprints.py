@@ -183,14 +183,15 @@ def _cmd_get_sprints(board_name: str, filepath: str, server: Server) -> Ret.CODE
 
         if ret_status == Ret.CODE.RET_OK:
             try:
-                with open(output_file_path, 'w', encoding="utf-8") as output_file:
+                with FileHelper.open_file(output_file_path, 'w') as output_file:
                     write_data = json.dumps(write_dict, indent=4)
                     output_file.write(write_data)
 
                     msg = f"Successfully saved sprint to '{output_file_path}'."
                     LOG.print_info(msg)
                     print(msg)
-            except FileNotFoundError:
+
+            except IOError:
                 ret_status = Ret.CODE.RET_ERROR_FILEPATH_INVALID
 
     return ret_status

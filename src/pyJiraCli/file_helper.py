@@ -93,3 +93,31 @@ class FileHelper:
             return Ret.CODE.RET_OK, first + '.json'
 
         return Ret.CODE.RET_OK, file_arg
+
+    @staticmethod
+    # pylint: disable=R1732
+    def open_file(file_path: str, mode: str) -> any:
+        """ Opens a file (encoding="UTF-8") in the given mode.
+
+        Args:
+            file_path (str): The path to the file to open.
+            mode (str): The mode to open the file in.
+
+        Returns:
+            file: The opened file.
+
+        Raises:
+            IOError: If the file does not exist.
+            IOError: If the file cannot be accessed.
+            IOError: If the file cannot be opened.
+        """
+        try:
+            file = open(file_path, mode, encoding="UTF-8")
+            return file
+
+        except FileNotFoundError as exc:
+            raise IOError(f"File '{file_path}' not found.") from exc
+        except PermissionError as exc:
+            raise IOError(f"Permission denied for '{file_path}'.") from exc
+        except Exception as exc:
+            raise IOError(f"Error opening file '{file_path}': {exc}") from exc

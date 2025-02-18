@@ -39,6 +39,7 @@ import json
 import argparse
 import datetime
 
+from pyJiraCli.file_helper import FileHelper
 from pyJiraCli.jira_server import Server
 from pyJiraCli.printer import Printer
 from pyJiraCli.ret import Ret
@@ -336,7 +337,7 @@ def _save_search(save_file: str, search_dict: dict) -> Ret.CODE:
     ret_status = Ret.CODE.RET_OK
 
     try:
-        with open(save_file, 'w', encoding="utf-8") as result_file:
+        with FileHelper.open_file(save_file, 'w') as result_file:
             result_data = json.dumps(search_dict, indent=4)
 
             result_file.write(result_data)
@@ -344,7 +345,8 @@ def _save_search(save_file: str, search_dict: dict) -> Ret.CODE:
             msg = f"Successfully saved the search results in '{save_file}'."
             LOG.print_info(msg)
             print(msg)
-    except FileNotFoundError:
+
+    except IOError:
         return Ret.CODE.RET_ERROR_FILEPATH_INVALID
 
     return ret_status

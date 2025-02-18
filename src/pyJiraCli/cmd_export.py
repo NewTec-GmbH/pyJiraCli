@@ -183,7 +183,7 @@ def _cmd_export(args, server: Server) -> Ret.CODE:
     ret_status, file_path = FileHelper.process_file_argument(args.issue, args.file)
     if ret_status == Ret.CODE.RET_OK:
         try:
-            with open(file_path, 'w', encoding="utf-8") as export_file:
+            with FileHelper.open_file(file_path, 'w') as export_file:
                 ret_status = server.search(f"key = {args.issue}", max_results=1, fields=[])
                 if ret_status == Ret.CODE.RET_OK:
                     issue = server.get_search_result().pop().raw
@@ -192,7 +192,8 @@ def _cmd_export(args, server: Server) -> Ret.CODE:
                     msg = f"Successfully exported to file '{file_path}'."
                     LOG.print_info(msg)
                     print(msg)
-        except FileNotFoundError:
+
+        except IOError:
             ret_status = Ret.CODE.RET_ERROR_FILEPATH_INVALID
 
     return ret_status
