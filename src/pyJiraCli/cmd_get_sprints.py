@@ -33,28 +33,33 @@
 ################################################################################
 # Imports
 ################################################################################
+
 import json
 import argparse
 
+from pyJiraCli.file_helper import FileHelper
 from pyJiraCli.printer import Printer, PrintType
-from pyJiraCli.file_handler import FileHandler as File
 from pyJiraCli.jira_server import Server
 from pyJiraCli.ret import Ret
+
+
 ################################################################################
 # Variables
 ################################################################################
+
 BOARD_KEY = 'board'
 SPRINTS_KEY = 'sprints'
-
 LOG = Printer()
+
+
 ################################################################################
 # Classes
 ################################################################################
 
+
 ################################################################################
 # Functions
 ################################################################################
-
 
 def register(subparser) -> argparse.ArgumentParser:
     """ Register subparser commands for the get_sprints module.
@@ -63,7 +68,7 @@ def register(subparser) -> argparse.ArgumentParser:
         subparser (obj):   The command subparser object provided via __main__.py.
 
     Returns:
-        obj:    The commmand parser object of this module.
+        obj:    The command parser object of this module.
     """
 
     parser = subparser.add_parser(
@@ -120,7 +125,7 @@ def register(subparser) -> argparse.ArgumentParser:
         '--file',
         type=str,
         metavar='<path to file>',
-        help="Absolute file path or filepath relativ " +
+        help="Absolute file path or filepath relative " +
         "to the current working directory. " +
         "The file format must be JSON. "
     )
@@ -130,20 +135,20 @@ def register(subparser) -> argparse.ArgumentParser:
 
 def execute(args) -> Ret.CODE:
     """ This function servers as entry point for the command 'print'.
-        It will be stored as callback for this moduls subparser command.
+        It will be stored as callback for this module's subparser command.
 
-    Args: 
+    Args:
         args (obj): The command line arguments.
 
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
     server = Server()
-    ret_status = server.login(  args.profile,
-                                args.server,
-                                args.token,
-                                args.user,
-                                args.password)
+    ret_status = server.login(args.profile,
+                              args.server,
+                              args.token,
+                              args.user,
+                              args.password)
 
     if Ret.CODE.RET_OK != ret_status:
         LOG.print_error(PrintType.ERROR, ret_status)
@@ -154,7 +159,7 @@ def execute(args) -> Ret.CODE:
 
 
 def _cmd_get_sprints(board_name: str, filepath: str, server: Server) -> Ret.CODE:
-    """ Load the sprints in the board and store the data in a 
+    """ Load the sprints in the board and store the data in a
         JSON file.
 
     Args:
@@ -166,24 +171,28 @@ def _cmd_get_sprints(board_name: str, filepath: str, server: Server) -> Ret.CODE
     Returns:
         Ret.CODE: The return status of the module.
     """
-    ret_status = Ret.CODE.RET_ERROR
 
-    file = File()
-
+    ret_status = Ret.CODE.RET_OK
     write_dict, ret_status = _get_sprints(board_name, server)
 
     if ret_status == Ret.CODE.RET_OK:
         writeable_board_name = write_dict[BOARD_KEY].replace(
             ' ', '_').replace(':', '')
-        ret_status = file.process_file_argument(
+        ret_status, output_file_path = FileHelper.process_file_argument(
             f"{writeable_board_name}_Sprints", filepath)
 
-    if ret_status == Ret.CODE.RET_OK:
-        write_data = json.dumps(write_dict, indent=4)
-        ret_status = file.write_file(write_data)
+        if ret_status == Ret.CODE.RET_OK:
+            try:
+                with FileHelper.open_file(output_file_path, 'w') as output_file:
+                    write_data = json.dumps(write_dict, indent=4)
+                    output_file.write(write_data)
 
-    if ret_status == Ret.CODE.RET_OK:
-        LOG.print_info('File saved at:', file.get_path())
+                    msg = f"Successfully saved sprint to '{output_file_path}'."
+                    LOG.print_info(msg)
+                    print(msg)
+
+            except IOError:
+                ret_status = Ret.CODE.RET_ERROR_FILEPATH_INVALID
 
     return ret_status
 
@@ -243,7 +252,7 @@ def _get_sprints(board_name: str, server: Server) -> tuple[dict, Ret.CODE]:
             )
 
         except:  # pylint: disable=W0702
-            LOG.print_info("No sprints found or the board doesnt support Sprints. Board:",
+            LOG.print_info("No sprints found or the board doesn't support sprints. Board:",
                            current_board.name)
 
         if sprints is not None:

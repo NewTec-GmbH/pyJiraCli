@@ -35,26 +35,31 @@
 ################################################################################
 # Imports
 ################################################################################
-import json
-import argparse
 
+import argparse
+import json
+
+from pyJiraCli.file_helper import FileHelper
 from pyJiraCli.jira_server import Server
-from pyJiraCli.file_handler import FileHandler as File
 from pyJiraCli.printer import Printer
 from pyJiraCli.ret import Ret
+
 
 ################################################################################
 # Variables
 ################################################################################
+
 LOG = Printer()
+
+
 ################################################################################
 # Classes
 ################################################################################
 
+
 ################################################################################
 # Functions
 ################################################################################
-
 
 def register(subparser) -> argparse.ArgumentParser:
     """ Register the subparser commands for the export module.
@@ -134,7 +139,7 @@ def execute(args) -> Ret.CODE:
     """ This function servers as entry point for the command 'export'.
         It will be stored as callback for this modules subparser command.
 
-    Args: 
+    Args:
         args (obj): The command line arguments.
 
     Returns:
@@ -162,7 +167,7 @@ def _cmd_export(args, server: Server) -> Ret.CODE:
         The function takes the command line arguments and extracts the
         provided filepath from -path and -file option.
 
-        If the option -file (filename) is not provided, the function will 
+        If the option -file (filename) is not provided, the function will
         take the issue key as filename.
 
         The data will be written and stored in a JSON file.
@@ -175,41 +180,20 @@ def _cmd_export(args, server: Server) -> Ret.CODE:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
 
-    ret_status = Ret.CODE.RET_OK
-    file = File()
-
-    ret_status = file.process_file_argument(args.issue,
-                                            args.file)
+    ret_status, file_path = FileHelper.process_file_argument(args.issue, args.file)
     if ret_status == Ret.CODE.RET_OK:
-        ret_status = _export_ticket_to_file(args.issue,
-                                            file,
-                                            server)
+        try:
+            with FileHelper.open_file(file_path, 'w') as export_file:
+                ret_status = server.search(f"key = {args.issue}", max_results=1, fields=[])
+                if ret_status == Ret.CODE.RET_OK:
+                    issue = server.get_search_result().pop().raw
+                    export_file.write(json.dumps(issue, indent=4))
 
-    if ret_status == Ret.CODE.RET_OK:
-        LOG.print_info('File saved at:', file.get_path())
+                    msg = f"Successfully exported to file '{file_path}'."
+                    LOG.print_info(msg)
+                    print(msg)
 
-    return ret_status
-
-
-def _export_ticket_to_file(issue_key: str, file: File, server: Server) -> Ret.CODE:
-    """ Export a jira issue from the server
-        and write the issue data to a JSON file.
-
-    Args:
-        issue_key (str):    The issue key as a string.
-        file (File):        The file object for the output file.
-        server (Server):    The server object to interact with the Jira server.
-
-    Returns:
-        Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
-    """
-    ret_status = server.search(f"key = {issue_key}", max_results=1, fields=[])
-
-    if ret_status == Ret.CODE.RET_OK:
-
-        issue = server.get_search_result().pop().raw
-
-        write_data = json.dumps(issue, indent=4)
-        ret_status = file.write_file(write_data)
+        except IOError:
+            ret_status = Ret.CODE.RET_ERROR_FILEPATH_INVALID
 
     return ret_status
