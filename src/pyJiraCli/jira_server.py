@@ -189,9 +189,9 @@ class Server:
         ret_status = _profile_mgr.load(profile_name)
 
         if ret_status == Ret.CODE.RET_OK:
-            self._cert_path = _profile_mgr.get_cert_path()
-            self._server_url = _profile_mgr.get_server_url()
-            api_token = _profile_mgr.get_api_token()
+            self._cert_path = _profile_mgr.loaded_profile.cert_path
+            self._server_url = _profile_mgr.loaded_profile.server_url
+            api_token = _profile_mgr.loaded_profile.token
 
             _printer.print_info('Logging in to Jira server:', self._server_url)
 
@@ -199,17 +199,17 @@ class Server:
                 _printer.print_error(
                     PrintType.WARNING, Warnings.CODE.WARNING_UNSAVE_CONNECTION)
 
-                # Use token (preferred)
+            # Use token (preferred)
             if api_token is not None:
                 _printer.print_info('Using token for login.')
 
                 ret_status = self._login_with_token(api_token)
-                # Else user/password
+            # Else user/password
             else:
                 _printer.print_info('Using user/password for login.')
 
-                self._user = _profile_mgr.get_user()
-                password = _profile_mgr.get_password()
+                self._user = _profile_mgr.loaded_profile.user
+                password = _profile_mgr.loaded_profile.password
 
                 ret_status = self._login_with_password(self._user, password)
 
