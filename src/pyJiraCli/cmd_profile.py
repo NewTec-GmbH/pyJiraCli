@@ -37,8 +37,8 @@
 ################################################################################
 import argparse
 
+from pyProfileMgr.profile_data import ProfileType
 from pyProfileMgr.profile_mgr import ProfileMgr
-from pyProfileMgr.profile_mgr import ProfileType
 
 from pyJiraCli.jira_server import Server
 from pyJiraCli.printer import Printer, PrintType
