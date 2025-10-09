@@ -82,6 +82,7 @@ class Server:
         self._user = None
         self._max_retries = 0
         self._timeout = timeout
+        self._all_fields = None
 
         urllib3.disable_warnings()
 
@@ -180,6 +181,30 @@ class Server:
             list: A list with all the found issues from the last search.
         """
         return self._search_result
+
+    def get_custom_field_name(self, field_id: str) -> str:
+        """ Get the name of a custom field by its ID.
+
+        Args:
+            field_id (str): The ID of the custom field.
+
+        Returns:
+            str: The name of the custom field or the ID if not found.
+        """
+        field_name = field_id
+
+        # Load all fields if not done yet. Prevent multiple calls to the server.
+        if self._all_fields is None and self._jira_obj is not None:
+            self._all_fields = self._jira_obj.fields()
+
+        if self._all_fields is not None:
+            # Search for the field ID
+            for field in self._all_fields:
+                if field['id'] == field_id:
+                    field_name = field['name']
+                    break
+
+        return field_name
 
     def _login_using_profile(self, profile_name: str) -> Ret.CODE:
         ''' Login to Jira server using the profile settings.'''
