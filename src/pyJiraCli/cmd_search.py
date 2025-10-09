@@ -216,7 +216,7 @@ def _cmd_search(filter_str: str,
                 server: Server,
                 fields: list[str],
                 translate: bool) -> Ret.CODE:
-    # pylint: disable=too-many-arguments,too-many-positional-arguments
+    # pylint: disable=too-many-arguments
     """ Search tickets with a provided filter or search string.
 
     Args:
