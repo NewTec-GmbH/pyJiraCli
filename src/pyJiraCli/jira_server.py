@@ -60,6 +60,8 @@ else:
 # Variables
 ################################################################################
 
+JIRA_SERVER_MAX_RETRIES = 0  # Number of retries for server connection
+
 ################################################################################
 # Classes
 ################################################################################
@@ -80,7 +82,6 @@ class Server:
         self._cert_path = None
         self._server_url = None
         self._user = None
-        self._max_retries = 0
         self._timeout = timeout
         self._all_fields = None
 
@@ -290,13 +291,13 @@ class Server:
                 self._jira_obj = JIRA(server=self._server_url,
                                       options={'verify': False},
                                       token_auth=token,
-                                      max_retries=self._max_retries,
+                                      max_retries=JIRA_SERVER_MAX_RETRIES,
                                       timeout=self._timeout)
             else:
                 self._jira_obj = JIRA(server=self._server_url,
                                       options={'verify': self._cert_path},
                                       token_auth=token,
-                                      max_retries=self._max_retries,
+                                      max_retries=JIRA_SERVER_MAX_RETRIES,
                                       timeout=self._timeout)
 
             user = self._jira_obj.current_user()
@@ -350,13 +351,13 @@ class Server:
                 self._jira_obj = JIRA(server=self._server_url,
                                       basic_auth=(user, pw),
                                       options={'verify': False},
-                                      max_retries=self._max_retries,
+                                      max_retries=JIRA_SERVER_MAX_RETRIES,
                                       timeout=self._timeout)
             else:
                 self._jira_obj = JIRA(server=self._server_url,
                                       basic_auth=(user, pw),
                                       options={'verify': self._cert_path},
-                                      max_retries=self._max_retries,
+                                      max_retries=JIRA_SERVER_MAX_RETRIES,
                                       timeout=self._timeout)
 
             user = self._jira_obj.current_user()
