@@ -174,11 +174,11 @@ def execute(args) -> Ret.CODE:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
     server = Server()
-    ret_status = server.login(  args.profile,
-                                args.server,
-                                args.token,
-                                args.user,
-                                args.password)
+    ret_status = server.login(args.profile,
+                              args.server,
+                              args.token,
+                              args.user,
+                              args.password)
 
     if Ret.CODE.RET_OK != ret_status:
         LOG.print_error(

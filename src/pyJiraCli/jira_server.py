@@ -241,7 +241,7 @@ class Server:
         return ret_status
 
     def _login_using_direct_args(self, server_url: str,
-                              token: str, username: str, password: str) -> Ret.CODE:
+                                 token: str, username: str, password: str) -> Ret.CODE:
         ''' Login to Jira server using the command line arguments directly. '''
         self._server_url = server_url
 
