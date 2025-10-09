@@ -257,12 +257,11 @@ def _cmd_search(filter_str: str,
                     "worklogs": worklog_list
                 }
 
-            # Custom fields are requested for the issue.
-            custom_fields = [field for field in issue_dict["fields"].keys() if field.startswith('customfield_')]
-            for custom_field_id in custom_fields:
-                field_name = server.get_custom_field_name(custom_field_id)
+            # Translate field IDs to names
+            for field_id in list(issue_dict["fields"].keys()):
+                field_name = server.get_field_name(field_id)
                 if field_name is not None:
-                    issue_dict["fields"][field_name] = issue_dict["fields"].pop(custom_field_id)
+                    issue_dict["fields"][field_name] = issue_dict["fields"].pop(field_id)
 
             search_dict['issues'].append(issue_dict)
 

@@ -182,14 +182,14 @@ class Server:
         """
         return self._search_result
 
-    def get_custom_field_name(self, field_id: str) -> str:
-        """ Get the name of a custom field by its ID.
+    def get_field_name(self, field_id: str) -> str:
+        """ Get the name of a field by its ID.
 
         Args:
-            field_id (str): The ID of the custom field.
+            field_id (str): The ID of the field.
 
         Returns:
-            str: The name of the custom field or the ID if not found.
+            str: The name of the field or the ID if not found.
         """
         field_name = field_id
 
