@@ -345,7 +345,7 @@ def _save_search(save_file: str, search_dict: dict) -> Ret.CODE:
 
     try:
         with FileHelper.open_file(save_file, 'w') as result_file:
-            result_data = json.dumps(search_dict, indent=4)
+            result_data = json.dumps(search_dict, indent=4, ensure_ascii=False)
 
             result_file.write(result_data)
 
