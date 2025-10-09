@@ -160,6 +160,13 @@ def register(subparser) -> argparse.ArgumentParser:
         "Can be used multiple times to search for multiple fields."
     )
 
+    parser.add_argument(
+        "--translate",
+        action="store_true",
+        required=False,
+        help="Translate the field IDs to names in the output."
+    )
+
     return parser
 
 
@@ -174,11 +181,11 @@ def execute(args) -> Ret.CODE:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
     server = Server()
-    ret_status = server.login(  args.profile,
-                                args.server,
-                                args.token,
-                                args.user,
-                                args.password)
+    ret_status = server.login(args.profile,
+                              args.server,
+                              args.token,
+                              args.user,
+                              args.password)
 
     if Ret.CODE.RET_OK != ret_status:
         LOG.print_error(
@@ -193,8 +200,12 @@ def execute(args) -> Ret.CODE:
             fields = args.field  # Get the fields provided by the user
 
         # Search for the issues
-        ret_status = _cmd_search(
-            args.filter, args.max, args.file, server, fields)
+        ret_status = _cmd_search(args.filter,
+                                 args.max,
+                                 args.file,
+                                 server,
+                                 fields,
+                                 args.translate)
 
     return ret_status
 
@@ -203,7 +214,9 @@ def _cmd_search(filter_str: str,
                 results: int,
                 save_file: str,
                 server: Server,
-                fields: list[str]) -> Ret.CODE:
+                fields: list[str],
+                translate: bool) -> Ret.CODE:
+    # pylint: disable=too-many-arguments
     """ Search tickets with a provided filter or search string.
 
     Args:
@@ -213,6 +226,7 @@ def _cmd_search(filter_str: str,
                             work directory to a JSON file, where the search will be stored.
         server (Server):    The server object to interact with the Jira server.
         fields (list[str]): The fields to search for in the work items.
+        translate (bool):   Whether to translate field IDs to names in the output.
 
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
@@ -256,6 +270,12 @@ def _cmd_search(filter_str: str,
                     "total": len(worklog_list),
                     "worklogs": worklog_list
                 }
+
+            # Translate field IDs to names
+            if True is translate:
+                for field_id in list(issue_dict["fields"].keys()):
+                    field_name = server.get_field_name(field_id)
+                    issue_dict["fields"][field_name] = issue_dict["fields"].pop(field_id)
 
             search_dict['issues'].append(issue_dict)
 
@@ -338,7 +358,7 @@ def _save_search(save_file: str, search_dict: dict) -> Ret.CODE:
 
     try:
         with FileHelper.open_file(save_file, 'w') as result_file:
-            result_data = json.dumps(search_dict, indent=4)
+            result_data = json.dumps(search_dict, indent=4, ensure_ascii=False)
 
             result_file.write(result_data)
 

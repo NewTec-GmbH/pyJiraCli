@@ -60,6 +60,8 @@ else:
 # Variables
 ################################################################################
 
+JIRA_SERVER_MAX_RETRIES = 0  # Number of retries for server connection
+
 ################################################################################
 # Classes
 ################################################################################
@@ -80,8 +82,8 @@ class Server:
         self._cert_path = None
         self._server_url = None
         self._user = None
-        self._max_retries = 0
         self._timeout = timeout
+        self._all_fields = None
 
         urllib3.disable_warnings()
 
@@ -181,6 +183,30 @@ class Server:
         """
         return self._search_result
 
+    def get_field_name(self, field_id: str) -> str:
+        """ Get the name of a field by its ID.
+
+        Args:
+            field_id (str): The ID of the field.
+
+        Returns:
+            str: The name of the field or the ID if not found.
+        """
+        field_name = field_id
+
+        # Load all fields if not done yet. Prevent multiple calls to the server.
+        if self._all_fields is None and self._jira_obj is not None:
+            self._all_fields = self._jira_obj.fields()
+
+        if self._all_fields is not None:
+            # Search for the field ID
+            for field in self._all_fields:
+                if field['id'] == field_id:
+                    field_name = field['name']
+                    break
+
+        return field_name
+
     def _login_using_profile(self, profile_name: str) -> Ret.CODE:
         ''' Login to Jira server using the profile settings.'''
         _printer = Printer()
@@ -216,7 +242,7 @@ class Server:
         return ret_status
 
     def _login_using_direct_args(self, server_url: str,
-                              token: str, username: str, password: str) -> Ret.CODE:
+                                 token: str, username: str, password: str) -> Ret.CODE:
         ''' Login to Jira server using the command line arguments directly. '''
         self._server_url = server_url
 
@@ -265,13 +291,13 @@ class Server:
                 self._jira_obj = JIRA(server=self._server_url,
                                       options={'verify': False},
                                       token_auth=token,
-                                      max_retries=self._max_retries,
+                                      max_retries=JIRA_SERVER_MAX_RETRIES,
                                       timeout=self._timeout)
             else:
                 self._jira_obj = JIRA(server=self._server_url,
                                       options={'verify': self._cert_path},
                                       token_auth=token,
-                                      max_retries=self._max_retries,
+                                      max_retries=JIRA_SERVER_MAX_RETRIES,
                                       timeout=self._timeout)
 
             user = self._jira_obj.current_user()
@@ -325,13 +351,13 @@ class Server:
                 self._jira_obj = JIRA(server=self._server_url,
                                       basic_auth=(user, pw),
                                       options={'verify': False},
-                                      max_retries=self._max_retries,
+                                      max_retries=JIRA_SERVER_MAX_RETRIES,
                                       timeout=self._timeout)
             else:
                 self._jira_obj = JIRA(server=self._server_url,
                                       basic_auth=(user, pw),
                                       options={'verify': self._cert_path},
-                                      max_retries=self._max_retries,
+                                      max_retries=JIRA_SERVER_MAX_RETRIES,
                                       timeout=self._timeout)
 
             user = self._jira_obj.current_user()
