@@ -260,8 +260,7 @@ def _cmd_search(filter_str: str,
             # Translate field IDs to names
             for field_id in list(issue_dict["fields"].keys()):
                 field_name = server.get_field_name(field_id)
-                if field_name is not None:
-                    issue_dict["fields"][field_name] = issue_dict["fields"].pop(field_id)
+                issue_dict["fields"][field_name] = issue_dict["fields"].pop(field_id)
 
             search_dict['issues'].append(issue_dict)
 
