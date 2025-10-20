@@ -37,4 +37,4 @@ Creates file `scheme_output.json`.
 pyJiraCli scheme --profile <profile_name> --project <project_id>
 ```
 
-Creates file `scheme_output_<project_id>.json.json`.
+Creates file `scheme_output_<project_id>.json`.
