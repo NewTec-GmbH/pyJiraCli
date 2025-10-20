@@ -121,6 +121,10 @@ def _test_command_without_arguments(helpers: Helpers, command: str) -> None:
     ret = helpers.run_pyjiracli([command])
     stderr = ret.stderr.decode("utf-8")
 
+    if command == "scheme":
+        # The scheme command has no required arguments.
+        return
+
     # Expect invalid arguments.
     assert Ret.CODE.RET_ERROR_ARGPARSE == ret.returncode
     # Print usage message.
