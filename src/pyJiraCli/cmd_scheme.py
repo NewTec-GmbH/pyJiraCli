@@ -35,7 +35,6 @@
 
 import json
 import argparse
-import datetime
 
 from pyJiraCli.file_helper import FileHelper
 from pyJiraCli.jira_server import Server
@@ -137,21 +136,79 @@ def execute(args) -> Ret.CODE:
         LOG.print_error(
             "Connection to server is not established. Please login first.")
     else:
-        ret_status = _cmd_scheme()
+        ret_status = _cmd_scheme(server)
 
     return ret_status
 
 
-def _cmd_scheme() -> Ret.CODE:
+def _cmd_scheme(server: Server) -> Ret.CODE:
     """ Get the scheme information from the Jira server.
 
     Args:
+        server (Server):    The server object to interact with the Jira server.
 
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
+    # Initialize output structure
+    scheme_output = {
+        "project": "Global",
+        "issue_types": [],
+        "fields": []
+    }
+
+    # Get Jira handle
+    jira = server.get_handle()
+
+    # Get issue types
+    issue_types = jira.issue_types()
+    for issue_type in issue_types:
+        element = {
+            "name": issue_type.name,
+            "id": issue_type.id,
+            "description": issue_type.description,
+            "is_subtask": issue_type.subtask
+        }
+        scheme_output["issue_types"].append(element)
+
+    # Get fields
+    fields = jira.fields()
+    for field in fields:
+        element = {
+            "name": field['name'],
+            "id": field['id'],
+            "is_custom": field.get('custom', False),
+            "type": field.get('schema', {}).get('type', None)
+        }
+        scheme_output["fields"].append(element)
+
+    # Save output to file
+    return _save_search("scheme_output.json", scheme_output)
+
+
+def _save_search(save_file: str, search_dict: dict) -> Ret.CODE:
+    """ Save the search result to a JSON file.
+
+    Args:
+        save_file (str): The filepath to the JSON file.
+        search_dict (dict): The dictionary with the search data.
+
+    Returns:
+        Ret.CODE: _description_
+    """
     ret_status = Ret.CODE.RET_OK
 
-    LOG.print_info("Retrieving scheme information from Jira server...")
+    try:
+        with FileHelper.open_file(save_file, 'w') as result_file:
+            result_data = json.dumps(search_dict, indent=4, ensure_ascii=False)
+
+            result_file.write(result_data)
+
+            msg = f"Successfully saved the search results in '{save_file}'."
+            LOG.print_info(msg)
+            print(msg)
+
+    except IOError:
+        return Ret.CODE.RET_ERROR_FILEPATH_INVALID
 
     return ret_status
