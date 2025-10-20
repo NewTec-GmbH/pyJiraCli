@@ -112,6 +112,13 @@ def register(subparser) -> argparse.ArgumentParser:
         help="The Jira server URL to connect to."
     )
 
+    parser.add_argument(
+        '--project',
+        type=str,
+        metavar='<project>',
+        help="The name of the project to get the scheme information for."
+    )
+
     return parser
 
 
@@ -135,13 +142,70 @@ def execute(args) -> Ret.CODE:
     if Ret.CODE.RET_OK != ret_status:
         LOG.print_error(
             "Connection to server is not established. Please login first.")
+    elif args.project:
+        ret_status = _get_project_scheme(server, args.project)
     else:
-        ret_status = _cmd_scheme(server)
+        ret_status = _get_instance_scheme(server)
 
     return ret_status
 
 
-def _cmd_scheme(server: Server) -> Ret.CODE:
+def _get_project_scheme(server: Server, project_key: str) -> Ret.CODE:
+    """ Get the scheme information from the Jira server for a specific project.
+
+    Args:
+        server (Server):    The server object to interact with the Jira server.
+        project_key (str):  The key of the project to get the scheme information for.
+
+    Returns:
+        Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
+    """
+    # Initialize output structure
+    scheme_output = {
+        "project": project_key,
+        "issue_types": []
+    }
+
+    # Get Jira handle
+    jira = server.get_handle()
+
+    # Get project
+    try:
+        project = jira.project(project_key)
+    except Exception:  # pylint: disable=broad-except
+        print(f"Project with key '{project_key}' not found.")
+        return Ret.CODE.RET_ERROR
+
+    # Get issue types for the project
+    issue_types = project.issueTypes
+    for issue_type in issue_types:
+        element = {
+            "name": issue_type.name,
+            "id": issue_type.id,
+            "description": issue_type.description,
+            "is_subtask": issue_type.subtask,
+            "fields": []
+        }
+
+        # Get fields
+        fields = jira.project_issue_fields(project_key, issue_type.id)
+        for field in fields:
+            field_element = {
+                "name": field.raw.get('name', None),
+                "id": field.raw.get('fieldId', None),
+                "type": field.raw.get('schema', {}).get('type', None),
+                "is_required": field.raw.get('required', False),
+            }
+
+            element["fields"].append(field_element)
+
+        scheme_output["issue_types"].append(element)
+
+    # Save output to file
+    return _save_search(f"scheme_output_{project_key}.json", scheme_output)
+
+
+def _get_instance_scheme(server: Server) -> Ret.CODE:
     """ Get the scheme information from the Jira server.
 
     Args:
@@ -152,7 +216,6 @@ def _cmd_scheme(server: Server) -> Ret.CODE:
     """
     # Initialize output structure
     scheme_output = {
-        "project": "Global",
         "issue_types": [],
         "fields": []
     }
