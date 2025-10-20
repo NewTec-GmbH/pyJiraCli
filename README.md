@@ -68,6 +68,7 @@ There are two options for providing the server credentials to the tool:
 |[print](./doc/commands/print.md)             | Print the Jira Issue details to the console.        |
 |[profile](./doc/commands/profile.md)         | Add, list, delete or update server profiles.        |
 |[get_sprints](./doc/commands/get_sprints.md) | Get raw Sprint data.                                |
+|[scheme](./doc/commands/scheme.md)           | Get the scheme information for a project.           |
 
 ## Examples
 
