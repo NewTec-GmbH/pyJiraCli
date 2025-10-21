@@ -177,15 +177,16 @@ def _cmd_import(input_file: str, server: Server) -> Ret.CODE:
         issues_to_edit = issue_dict.get('issues', [])
 
         for input_issue in issues_to_edit:
-            # Get only the fields to update.
-            fields_to_update = input_issue.get('fields', {}).keys()
+            # Normalize the fields to edit.
+            edit_data = _normalize_edit_fields(server, input_issue.get('fields', {}))
+            fields_to_update = edit_data.keys()
             LOG.print_info(f"Editing {input_issue['key']}: {fields_to_update}")
 
-            # Retrieve the issue object.
+            # Retrieve the issue object with only the fields to edit.
             issue_object = jira.issue(input_issue['key'], fields=fields_to_update)
 
             # Update the issue with the new data.
-            issue_object.update(fields=input_issue['fields'])
+            issue_object.update(fields=edit_data)
 
     return ret_status
 
@@ -215,3 +216,26 @@ def _read_json_file(input_file: str) -> tuple[Ret.CODE, dict]:
         ret_status = Ret.CODE.RET_ERROR_FILEPATH_INVALID
 
     return ret_status, issue_dict
+
+
+def _normalize_edit_fields(server: Server, fields_to_edit: dict) -> dict:
+    """ Normalizes the fields to use their ID instead of their name.
+
+    Args:
+        fields_to_edit (dict):  The dictionary of fields to edit.
+
+    Returns:
+        dict:  A dictionary of fields to edit.
+    """
+
+    # Dictionary with only field IDs as keys.
+    output_dictionary = {}
+
+    for field_name in fields_to_edit.keys():
+        # Get the field ID for the given field name.
+        field_id = server.get_field_id(field_name)
+
+        # Add the field to the output dictionary.
+        output_dictionary[field_id] = fields_to_edit[field_name]
+
+    return output_dictionary
