@@ -1,0 +1,10 @@
+{
+    "issues": [
+        {
+            "key": "TESTPROJ-1",
+            "fields": {
+                "environment": "This is an updated environment field."
+            }
+        }
+    ]
+}
