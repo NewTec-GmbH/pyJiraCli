@@ -146,15 +146,13 @@ def execute(args) -> Ret.CODE:
         LOG.print_error(
             "Connection to server is not established. Please login first.")
     else:
-        ret_status = _cmd_import(args.file, server)
+        ret_status = _cmd_edit(args.file, server)
 
     return ret_status
 
 
-def _cmd_import(input_file: str, server: Server) -> Ret.CODE:
-    """ Import a jira issue from a JSON file.
-        Create a jira issue on the server with the data
-        read from the input file.
+def _cmd_edit(input_file: str, server: Server) -> Ret.CODE:
+    """ Edit a jira issue from a JSON file.
 
     Args:
         input_file (str):  The filepath to the input file.
