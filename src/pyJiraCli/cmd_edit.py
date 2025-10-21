@@ -40,7 +40,6 @@ import json
 import os
 
 import argparse
-from jira.client import JIRA
 
 from pyJiraCli.file_helper import FileHelper
 from pyJiraCli.jira_server import Server
@@ -174,14 +173,19 @@ def _cmd_import(input_file: str, server: Server) -> Ret.CODE:
         # Get the Jira handle to use the Jira API directly.
         jira = server.get_handle()
 
-        # Check if the project key is specified.
+        # Get the issues to edit.
         issues_to_edit = issue_dict.get('issues', [])
 
-        if not issues_to_edit:
-            ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
-        else:
-            for issue in issues_to_edit:
-                pass
+        for input_issue in issues_to_edit:
+            # Get only the fields to update.
+            fields_to_update = input_issue.get('fields', {}).keys()
+            LOG.print_info(f"Editing {input_issue['key']}: {fields_to_update}")
+
+            # Retrieve the issue object.
+            issue_object = jira.issue(input_issue['key'], fields=fields_to_update)
+
+            # Update the issue with the new data.
+            issue_object.update(fields=input_issue['fields'])
 
     return ret_status
 
