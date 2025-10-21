@@ -59,13 +59,13 @@ LOG = Printer()
 ################################################################################
 
 def register(subparser) -> argparse.ArgumentParser:
-    """ Register subparser commands for the login module.
+    """ Register subparser commands for the scheme module.
 
     Args:
-        subparser (obj):   the command subparser provided via __main__.py
+        subparser (obj):  The command subparser object provided via __main__.py.
 
     Returns:
-        obj:    the command parser of this module
+        obj:  The command parser object of this module.
     """
     # subparser for the 'scheme' command
     parser = subparser.add_parser(
