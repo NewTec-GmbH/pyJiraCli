@@ -3,7 +3,14 @@
         {
             "key": "TESTPROJ-1",
             "fields": {
-                "environment": "This is an updated environment field."
+                "environment": "This is a field id.",
+                "Description": "This is a field name."
+            }
+        },
+        {
+            "key": "TESTPROJ-2",
+            "fields": {
+                "Epos-Verknüpfung": "This is a field id with special characters."
             }
         }
     ]
