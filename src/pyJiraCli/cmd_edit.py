@@ -193,7 +193,7 @@ def _cmd_edit(input_file: str, server: Server) -> Ret.CODE:
                 # Update the issue with the new data.
                 issue_object.update(fields=edit_data)
             except JIRAError as e:
-                print(f"Failed to edit issue {input_issue['key']}: {e.text}")
+                print(f"Failed to edit issue {input_issue['key']}: {e.response.text}")
                 continue
 
     return ret_status
