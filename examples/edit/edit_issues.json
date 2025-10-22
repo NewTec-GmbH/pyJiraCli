@@ -12,6 +12,24 @@
             "fields": {
                 "Epos-Verknüpfung": "This is a field id with special characters."
             }
+        },
+        {
+            "key": "TESTPROJ-3",
+            "fields": {
+                "timetracking": {
+                    "originalEstimate": "2w 3d",
+                    "remainingEstimate": "2w 3d"
+                }
+            }
+        },
+        {
+            "key": "TESTPROJ-4",
+            "fields": {
+                "timetracking": {
+                    "originalEstimateSeconds": 374400,
+                    "remainingEstimateSeconds": 374400
+                }
+            }
         }
     ]
 }
