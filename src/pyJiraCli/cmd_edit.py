@@ -1,6 +1,6 @@
 """ Command for the edit function.
-    Read ticket information from a JSON file
-    and edits the imported data to an existing Jira ticket.
+    Read issue information from a JSON file
+    and edits the imported data to existing Jira issues.
 """
 
 # BSD 3-Clause License
@@ -40,6 +40,7 @@ import json
 import os
 
 import argparse
+from jira.exceptions import JIRAError
 
 from pyJiraCli.file_helper import FileHelper
 from pyJiraCli.jira_server import Server
@@ -126,7 +127,7 @@ def register(subparser) -> argparse.ArgumentParser:
 
 
 def execute(args) -> Ret.CODE:
-    """ This function servers as entry point for the command 'import'.
+    """ This function servers as entry point for the command 'edit'.
         It will be stored as callback for this modules subparser command.
 
     Args:
@@ -152,7 +153,7 @@ def execute(args) -> Ret.CODE:
 
 
 def _cmd_edit(input_file: str, server: Server) -> Ret.CODE:
-    """ Edit a jira issue from a JSON file.
+    """ Edit Jira issues from a JSON file.
 
     Args:
         input_file (str):  The filepath to the input file.
@@ -175,16 +176,25 @@ def _cmd_edit(input_file: str, server: Server) -> Ret.CODE:
         issues_to_edit = issue_dict.get('issues', [])
 
         for input_issue in issues_to_edit:
+            # Check if issue key is provided.
+            if 'key' not in input_issue:
+                print("Skipping issue without key.")
+                continue
+
             # Normalize the fields to edit.
             edit_data = _normalize_edit_fields(server, input_issue.get('fields', {}))
             fields_to_update = edit_data.keys()
             LOG.print_info(f"Editing {input_issue['key']}: {fields_to_update}")
 
-            # Retrieve the issue object with only the fields to edit.
-            issue_object = jira.issue(input_issue['key'], fields=fields_to_update)
+            try:
+                # Retrieve the issue object with only the fields to edit.
+                issue_object = jira.issue(input_issue['key'], fields=fields_to_update)
 
-            # Update the issue with the new data.
-            issue_object.update(fields=edit_data)
+                # Update the issue with the new data.
+                issue_object.update(fields=edit_data)
+            except JIRAError as e:
+                print(f"Failed to edit issue {input_issue['key']}: {e.text}")
+                continue
 
     return ret_status
 

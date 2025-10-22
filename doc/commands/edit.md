@@ -1,6 +1,6 @@
 # Scheme
 
-Command for the edit function. Read ticket information from a JSON file and edits the imported data to an existing Jira ticket.
+Command for the edit function. Read issue information from a JSON file and edits the imported data to an existing Jira issues.
 
 ```cmd
 pyJiraCli edit --help

@@ -69,7 +69,7 @@ There are two options for providing the server credentials to the tool:
 |[profile](./doc/commands/profile.md)         | Add, list, delete or update server profiles.        |
 |[get_sprints](./doc/commands/get_sprints.md) | Get raw Sprint data.                                |
 |[scheme](./doc/commands/scheme.md)           | Get the scheme information for a project.           |
-|[edit](./doc/commands/edit.md)               | Edit a ticket from a JSON file.                     |
+|[edit](./doc/commands/edit.md)               | Edit issues from a JSON file.                       |
 
 ## Examples
 
