@@ -1,0 +1,35 @@
+{
+    "issues": [
+        {
+            "key": "TESTPROJ-1",
+            "fields": {
+                "environment": "This is a field id.",
+                "Description": "This is a field name."
+            }
+        },
+        {
+            "key": "TESTPROJ-2",
+            "fields": {
+                "Epos-Verknüpfung": "This is a field id with special characters."
+            }
+        },
+        {
+            "key": "TESTPROJ-3",
+            "fields": {
+                "timetracking": {
+                    "originalEstimate": "2w 3d",
+                    "remainingEstimate": "2w 3d"
+                }
+            }
+        },
+        {
+            "key": "TESTPROJ-4",
+            "fields": {
+                "timetracking": {
+                    "originalEstimateSeconds": 374400,
+                    "remainingEstimateSeconds": 374400
+                }
+            }
+        }
+    ]
+}

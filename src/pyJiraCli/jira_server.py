@@ -207,6 +207,30 @@ class Server:
 
         return field_name
 
+    def get_field_id(self, field_name: str) -> str:
+        """ Get the ID of a field by its name.
+
+        Args:
+            field_name (str): The name of the field.
+
+        Returns:
+            str: The ID of the field or the name if not found.
+        """
+        field_id = field_name
+
+        # Load all fields if not done yet. Prevent multiple calls to the server.
+        if self._all_fields is None and self._jira_obj is not None:
+            self._all_fields = self._jira_obj.fields()
+
+        if self._all_fields is not None:
+            # Search for the field name
+            for field in self._all_fields:
+                if field['name'] == field_name:
+                    field_id = field['id']
+                    break
+
+        return field_id
+
     def _login_using_profile(self, profile_name: str) -> Ret.CODE:
         ''' Login to Jira server using the profile settings.'''
         _printer = Printer()

@@ -45,6 +45,7 @@ from pyJiraCli import cmd_print
 from pyJiraCli import cmd_profile
 from pyJiraCli import cmd_get_sprints
 from pyJiraCli import cmd_scheme
+from pyJiraCli import cmd_edit
 
 from pyJiraCli.printer import Printer
 from pyJiraCli.ret import Ret
@@ -63,6 +64,7 @@ _CMD_MODULES = [
     cmd_profile,
     cmd_get_sprints,
     cmd_scheme,
+    cmd_edit,
 ]
 
 PROG_NAME = "pyJiraCli"
