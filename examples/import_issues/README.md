@@ -87,9 +87,9 @@ pyJiraCli --profile my_profile import ./examples/import_issues/single_issue.json
 ```
 
 - Sub-issues must have a corresponding Sub-Issue/Task type.
-- Sub-issues **must** have a `parent` object defined, which contains either the `externalId` or the `key` of their parent issue.
-- The `externalId` key shall be used when the parent issue is also being created by this import file.
-- The `key` key shall be used when the issue already exists (it was not created with this import file.)
+- Sub-issues **must** have a `parent` object defined, which contains either the `externalId` or the `key` of their parent issue:
+  - The `externalId` key shall be used when the parent issue is also being created by this import file.
+  - The `key` key shall be used when the parent issue already exists in JIRA (i.e. it is not created with this import file).
 
 ## Import a component
 
@@ -103,4 +103,3 @@ pyJiraCli --profile my_profile import ./examples/import_issues/component.json
 - If the component does not exist, the process will fail.
 - A component can be created by using the `components` array at the top level.
 - Component `name` and `description` are required.
-
