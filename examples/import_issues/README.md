@@ -76,6 +76,7 @@ See: [Multiple issue template](./multiple_issues.json)
 
 ```cmd
 pyJiraCli --profile my_profile import ./examples/import_issues/single_issue.json
+```
 
 ## Import sub-issues
 
@@ -102,3 +103,4 @@ pyJiraCli --profile my_profile import ./examples/import_issues/component.json
 - If the component does not exist, the process will fail.
 - A component can be created by using the `components` array at the top level.
 - Component `name` and `description` are required.
+
