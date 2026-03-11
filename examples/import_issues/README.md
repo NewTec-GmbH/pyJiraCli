@@ -1,6 +1,11 @@
-# Import issues
+# Import issues <!-- omit in toc -->
 
 Importing an issue or set of issues to the Jira Server is done using the `import` command.
+
+- [Import single issue](#import-single-issue)
+- [Import multiple issues](#import-multiple-issues)
+- [Import with hierarchy (sub-issues)](#import-with-hierarchy-sub-issues)
+- [Import a component](#import-a-component)
 
 ```cmd
 pyJiraCli --profile my_profile import ./examples/import_issues/single_issue.json
@@ -75,10 +80,10 @@ The `labels` array is an optional field.
 See: [Multiple issue template](./multiple_issues.json)
 
 ```cmd
-pyJiraCli --profile my_profile import ./examples/import_issues/single_issue.json
+pyJiraCli --profile my_profile import ./examples/import_issues/multiple_issues.json
 ```
 
-## Import sub-issues
+## Import with hierarchy (sub-issues)
 
 See: [Sub-issues template](./sub_issues.json)
 
