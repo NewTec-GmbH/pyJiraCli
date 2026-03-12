@@ -26,7 +26,7 @@ The JSON file that describes the issues to be imported requires the following fo
   - `labels`: An array of label strings (e.g., `["label1", "label2"]`)
   - `components`: An array of component objects with `name` field (e.g., `[{"name": "PM"}]`)
   - Other project-specific fields required or optional, depending on project configuration
-- Other fields must be added as keys to the issue object. To determine which issue types and fields are available for your project, please contact your Jira administrator.
+- Other fields must be added as keys to the issue object. To determine which issue types and fields are available for your project, either use the `scheme` command or contact your Jira administrator.
 
 Note:
 
