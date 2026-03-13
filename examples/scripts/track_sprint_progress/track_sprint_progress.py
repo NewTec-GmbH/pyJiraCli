@@ -30,8 +30,8 @@ BOARD = "BSP_BOARD: COMPONENT_1"
 # The server profile which shall be used to connect to jira by the pyJiraCLi tool
 SERVER_PROFILE = 'newtec_jira'
 
-# on which excel table the data will be stored
-EXCEL_TABLE = "Tabelle1"
+# The name of the excel table where the data will be stored
+EXCEL_TABLE = "Table1"
 
 # The files where the data will be stored
 EXCEL_FILE = f"./{BOARD.replace(' ', '_').replace(':', '').replace('/', '_')}_JiraProjectProgress.xlsx"
