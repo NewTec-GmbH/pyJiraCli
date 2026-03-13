@@ -27,7 +27,7 @@ __date__ = datetime.now().strftime('%d.%m.%Y')
 # The board for which the sprints shall be analyzed
 BOARD = "BSP_BOARD: COMPONENT_1"
 
-# the server profile which shall be used to connect to jira by the pyJiraCLi tool
+# The server profile which shall be used to connect to jira by the pyJiraCLi tool
 SERVER_PROFILE = 'newtec_jira'
 
 # on which excel table the data will be stored
