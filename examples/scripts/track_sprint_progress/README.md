@@ -5,6 +5,21 @@
 
 This Python script analyzes Jira sprint progress using the `pyJiraCli` tool. It retrieves sprint and issue data from a Jira board and processes it into an Excel file for easy tracking and analysis.
 
+The script performs the following operations:
+
+1. **Retrieves Sprint Data**: Fetches all sprints from the specified Jira board using `get_sprints` command
+2. **Collects Issue Metrics**: For each sprint, retrieves all issues and extracts time-related data:
+   - Time estimates (including idle estimates)
+   - Time remaining on open issues
+   - Time actually spent on completed issues
+3. **Calculates Derived Metrics**: Computes additional metrics using Excel formulas:
+   - **Time Buffer**: The difference between original estimate and spent/remaining time
+   - **Processed Time Units**: Spent time plus time buffer (actual work done + buffer)
+   - **Efficiency**: How efficiently the sprint used allocated time
+   - **Progress**: Overall completion percentage of the sprint
+4. **Identifies Data Gaps**: Logs issues with missing data (no time estimates or no spent time on closed issues)
+5. **Generates Excel Report**: Creates or updates an Excel file with one row per sprint, complete with all metrics and summary calculations
+
 ## Configuration
 
 Before running the script, ensure the following configurations are set:
@@ -96,6 +111,59 @@ The script uses the `subprocess` module to run `pyJiraCli` commands. This allows
 
    Similar to `get_sprint_data`, the function checks the return code and reads the JSON output if the command was successful.
 
+## Excel Output Structure
+
+### Columns (Metrics)
+
+The Excel file contains the following columns for each sprint:
+
+| Column                    | Description                                                                      |
+| ------------------------- | -------------------------------------------------------------------------------- |
+| **Sprint Name**           | Name of the Jira sprint                                                          |
+| **Start Date**            | Sprint start date                                                                |
+| **End Date**              | Sprint end date                                                                  |
+| **Delta Days**            | Duration of the sprint in days                                                   |
+| **Time Est. (Idle)**      | Time estimates for issues that weren't worked on                                 |
+| **Time Remaining (Open)** | Time remaining on active/open issues                                             |
+| **Time Spent (Done)**     | Total time spent on completed issues                                             |
+| **Original Estimate**     | Total original time estimation for the sprint                                    |
+| **Time Buffer**           | Formula: Original Estimate - (Spent + Remaining + Idle)                          |
+| **Processed Time Units**  | Formula: Spent time + Time Buffer (actual work performed)                        |
+| **Efficiency**            | Formula: Original Estimate / Spent Time (how well estimates match actual effort) |
+| **Progress**              | Formula: (Done + Remaining/2) / (Done + Remaining + Idle) (% completion)         |
+
+### Summary Row
+
+At the bottom of the data, the script calculates summary totals for each metric column using SUM formulas, allowing you to view aggregate sprint statistics.
+
+### Date Stamp
+
+The current date when the report was generated is recorded in the Excel file for tracking purposes.
+
+## Data Quality Reports
+
+### Missing Data File
+
+The script generates two types of reports for data quality issues:
+
+1. **Tickets with No Time Estimation** (`{BOARD}_MissingTicketData.txt`)
+   - Lists all tickets that lack time estimates
+   - Includes ticket key and URL for easy access
+   - Helpful for identifying incomplete ticket configurations
+
+2. **Closed Tickets with No Spent Time**
+   - Lists completed issues where no time was tracked
+   - Helps identify tracking gaps in completed work
+   - Useful for process improvement and compliance
+
 ## Notes
 
 Ensure that the paths and configurations are correctly set according to your environment. The script utilizes `pyJiraCli` for Jira data retrieval, so make sure it's properly installed and configured.
+
+### Tips for Best Results
+
+- Ensure all team members log time in Jira for completed issues
+- Verify that all issues have time estimates before sprint planning
+- Run the script regularly (e.g., daily) to track sprint progress over time
+- Use the Excel file's conditional formatting to visualize efficiency and progress metrics
+- Monitor the missing data file to improve data quality in future sprints
