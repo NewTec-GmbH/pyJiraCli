@@ -27,15 +27,15 @@ __date__ = datetime.now().strftime('%d.%m.%Y')
 # The board for which the sprints shall be analyzed
 BOARD = "BSP_BOARD: COMPONENT_1"
 
-# the server profile which shall be used to connect to jira by the pyJiraCLi tool
-SERVER_PROFILE = 'pyJiraCli_profile'
+# The server profile which shall be used to connect to jira by the pyJiraCLi tool
+SERVER_PROFILE = 'newtec_jira'
 
-# on which excel table the data will be stored
-EXCEL_TABLE = "Tabelle1"
+# The name of the excel table where the data will be stored
+EXCEL_TABLE = "Table1"
 
 # The files where the data will be stored
-EXCEL_FILE = f"C:/project/{BOARD.replace(' ','_').replace(':', '')}_JiraProjectProgress.xlsx"
-MISSING_DATA_FILE = f"C:/project/{BOARD.replace(' ','_').replace(':', '')}_MissingTicketData.txt"
+EXCEL_FILE = f"./{BOARD.replace(' ', '_').replace(':', '').replace('/', '_')}_JiraProjectProgress.xlsx"
+MISSING_DATA_FILE = f"./{BOARD.replace(' ', '_').replace(':', '').replace('/', '_')}_MissingTicketData.txt"
 
 ################################################################################
 # Variables
@@ -424,7 +424,10 @@ def process_sprint(raw_dict: dict) -> dict:
     }
 
     for issue in raw_dict['issues']:
-        state = issue['fields']['status']['name']
+        status = issue['fields'].get('status')
+        if status is None:
+            continue
+        state = status['name']
         url_parts = issue['self'].split('/')
         url_parts.remove('')
         url = f"{url_parts[0]}//{url_parts[1]}/browse/{issue['key']}"
@@ -510,7 +513,7 @@ def get_sprint_data(board: str, profile: str) -> dict:
         dict: The sprint data.
     """
     sprint_dict = {}
-    command = f'pyJiraCli --verbose --profile {profile} get_sprints "{board}" --file {TMP_FILE}'
+    command = f'pyJiraCli --verbose get_sprints "{board}" --profile {profile} --file {TMP_FILE}'
 
     result = subprocess.run(command, shell=True, check=False)
 
@@ -540,9 +543,10 @@ def get_issue_data(sprint: str, profile: str) -> dict:
     """
     issue_dict = {}
     command = f'pyJiraCli --verbose \
-                          --profile {profile} \
                             search "sprint = \'{sprint}\'" \
-                          --file {TMP_FILE}'
+                          --profile {profile} \
+                          --file {TMP_FILE} \
+                          --full'
 
     result = subprocess.run(command, shell=True, check=False)
 
