@@ -1,5 +1,5 @@
-""" Contains the print error function and 
-    the error messages corresponding to 
+""" Contains the print error function and
+    the error messages corresponding to
     the exit codes."""
 
 # BSD 3-Clause License
@@ -43,24 +43,26 @@ from pyJiraCli.ret import Ret, Warnings
 # Variables
 ################################################################################
 COLOR = {
-    PrintType.ERROR   : Fore.RED,
-    PrintType.WARNING : Fore.YELLOW,
-    PrintType.INFO    : Fore.WHITE
+    PrintType.ERROR: Fore.RED,
+    PrintType.WARNING: Fore.YELLOW,
+    PrintType.INFO: Fore.WHITE
 }
 
 TYPE = {
-    PrintType.ERROR   : "Error",
-    PrintType.WARNING : "Warning",
-    PrintType.INFO    : "Info"
+    PrintType.ERROR: "Error",
+    PrintType.WARNING: "Warning",
+    PrintType.INFO: "Info"
 }
 
 INFO_TAB = "      "
 ################################################################################
 # Classes
 ################################################################################
+
+
 class Printer:
     """ The printer class.
-        Prints errors, warnings and infos. 
+        Prints errors, warnings and infos.
         Infos and warnings are only printed,
         if verbose mode is set.
     """
@@ -74,25 +76,26 @@ class Printer:
         """Set verbose mode for all instances of the class."""
         cls._print_verbose = True
 
-    def print_error(self, err_type: PrintType, error: Ret = Ret.CODE.RET_OK) -> None:
-        """ Print the exit error.
-    
+    def print_error(self, err_type: PrintType, error_code: Ret = Ret.CODE.RET_OK) -> None:
+        """ Print the warning/error to console with coloring.
+
         Args:
-            type (PrintType)    The type of the msg (Error, Warning or Info).
-            error (Ret):        The return code for which an error shall be printed.
+            type (PrintType)    The type of the msg (Warning or Error).
+            error (Ret):        The return code for which a warning/error shall be printed.
         """
         if err_type is PrintType.WARNING and \
            self._print_verbose:
             print(COLOR[err_type] + TYPE[err_type] + ": " +
-                  Style.RESET_ALL + Warnings.MSG[error])
-
+                  Warnings.MSG[error_code] + Style.RESET_ALL)
         elif err_type is PrintType.ERROR:
             print(COLOR[err_type] + TYPE[err_type] + ": " +
-                  Style.RESET_ALL + Ret.MSG[error])
+                  Ret.MSG[error_code] + Style.RESET_ALL)
+        else:
+            raise ValueError(f"Unhandled err_type: {err_type}")
 
-    def print_info(self, *args:str) -> None:
+    def print_info(self, *args: str) -> None:
         """ Print the information to the console.
-    
+
         Args:
             args (*str):          The information that will be printed.
         """

@@ -35,7 +35,7 @@
 
 import sys
 import argparse
-from colorama import just_fix_windows_console
+from colorama import init, just_fix_windows_console
 
 # Import command modules
 from pyJiraCli import cmd_import
@@ -84,7 +84,7 @@ PROG_EPILOG = PROG_COPYRIGHT + " - " + PROG_GITHUB
 
 def add_parser() -> argparse.ArgumentParser:
     """ Add parser for command line arguments and
-        set the execute function of each 
+        set the execute function of each
         cmd module as callback for the subparser command.
         Return the parser after all the modules have been registered
         and added their subparsers.
@@ -124,12 +124,13 @@ def main() -> Ret.CODE:
         int: System exit status.
     """
     ret_status = Ret.CODE.RET_OK
-    printer = Printer()
     args = None
 
-    # Older windows consoles doesn't support ANSI color codes by default.
-    # Enable the Windows built-in ANSI support.
+    # Older windows consoles don't support ANSI color codes by default.
+    # Enable the Windows built-in ANSI support before creating the printer.
+    init()
     just_fix_windows_console()
+    printer = Printer()
 
     # Get parser
     parser = add_parser()
