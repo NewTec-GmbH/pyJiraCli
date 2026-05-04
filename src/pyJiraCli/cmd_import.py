@@ -137,11 +137,11 @@ def execute(args) -> Ret.CODE:
         Ret:   Ret.CODE.RET_OK if successful, corresponding error code if not
     """
     server = Server()
-    ret_status = server.login(  args.profile,
-                                args.server,
-                                args.token,
-                                args.user,
-                                args.password)
+    ret_status = server.login(args.profile,
+                              args.server,
+                              args.token,
+                              args.user,
+                              args.password)
 
     if Ret.CODE.RET_OK != ret_status:
         LOG.error("Connection to server is not established. Please login first.")
@@ -239,11 +239,11 @@ def _create_issues(jira: JIRA,
         external_id = issue.pop('externalId', None)
 
         if external_id is None:
-            ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
+            ret_status = Ret.CODE.RET_ERROR_MISSING_EXTERNAL_ID
             break
 
         if external_id in id_cross_ref_dict:
-            ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
+            ret_status = Ret.CODE.RET_ERROR_DUPLICATE_EXTERNAL_ID
             break
 
         # Set the project key.
@@ -402,7 +402,7 @@ def _read_json_file(input_file: str) -> tuple[Ret.CODE, dict]:
 
     # Make sure file has .json extension.
     if os.path.splitext(input_file)[-1] != '.json':
-        return  Ret.CODE.RET_ERROR_WRONG_FILE_FORMAT
+        return Ret.CODE.RET_ERROR_WRONG_FILE_FORMAT, issue_dict
 
     try:
         with FileHelper.open_file(input_file, 'r') as input_file_handle:

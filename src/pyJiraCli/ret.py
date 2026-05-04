@@ -67,6 +67,8 @@ class Ret():
         RET_ERROR_PROFILE_ALREADY_EXISTS = 15
         RET_ERROR_INVALID_PROFILE_TYPE = 16
         RET_ERROR_MISSING_CREDENTIALS = 17
+        RET_ERROR_MISSING_EXTERNAL_ID = 18
+        RET_ERROR_DUPLICATE_EXTERNAL_ID = 19
 
     MSG = {
         CODE.RET_OK:                           "Process successful.",
@@ -79,18 +81,20 @@ class Ret():
         CODE.RET_ERROR_NO_USERINFORMATION:     "No user information was provided " +
                                                "or stored information file.",
         CODE.RET_ERROR_PROFILE_NOT_FOUND:      "The server profile does not exist.",
-        CODE.RET_ERROR_NO_SERVER_URL:          "To add a new profile, the server url must " +
-                                               "be provided with the --url option",
-        CODE.RET_ERROR_CREATING_TICKET_FAILED: "creating the ticket on the Jira server failed",
-        CODE.RET_ERROR_INVALID_SEARCH:         "search string returned a Jira error",
-        CODE.RET_ERROR_INVALID_URL:            "The provided server url is invalid",
-        CODE.RET_ERROR_JIRA_LOGIN:             "Login to Jira server was not possible",
+        CODE.RET_ERROR_NO_SERVER_URL:          "To add a new profile, the server URL must " +
+                                               "be provided with the --url option.",
+        CODE.RET_ERROR_CREATING_TICKET_FAILED: "Creating the ticket on the Jira server failed.",
+        CODE.RET_ERROR_INVALID_SEARCH:         "Search string returned a Jira error.",
+        CODE.RET_ERROR_INVALID_URL:            "The provided server URL is invalid.",
+        CODE.RET_ERROR_JIRA_LOGIN:             "Login to Jira server was not possible.",
         CODE.RET_ERROR_BOARD_NOT_FOUND:        "The Jira board does not exist or " +
                                                "you have no access to it.",
         CODE.RET_ERROR_PROFILE_ALREADY_EXISTS: "The profile you want to add already exists.\n" +
                                                "Use the 'update' command to update it.",
         CODE.RET_ERROR_INVALID_PROFILE_TYPE:   "The provided profile type is invalid.",
         CODE.RET_ERROR_MISSING_CREDENTIALS:    "Failed to provide server credentials.",
+        CODE.RET_ERROR_MISSING_EXTERNAL_ID:    "Jira ticket data is lacking externalId.",
+        CODE.RET_ERROR_DUPLICATE_EXTERNAL_ID:  "Found duplicate externalId in ticket data.",
     }
 
 
