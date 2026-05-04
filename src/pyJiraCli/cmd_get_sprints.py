@@ -36,9 +36,9 @@
 
 import json
 import argparse
+import logging
 
 from pyJiraCli.file_helper import FileHelper
-from pyJiraCli.printer import Printer, PrintType
 from pyJiraCli.jira_server import Server
 from pyJiraCli.ret import Ret
 
@@ -49,7 +49,7 @@ from pyJiraCli.ret import Ret
 
 BOARD_KEY = 'board'
 SPRINTS_KEY = 'sprints'
-LOG = Printer()
+LOG: logging.Logger = logging.getLogger(__name__)
 
 
 ################################################################################
@@ -151,7 +151,7 @@ def execute(args) -> Ret.CODE:
                               args.password)
 
     if Ret.CODE.RET_OK != ret_status:
-        LOG.print_error(PrintType.ERROR, ret_status)
+        LOG.error(Ret.MSG[ret_status])
     else:
         ret_status = _cmd_get_sprints(args.board, args.file, server)
 
@@ -188,7 +188,7 @@ def _cmd_get_sprints(board_name: str, filepath: str, server: Server) -> Ret.CODE
                     output_file.write(write_data)
 
                     msg = f"Successfully saved sprint to '{output_file_path}'."
-                    LOG.print_info(msg)
+                    LOG.info(msg)
                     print(msg)
 
             except IOError:
@@ -246,14 +246,13 @@ def _get_sprints(board_name: str, server: Server) -> tuple[dict, Ret.CODE]:
         try:
             sprints = jira.sprints(current_board.id)
 
-            LOG.print_info(
-                f"found {len(sprints)} sprints in board {current_board.name}:",
-                *[sprint.name for sprint in sprints]
-            )
+            LOG.info("Found %d sprints in board %s:\n%s",
+                     len(sprints), current_board.name,
+                     "\n".join(sprint.name for sprint in sprints))
 
         except:  # pylint: disable=W0702
-            LOG.print_info("No sprints found or the board doesn't support sprints. Board:",
-                           current_board.name)
+            LOG.info("No sprints found or the board doesn't support sprints. Board: %s",
+                     current_board.name)
 
         if sprints is not None:
             write_dict[SPRINTS_KEY] = [sprint.raw for sprint in sprints]

@@ -100,12 +100,12 @@ class Warnings():
 
     class CODE(IntEnum):
         """ Th Warnings of the modules."""
-        WARNING_UNSAVE_CONNECTION = 0
+        WARNING_UNSAFE_CONNECTION = 0
         WARNING_UNKNOWN_FILE_EXTENSION = 1
         WARNING_TOKEN_RECOMMENDED = 2
 
     MSG = {
-        CODE.WARNING_UNSAVE_CONNECTION:      "No certificate for server authentication found." +
+        CODE.WARNING_UNSAFE_CONNECTION:      "No certificate for server authentication found." +
                                              " It's strongly advised to add a certificate for " +
                                              "your server profile.",
         CODE.WARNING_UNKNOWN_FILE_EXTENSION: "The provided file has an unknown file format. " +

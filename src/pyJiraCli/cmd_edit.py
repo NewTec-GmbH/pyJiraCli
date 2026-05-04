@@ -38,13 +38,13 @@
 
 import json
 import os
-
 import argparse
+import logging
+
 from jira.exceptions import JIRAError
 
 from pyJiraCli.file_helper import FileHelper
 from pyJiraCli.jira_server import Server
-from pyJiraCli.printer import Printer
 from pyJiraCli.ret import Ret
 
 
@@ -52,7 +52,7 @@ from pyJiraCli.ret import Ret
 # Variables
 ################################################################################
 
-LOG = Printer()
+LOG: logging.Logger = logging.getLogger(__name__)
 
 
 ################################################################################
@@ -144,8 +144,7 @@ def execute(args) -> Ret.CODE:
                               args.password)
 
     if Ret.CODE.RET_OK != ret_status:
-        LOG.print_error(
-            "Connection to server is not established. Please login first.")
+        LOG.error("Connection to server is not established. Please login first.")
     else:
         ret_status = _cmd_edit(args.file, server)
 
@@ -182,18 +181,21 @@ def _cmd_edit(input_file: str, server: Server) -> Ret.CODE:
                 continue
 
             # Normalize the fields to edit.
-            edit_data = _normalize_edit_fields(server, input_issue.get('fields', {}))
-            fields_to_update = edit_data.keys()
-            LOG.print_info(f"Editing {input_issue['key']}: {fields_to_update}")
+            edit_data = _normalize_edit_fields(
+                server, input_issue.get('fields', {}))
+            fields_to_update = ",".join(edit_data.keys())
+            LOG.info("Editing %s: %s", input_issue['key'], fields_to_update)
 
             try:
                 # Retrieve the issue object with only the fields to edit.
-                issue_object = jira.issue(input_issue['key'], fields=fields_to_update)
+                issue_object = jira.issue(
+                    input_issue['key'], fields=fields_to_update)
 
                 # Update the issue with the new data.
                 issue_object.update(fields=edit_data)
             except JIRAError as e:
-                print(f"Failed to edit issue {input_issue['key']}: {e.response.text}")
+                print(
+                    f"Failed to edit issue {input_issue['key']}: {e.response.text}")
                 continue
 
     return ret_status
@@ -214,7 +216,7 @@ def _read_json_file(input_file: str) -> tuple[Ret.CODE, dict]:
 
     # Make sure file has .json extension.
     if os.path.splitext(input_file)[-1] != '.json':
-        return Ret.CODE.RET_ERROR_WRONG_FILE_FORMAT
+        return Ret.CODE.RET_ERROR_WRONG_FILE_FORMAT, issue_dict
 
     try:
         with FileHelper.open_file(input_file, 'r') as input_file_handle:

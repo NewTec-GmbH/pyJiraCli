@@ -35,10 +35,10 @@
 
 import json
 import argparse
+import logging
 
 from pyJiraCli.file_helper import FileHelper
 from pyJiraCli.jira_server import Server
-from pyJiraCli.printer import Printer
 from pyJiraCli.ret import Ret
 
 
@@ -46,7 +46,7 @@ from pyJiraCli.ret import Ret
 # Variables
 ################################################################################
 
-LOG = Printer()
+LOG: logging.Logger = logging.getLogger(__name__)
 
 
 ################################################################################
@@ -140,8 +140,7 @@ def execute(args) -> Ret.CODE:
                               args.password)
 
     if Ret.CODE.RET_OK != ret_status:
-        LOG.print_error(
-            "Connection to server is not established. Please login first.")
+        LOG.error("Connection to server is not established. Please login first.")
     elif args.project:
         ret_status = _get_project_scheme(server, args.project)
     else:
@@ -268,7 +267,7 @@ def _save_search(save_file: str, search_dict: dict) -> Ret.CODE:
             result_file.write(result_data)
 
             msg = f"Successfully saved the search results in '{save_file}'."
-            LOG.print_info(msg)
+            LOG.info(msg)
             print(msg)
 
     except IOError:

@@ -35,15 +35,15 @@
 ################################################################################
 import json
 import argparse
+import logging
 
-from pyJiraCli.printer import Printer
 from pyJiraCli.jira_server import Server
 from pyJiraCli.ret import Ret
 ################################################################################
 # Variables
 ################################################################################
 
-LOG = Printer()
+LOG: logging.Logger = logging.getLogger(__name__)
 
 ################################################################################
 # Classes
