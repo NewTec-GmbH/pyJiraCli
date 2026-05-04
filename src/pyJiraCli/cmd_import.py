@@ -137,11 +137,11 @@ def execute(args) -> Ret.CODE:
         Ret:   Ret.CODE.RET_OK if successful, corresponding error code if not
     """
     server = Server()
-    ret_status = server.login(  args.profile,
-                                args.server,
-                                args.token,
-                                args.user,
-                                args.password)
+    ret_status = server.login(args.profile,
+                              args.server,
+                              args.token,
+                              args.user,
+                              args.password)
 
     if Ret.CODE.RET_OK != ret_status:
         LOG.error("Connection to server is not established. Please login first.")
@@ -239,11 +239,12 @@ def _create_issues(jira: JIRA,
         external_id = issue.pop('externalId', None)
 
         if external_id is None:
-            ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
+            ret_status = Ret.CODE.RET_ERROR_MISSING_EXTERNAL_ID
             break
 
         if external_id in id_cross_ref_dict:
-            ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
+            LOG.info("ExternalId '%s' already exists.", external_id)
+            ret_status = Ret.CODE.RET_ERROR_DUPLICATE_EXTERNAL_ID
             break
 
         # Set the project key.
@@ -292,30 +293,33 @@ def _create_sub_issues(jira: JIRA,
         # Set the project key.
         issue['project'] = issue_dict.get('projectKey')
 
-        # Check if the parent issue key is specified,
-        # in case the sub-issue belongs to an issue that was manually created before.
-        if issue.get('parent').get('key') is None:
+        parent = issue.get('parent')
 
-            # Check if the parent external ID is specified,
-            # in case the sub-issue belongs to an issue that was created in this import process.
-            parent_external_id = issue.get('parent').get('externalId')
+        if parent is not None:
+            # Check if the parent issue key is specified,
+            # in case the sub-issue belongs to an issue that was manually created before.
+            if parent.get('key') is None:
 
-            if parent_external_id is None:
-                # Both parent key and external ID are missing.
-                ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
-                break
+                # Check if the parent external ID is specified,
+                # in case the sub-issue belongs to an issue that was created in this import process.
+                parent_external_id = parent.get('externalId')
 
-            if parent_external_id not in id_cross_ref_dict:
-                # Parent external ID does not exist.
-                ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
-                break
+                if parent_external_id is None:
+                    # Both parent key and external ID are missing.
+                    ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
+                    break
 
-            # Set the parent key from the cross reference dictionary,
-            # as the issue was created by _create_issues() function.
-            issue['parent']["key"] = id_cross_ref_dict[parent_external_id]
+                if parent_external_id not in id_cross_ref_dict:
+                    # Parent external ID does not exist.
+                    ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
+                    break
 
-        # Remove the external ID from the parent issue dictionary in case its present.
-        issue['parent'].pop('externalId', None)
+                # Set the parent key from the cross reference dictionary,
+                # as the issue was created by _create_issues() function.
+                parent["key"] = id_cross_ref_dict[parent_external_id]
+
+            # Remove the external ID from the parent issue dictionary in case its present.
+            parent.pop('externalId', None)
 
         # Create the sub-issue.
         created_issue = jira.create_issue(issue)
@@ -325,8 +329,11 @@ def _create_sub_issues(jira: JIRA,
             LOG.info("Sub-issue %s could not be created.", external_id)
             break
 
-        LOG.info("Created sub-issue %s with parent %s.",
-                 created_issue.key, issue.get('parent').get('key'))
+        if parent is not None:
+            LOG.info("Created sub-issue %s with parent %s.",
+                     created_issue.key, parent.get('key'))
+        else:
+            LOG.info("Created sub-issue %s without parent.", created_issue.key)
 
     return ret_status
 
@@ -402,7 +409,7 @@ def _read_json_file(input_file: str) -> tuple[Ret.CODE, dict]:
 
     # Make sure file has .json extension.
     if os.path.splitext(input_file)[-1] != '.json':
-        return  Ret.CODE.RET_ERROR_WRONG_FILE_FORMAT
+        return Ret.CODE.RET_ERROR_WRONG_FILE_FORMAT, issue_dict
 
     try:
         with FileHelper.open_file(input_file, 'r') as input_file_handle:
