@@ -329,8 +329,11 @@ def _create_sub_issues(jira: JIRA,
             LOG.info("Sub-issue %s could not be created.", external_id)
             break
 
-        LOG.info("Created sub-issue %s with parent %s.",
-                 created_issue.key, issue.get('parent').get('key'))
+        if parent is not None:
+            LOG.info("Created sub-issue %s with parent %s.",
+                     created_issue.key, parent.get('key'))
+        else:
+            LOG.info("Created sub-issue %s without parent.", created_issue.key)
 
     return ret_status
 
