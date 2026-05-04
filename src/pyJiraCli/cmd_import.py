@@ -293,30 +293,33 @@ def _create_sub_issues(jira: JIRA,
         # Set the project key.
         issue['project'] = issue_dict.get('projectKey')
 
-        # Check if the parent issue key is specified,
-        # in case the sub-issue belongs to an issue that was manually created before.
-        if issue.get('parent').get('key') is None:
+        parent = issue.get('parent')
 
-            # Check if the parent external ID is specified,
-            # in case the sub-issue belongs to an issue that was created in this import process.
-            parent_external_id = issue.get('parent').get('externalId')
+        if parent is not None:
+            # Check if the parent issue key is specified,
+            # in case the sub-issue belongs to an issue that was manually created before.
+            if parent.get('key') is None:
 
-            if parent_external_id is None:
-                # Both parent key and external ID are missing.
-                ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
-                break
+                # Check if the parent external ID is specified,
+                # in case the sub-issue belongs to an issue that was created in this import process.
+                parent_external_id = parent.get('externalId')
 
-            if parent_external_id not in id_cross_ref_dict:
-                # Parent external ID does not exist.
-                ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
-                break
+                if parent_external_id is None:
+                    # Both parent key and external ID are missing.
+                    ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
+                    break
 
-            # Set the parent key from the cross reference dictionary,
-            # as the issue was created by _create_issues() function.
-            issue['parent']["key"] = id_cross_ref_dict[parent_external_id]
+                if parent_external_id not in id_cross_ref_dict:
+                    # Parent external ID does not exist.
+                    ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
+                    break
 
-        # Remove the external ID from the parent issue dictionary in case its present.
-        issue['parent'].pop('externalId', None)
+                # Set the parent key from the cross reference dictionary,
+                # as the issue was created by _create_issues() function.
+                parent["key"] = id_cross_ref_dict[parent_external_id]
+
+            # Remove the external ID from the parent issue dictionary in case its present.
+            parent.pop('externalId', None)
 
         # Create the sub-issue.
         created_issue = jira.create_issue(issue)
