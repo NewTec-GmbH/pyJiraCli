@@ -42,11 +42,11 @@ pyJiraCli [-h] [--profile <profile>] [-u <user>] [-p <password>] [-t <token>] [-
 
 ### Flags
 
-| Flag           | Description                                                                                     |
-| :-----------:  | ----------------------------------------------------------------------------------------------- |
+|      Flag      | Description                                                                                     |
+| :------------: | ----------------------------------------------------------------------------------------------- |
 | --verbose , -v | Print full command details before executing the command. Enables logs of type INFO and WARNING. |
-| --version      | Show version information.                                                                       |
-| --help , -h    | Show the help message and exit.                                                                 |
+|   --version    | Show version information.                                                                       |
+|  --help , -h   | Show the help message and exit.                                                                 |
 
 ### Login options
 
@@ -60,16 +60,16 @@ There are two options for providing the server credentials to the tool:
 
 ## Commands
 
-| Command                                     | Description                                         |
-| :-----------------------------------------: | --------------------------------------------------- |
-|[export](./doc/commands/export.md)           | Export a ticket from a Jira Server to a JSON file.  |
-|[import](./doc/commands/import.md)           | Import a ticket from a JSON file.                   |
-|[search](./doc/commands/search.md)           | Search the Jira server for issues .                 |
-|[print](./doc/commands/print.md)             | Print the Jira Issue details to the console.        |
-|[profile](./doc/commands/profile.md)         | Add, list, delete or update server profiles.        |
-|[get_sprints](./doc/commands/get_sprints.md) | Get raw Sprint data.                                |
-|[scheme](./doc/commands/scheme.md)           | Get the scheme information for a project.           |
-|[edit](./doc/commands/edit.md)               | Edit issues from a JSON file.                       |
+|                   Command                    | Description                                        |
+| :------------------------------------------: | -------------------------------------------------- |
+|      [export](./doc/commands/export.md)      | Export a ticket from a Jira Server to a JSON file. |
+|      [import](./doc/commands/import.md)      | Import a ticket from a JSON file.                  |
+|      [search](./doc/commands/search.md)      | Search the Jira server for issues .                |
+|       [print](./doc/commands/print.md)       | Print the Jira Issue details to the console.       |
+|     [profile](./doc/commands/profile.md)     | Add, list, delete or update server profiles.       |
+| [get_sprints](./doc/commands/get_sprints.md) | Get raw Sprint data.                               |
+|      [scheme](./doc/commands/scheme.md)      | Get the scheme information for a project.          |
+|        [edit](./doc/commands/edit.md)        | Edit issues from a JSON file.                      |
 
 ## Examples
 
@@ -99,7 +99,6 @@ pyinstaller --noconfirm --onefile --console --name "pyJiraCli" --add-data "./pyp
 Used 3rd party libraries which are not part of the standard Python package:
 
 - [jira](https://pypi.org/project/jira/) - Python library for interacting with JIRA via REST APIs - BSD License (BSD-2-Clause).
-- [colorama](https://github.com/tartley/colorama) - ANSI color support - BSD-3 License
 - [toml](https://github.com/uiri/toml) - Parsing [TOML](https://en.wikipedia.org/wiki/TOML) - MIT License
 
 ## Issues, Ideas And Bugs
