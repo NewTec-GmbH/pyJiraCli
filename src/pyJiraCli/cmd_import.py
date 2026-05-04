@@ -243,6 +243,7 @@ def _create_issues(jira: JIRA,
             break
 
         if external_id in id_cross_ref_dict:
+            LOG.info("ExternalId '%s' already exists.", external_id)
             ret_status = Ret.CODE.RET_ERROR_DUPLICATE_EXTERNAL_ID
             break
 
