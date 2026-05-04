@@ -34,15 +34,16 @@
 ################################################################################
 
 import os
+import logging
 
 from pyJiraCli.ret import Ret, Warnings
-from pyJiraCli.printer import Printer as LOG
 
 
 ################################################################################
 # Variables
 ################################################################################
 
+LOG: logging.Logger = logging.getLogger(__name__)
 
 ################################################################################
 # Classes
@@ -89,7 +90,7 @@ class FileHelper:
             return Ret.CODE.RET_OK, file_arg + '.json'
 
         if ext != '.json':
-            LOG.print_info(Warnings.MSG.get(Warnings.CODE.WARNING_UNKNOWN_FILE_EXTENSION))
+            LOG.warning(Warnings.MSG.get(Warnings.CODE.WARNING_UNKNOWN_FILE_EXTENSION))
             return Ret.CODE.RET_OK, first + '.json'
 
         return Ret.CODE.RET_OK, file_arg

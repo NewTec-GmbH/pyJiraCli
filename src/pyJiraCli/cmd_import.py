@@ -38,13 +38,13 @@
 
 import json
 import os
-
 import argparse
+import logging
+
 from jira.client import JIRA
 
 from pyJiraCli.file_helper import FileHelper
 from pyJiraCli.jira_server import Server
-from pyJiraCli.printer import Printer
 from pyJiraCli.ret import Ret
 
 
@@ -52,7 +52,7 @@ from pyJiraCli.ret import Ret
 # Variables
 ################################################################################
 
-LOG = Printer()
+LOG: logging.Logger = logging.getLogger(__name__)
 
 
 ################################################################################
@@ -144,8 +144,7 @@ def execute(args) -> Ret.CODE:
                                 args.password)
 
     if Ret.CODE.RET_OK != ret_status:
-        LOG.print_error(
-            "Connection to server is not established. Please login first.")
+        LOG.error("Connection to server is not established. Please login first.")
     else:
         ret_status = _cmd_import(args.file, server)
 
@@ -191,8 +190,7 @@ def _create_components(jira: JIRA, components: list[dict], project_key: str) -> 
                              for existing_component in existing_components)
 
         if already_exists:
-            LOG.print_info(
-                f"Component {component.get('name')} already exists.")
+            LOG.info("Component %s already exists.", component.get('name'))
         else:
             component_name = component.get("name")
             component_description = component.get("description")
@@ -213,8 +211,7 @@ def _create_components(jira: JIRA, components: list[dict], project_key: str) -> 
                 ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
                 break
 
-            LOG.print_info(
-                f"Created component {created_component.name}.")
+            LOG.info("Created component %s.", created_component.name)
 
     return ret_status
 
@@ -262,7 +259,7 @@ def _create_issues(jira: JIRA,
         # Store the external ID and the created issue key in a dictionary for later reference.
         id_cross_ref_dict[external_id] = created_issue.key
 
-        LOG.print_info(f"Created issue {created_issue.key}.")
+        LOG.info("Created issue %s.", created_issue.key)
 
     return ret_status, id_cross_ref_dict
 
@@ -325,11 +322,11 @@ def _create_sub_issues(jira: JIRA,
 
         if created_issue is None:
             ret_status = Ret.CODE.RET_ERROR_CREATING_TICKET_FAILED
-            LOG.print_info(f"Sub-issue {external_id} could not be created.")
+            LOG.info("Sub-issue %s could not be created.", external_id)
             break
 
-        LOG.print_info(
-            f"Created sub-issue {created_issue.key} with parent {issue.get('parent').get('key')}.")
+        LOG.info("Created sub-issue %s with parent %s.",
+                 created_issue.key, issue.get('parent').get('key'))
 
     return ret_status
 

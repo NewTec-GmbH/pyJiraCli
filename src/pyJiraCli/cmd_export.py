@@ -38,10 +38,10 @@
 
 import argparse
 import json
+import logging
 
 from pyJiraCli.file_helper import FileHelper
 from pyJiraCli.jira_server import Server
-from pyJiraCli.printer import Printer
 from pyJiraCli.ret import Ret
 
 
@@ -49,7 +49,7 @@ from pyJiraCli.ret import Ret
 # Variables
 ################################################################################
 
-LOG = Printer()
+LOG: logging.Logger = logging.getLogger(__name__)
 
 
 ################################################################################
@@ -153,8 +153,7 @@ def execute(args) -> Ret.CODE:
                                 args.password)
 
     if Ret.CODE.RET_OK != ret_status:
-        LOG.print_error(
-            "Connection to server is not established. Please login first.")
+        LOG.error("Connection to server is not established. Please login first.")
     else:
         ret_status = _cmd_export(args, server)
 
@@ -190,7 +189,7 @@ def _cmd_export(args, server: Server) -> Ret.CODE:
                     export_file.write(json.dumps(issue, indent=4))
 
                     msg = f"Successfully exported to file '{file_path}'."
-                    LOG.print_info(msg)
+                    LOG.info(msg)
                     print(msg)
 
         except IOError:

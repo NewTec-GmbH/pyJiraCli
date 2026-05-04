@@ -35,7 +35,7 @@
 
 import sys
 import argparse
-from colorama import init, just_fix_windows_console
+import logging
 
 # Import command modules
 from pyJiraCli import cmd_import
@@ -47,13 +47,14 @@ from pyJiraCli import cmd_get_sprints
 from pyJiraCli import cmd_scheme
 from pyJiraCli import cmd_edit
 
-from pyJiraCli.printer import Printer
 from pyJiraCli.ret import Ret
 from pyJiraCli.version import __version__, __author__, __email__, __repository__, __license__
 
 ################################################################################
 # Variables
 ################################################################################
+
+LOG: logging.Logger = logging.getLogger(__name__)
 
 # Add command modules here
 _CMD_MODULES = [
@@ -126,12 +127,6 @@ def main() -> Ret.CODE:
     ret_status = Ret.CODE.RET_OK
     args = None
 
-    # Older windows consoles don't support ANSI color codes by default.
-    # Enable the Windows built-in ANSI support before creating the printer.
-    init()
-    just_fix_windows_console()
-    printer = Printer()
-
     # Get parser
     parser = add_parser()
 
@@ -144,18 +139,17 @@ def main() -> Ret.CODE:
     else:
         # In verbose mode print all program arguments
         if args.verbose:
-            printer.set_verbose()
-            print("Program arguments: ")
+            logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+            LOG.info("Program arguments: ")
 
             for arg in vars(args):
-                print(f"* {arg} = {vars(args)[arg]}")
-            print("\n")
+                LOG.info("* %s = %s", arg, vars(args)[arg])
 
         # Call command function and return exit status
         ret_status = args.func(args)
 
     if ret_status is not Ret.CODE.RET_OK:
-        print(Ret.MSG[ret_status])
+        LOG.error(Ret.MSG[ret_status])
 
     return ret_status
 

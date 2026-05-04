@@ -34,6 +34,7 @@
 ################################################################################
 import os
 import sys
+import logging
 from typing import Optional
 
 import certifi
@@ -45,7 +46,6 @@ from urllib3 import exceptions as urlex
 
 from pyProfileMgr.profile_mgr import ProfileMgr
 
-from pyJiraCli.printer import Printer, PrintType
 from pyJiraCli.ret import Ret, Warnings
 
 # pylint: disable=E0401
@@ -59,6 +59,8 @@ else:
 ################################################################################
 # Variables
 ################################################################################
+
+LOG: logging.Logger = logging.getLogger(__name__)
 
 JIRA_SERVER_MAX_RETRIES = 0  # Number of retries for server connection
 
@@ -108,7 +110,6 @@ class Server:
             Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
         """
         ret_status = Ret.CODE.RET_OK
-        _printer = Printer()
 
         # Login using settings from profile
         if arg_profile_name is not None:
@@ -124,15 +125,13 @@ class Server:
             # Neither profile nor command line information given
             ret_status = Ret.CODE.RET_ERROR
             print("Missing server URL to connect to.")
-            _printer.print_error(
-                PrintType.ERROR, Ret.CODE.RET_ERROR_JIRA_LOGIN)
+            LOG.error(Ret.MSG[Ret.CODE.RET_ERROR_JIRA_LOGIN])
 
         if Ret.CODE.RET_OK == ret_status:
             if self._user is not None:
-                _printer.print_info(
-                    'Login successful. Logged in as: ', self._user)
+                LOG.info("Login successful. Logged in as: %s", self._user)
             else:
-                _printer.print_info('Login successful.')
+                LOG.info("Login successful.")
 
         return ret_status
 
@@ -233,7 +232,6 @@ class Server:
 
     def _login_using_profile(self, profile_name: str) -> Ret.CODE:
         ''' Login to Jira server using the profile settings.'''
-        _printer = Printer()
         _profile_mgr = ProfileMgr()
 
         ret_status = _profile_mgr.load(profile_name)
@@ -243,20 +241,20 @@ class Server:
             self._server_url = _profile_mgr.loaded_profile.server_url
             api_token = _profile_mgr.loaded_profile.token
 
-            _printer.print_info('Logging in to Jira server:', self._server_url)
+            LOG.info("Logging in to Jira server: %s", self._server_url)
 
             if self._cert_path is None:
-                _printer.print_error(
-                    PrintType.WARNING, Warnings.CODE.WARNING_UNSAVE_CONNECTION)
+                LOG.warning(
+                    Warnings.MSG[Warnings.CODE.WARNING_UNSAFE_CONNECTION])
 
             # Use token (preferred)
             if api_token is not None:
-                _printer.print_info('Using token for login.')
+                LOG.info("Using token for login.")
 
                 ret_status = self._login_with_token(api_token)
             # Else user/password
             else:
-                _printer.print_info('Using user/password for login.')
+                LOG.info("Using user/password for login.")
 
                 self._user = _profile_mgr.loaded_profile.user
                 password = _profile_mgr.loaded_profile.password
@@ -270,14 +268,12 @@ class Server:
         ''' Login to Jira server using the command line arguments directly. '''
         self._server_url = server_url
 
-        _printer = Printer()
         ret_status = Ret.CODE.RET_OK
 
         if self._cert_path is None:
-            _printer.print_error(
-                PrintType.WARNING, Warnings.CODE.WARNING_UNSAVE_CONNECTION)
+            LOG.warning(Warnings.MSG[Warnings.CODE.WARNING_UNSAFE_CONNECTION])
 
-        _printer.print_info('Login in to:', self._server_url)
+        LOG.info("Login in to: %s", self._server_url)
 
         if token is not None:
             # Login with token
@@ -290,8 +286,7 @@ class Server:
             # No credentials given
             ret_status = Ret.CODE.RET_ERROR
             print("Missing credentials (token or user/password) to login.")
-            _printer.print_error(
-                PrintType.ERROR, Ret.CODE.RET_ERROR_JIRA_LOGIN)
+            LOG.error(Ret.MSG[Ret.CODE.RET_ERROR_JIRA_LOGIN])
 
         return ret_status
 

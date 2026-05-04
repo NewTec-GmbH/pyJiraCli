@@ -38,10 +38,10 @@
 import json
 import argparse
 import datetime
+import logging
 
 from pyJiraCli.file_helper import FileHelper
 from pyJiraCli.jira_server import Server
-from pyJiraCli.printer import Printer
 from pyJiraCli.ret import Ret
 
 
@@ -53,7 +53,7 @@ DEFAULT_FIELDS = ['project', 'summary', 'created', 'creator']
 COLUMN_WIDTH = 25
 MAX_FIELDS_PRINTED = len(DEFAULT_FIELDS)
 
-LOG = Printer()
+LOG: logging.Logger = logging.getLogger(__name__)
 
 
 ################################################################################
@@ -188,8 +188,7 @@ def execute(args) -> Ret.CODE:
                               args.password)
 
     if Ret.CODE.RET_OK != ret_status:
-        LOG.print_error(
-            "Connection to server is not established. Please login first.")
+        LOG.error("Connection to server is not established. Please login first.")
     else:
         # Get the fields to search for in the issues
         fields = DEFAULT_FIELDS
@@ -242,8 +241,8 @@ def _cmd_search(filter_str: str,
     if ret_status == Ret.CODE.RET_OK:
         # Retrieve the search result.
         found_issues = server.get_search_result()
-        LOG.print_info('Search string:', filter_str)
-        LOG.print_info('Found Issues:', str(len(found_issues)))
+        LOG.info("Search string: %s", filter_str)
+        LOG.info("Found Issues: %s", len(found_issues))
 
         search_dict = {
             'search': filter_str,
@@ -363,7 +362,7 @@ def _save_search(save_file: str, search_dict: dict) -> Ret.CODE:
             result_file.write(result_data)
 
             msg = f"Successfully saved the search results in '{save_file}'."
-            LOG.print_info(msg)
+            LOG.info(msg)
             print(msg)
 
     except IOError:

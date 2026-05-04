@@ -27,19 +27,19 @@ def register(subparser):
                           type=str,
                           metavar='<username>',
                           help="Some option that is read as a string and stored in a metavar.")
-    
+
     sub_parser_cmd.add_argument('--bool_option',
                           action="store_true",
                           help="store 'True'' in args.bool_option if the option \
                                 is set on the command line \
                                 otherwise store 'False'")
-    
+
     # make sure to return the command parser
     return sub_parser_cmd
 
 def execute(args):
   ''' execute function, your module entry point will be here
-      returns the module exit code: 
+      returns the module exit code:
       retval.Ret.CODE.RET_OK'''
     ret_status = Ret.CODE.RET_OK
 
@@ -114,7 +114,7 @@ class Ret(IntEnum):
 
 class Warnings(IntEnum):
     """ Th Warnings of the modules."""
-    WARNING_UNSAVE_CONNECTION      = 0
+    WARNING_UNSAFE_CONNECTION      = 0
     WARNING_UNKNOWN_FILE_EXTENSION = 1
     WARNING_TOKEN_RECOMMENDED      = 2
 
