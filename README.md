@@ -66,7 +66,7 @@ There are two options for providing the server credentials to the tool:
 |      [import](./doc/commands/import.md)      | Import a ticket from a JSON file.                  |
 |      [search](./doc/commands/search.md)      | Search the Jira server for issues .                |
 |       [print](./doc/commands/print.md)       | Print the Jira Issue details to the console.       |
-|     [profile](./doc/commands/profile.md)     | Add, list, delete or update server profiles.       |
+|     [profile](./doc/commands/profile.md)     | Add, list, remove, update or show server profiles. |
 | [get_sprints](./doc/commands/get_sprints.md) | Get raw Sprint data.                               |
 |      [scheme](./doc/commands/scheme.md)      | Get the scheme information for a project.          |
 |        [edit](./doc/commands/edit.md)        | Edit issues from a JSON file.                      |
@@ -99,6 +99,7 @@ pyinstaller --noconfirm --onefile --console --name "pyJiraCli" --add-data "./pyp
 Used 3rd party libraries which are not part of the standard Python package:
 
 - [jira](https://pypi.org/project/jira/) - Python library for interacting with JIRA via REST APIs - BSD License (BSD-2-Clause).
+- [pyProfileMgr](https://github.com/NewTec-GmbH/pyProfileMgr) - Profile Manager for storing and managing server connection profiles - BSD License (BSD-3-Clause).
 - [toml](https://github.com/uiri/toml) - Parsing [TOML](https://en.wikipedia.org/wiki/TOML) - MIT License
 
 ## Issues, Ideas And Bugs

@@ -38,7 +38,9 @@
 import argparse
 import logging
 
-from pyProfileMgr.profile_data import ProfileType
+from typing import cast
+
+from pyProfileMgr.profile_data import ProfileData, ProfileType
 from pyProfileMgr.profile_mgr import ProfileMgr
 
 from pyJiraCli.jira_server import Server
@@ -203,6 +205,17 @@ def register(subparser) -> argparse.ArgumentParser:
         help="The server SSL certificate."
     )
 
+    # Show
+    sub_parser_show = sub_parsers.add_parser("show")
+    sub_parser_show.set_defaults(func=_show_profile)
+
+    sub_parser_show.add_argument(
+        'profile_name',
+        type=str,
+        metavar="<profile name>",
+        help="The name of the profile."
+    )
+
     return parser
 
 
@@ -338,7 +351,8 @@ def _add_profile(args) -> Ret.CODE:
               "Please provide a token using the --token option or --user/--password.")
     else:
         profile_name = args.profile_name
-        profile_type = ProfileType.JIRA # Profile type for this cmd is always JIRA.
+        # Profile type for this cmd is always JIRA.
+        profile_type = ProfileType.JIRA
         server = args.server
         token = args.token
         user = args.user
@@ -351,21 +365,22 @@ def _add_profile(args) -> Ret.CODE:
 
 
 def _list_profiles() -> Ret.CODE:
-    """ List all stored profiles.
+    """ List all stored Jira profiles.
 
     Returns:
         Ret.CODE: Status code indicating the success or failure of the command.
     """
-    ret_status = Ret.CODE.RET_OK
     profile_mgr = ProfileMgr()
-    profile_list = profile_mgr.get_profiles()
 
     print("Profiles:")
 
-    for profile_name in profile_list:
-        print(f"\t{profile_name}")
+    for profile_name in profile_mgr.get_profiles():
+        profile_mgr.load(profile_name)
+        if profile_mgr.loaded_profile is not None and \
+                profile_mgr.loaded_profile.profile_type == ProfileType.JIRA:
+            print(f"\t{profile_name}")
 
-    return ret_status
+    return Ret.CODE.RET_OK
 
 
 def _remove_profile(profile_name: str) -> Ret.CODE:
@@ -377,11 +392,43 @@ def _remove_profile(profile_name: str) -> Ret.CODE:
     Returns:
         Ret.CODE: Status code indicating the success or failure of the profile removal.
     """
-    ret_status = Ret.CODE.RET_OK
+    if ProfileMgr().delete(profile_name):
+        return Ret.CODE.RET_ERROR_PROFILE_NOT_FOUND
 
-    ProfileMgr().delete(profile_name)
+    return Ret.CODE.RET_OK
 
-    return ret_status
+
+def _show_profile(args) -> Ret.CODE:
+    """ Prints the details of an existing profile.
+
+    Args:
+        args (obj): The command line arguments.
+
+    Returns:
+        Ret.CODE: The return status of the operation.
+    """
+    profile_mgr = ProfileMgr()
+    profile_mgr.load(args.profile_name)
+
+    if profile_mgr.loaded_profile is None:
+        return Ret.CODE.RET_ERROR_PROFILE_NOT_FOUND
+
+    profile = cast(ProfileData, profile_mgr.loaded_profile)
+
+    print(f"Profile name: {profile.profile_name}")
+    print(f"Profile type: {profile.profile_type}")
+    print(f"Server URL:   {profile.server_url}")
+
+    if profile.token:
+        print(f"Token:        {profile.token}")
+    if profile.user:
+        print(f"User:         {profile.user}")
+    if profile.password:
+        print(f"Password:     {profile.password}")
+    if profile.cert_path:
+        print(f"Certificate:  {profile.cert_path}")
+
+    return Ret.CODE.RET_OK
 
 
 def _update_profile(args) -> Ret.CODE:
@@ -393,13 +440,18 @@ def _update_profile(args) -> Ret.CODE:
     Returns:
         Ret.CODE: Status code indicating the success or failure of the profile update.
     """
-    # Update cert
-    if args.cert is not None:
-        profile_mgr = ProfileMgr()
-        ret_status = profile_mgr.load(args.profile_name)
+    if args.cert is None:
+        LOG.warning(
+            "No update options provided. Use --cert to update the certificate.")
+        return Ret.CODE.RET_ERROR
 
-        if ret_status == Ret.CODE.RET_OK:
-            # profile exists
-            ret_status = profile_mgr.add_certificate(args.profile_name, args.cert)
+    profile_mgr = ProfileMgr()
+    profile_mgr.load(args.profile_name)
 
-    return ret_status
+    if profile_mgr.loaded_profile is None:
+        return Ret.CODE.RET_ERROR_PROFILE_NOT_FOUND
+
+    if profile_mgr.add_certificate(args.profile_name, args.cert):
+        return Ret.CODE.RET_ERROR_FILEPATH_INVALID
+
+    return Ret.CODE.RET_OK

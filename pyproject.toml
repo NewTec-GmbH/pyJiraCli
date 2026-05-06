@@ -29,7 +29,7 @@ classifiers = [
 dependencies = [
     "jira>=3.8.0",
     "toml>=0.10.2",
-    "pyProfileMgr @ git+https://github.com/NewTec-GmbH/pyProfileMgr.git",
+    "pyProfileMgr @ git+https://github.com/NewTec-GmbH/pyProfileMgr.git@v1.2.0",
 ]
 
 [project.optional-dependencies]

@@ -234,34 +234,30 @@ class Server:
         ''' Login to Jira server using the profile settings.'''
         _profile_mgr = ProfileMgr()
 
-        ret_status = _profile_mgr.load(profile_name)
+        _profile_mgr.load(profile_name)
 
-        if ret_status == Ret.CODE.RET_OK:
-            self._cert_path = _profile_mgr.loaded_profile.cert_path
-            self._server_url = _profile_mgr.loaded_profile.server_url
-            api_token = _profile_mgr.loaded_profile.token
+        if _profile_mgr.loaded_profile is None:
+            return Ret.CODE.RET_ERROR_PROFILE_NOT_FOUND
 
-            LOG.info("Logging in to Jira server: %s", self._server_url)
+        self._cert_path = _profile_mgr.loaded_profile.cert_path
+        self._server_url = _profile_mgr.loaded_profile.server_url
+        api_token = _profile_mgr.loaded_profile.token
 
-            if self._cert_path is None:
-                LOG.warning(
-                    Warnings.MSG[Warnings.CODE.WARNING_UNSAFE_CONNECTION])
+        LOG.info("Logging in to Jira server: %s", self._server_url)
 
-            # Use token (preferred)
-            if api_token is not None:
-                LOG.info("Using token for login.")
+        if self._cert_path is None:
+            LOG.warning(Warnings.MSG[Warnings.CODE.WARNING_UNSAFE_CONNECTION])
 
-                ret_status = self._login_with_token(api_token)
-            # Else user/password
-            else:
-                LOG.info("Using user/password for login.")
+        # Use token (preferred)
+        if api_token is not None:
+            LOG.info("Using token for login.")
+            return self._login_with_token(api_token)
 
-                self._user = _profile_mgr.loaded_profile.user
-                password = _profile_mgr.loaded_profile.password
-
-                ret_status = self._login_with_password(self._user, password)
-
-        return ret_status
+        # Else user/password
+        LOG.info("Using user/password for login.")
+        self._user = _profile_mgr.loaded_profile.user
+        password = _profile_mgr.loaded_profile.password
+        return self._login_with_password(self._user, password)
 
     def _login_using_direct_args(self, server_url: str,
                                  token: str, username: str, password: str) -> Ret.CODE:
