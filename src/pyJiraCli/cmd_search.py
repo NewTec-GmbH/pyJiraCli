@@ -4,7 +4,7 @@
 
 # BSD 3-Clause License
 #
-# Copyright (c) 2024 - 2025, NewTec GmbH
+# Copyright (c) 2024 - 2026, NewTec GmbH
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -274,7 +274,8 @@ def _cmd_search(filter_str: str,
             if True is translate:
                 for field_id in list(issue_dict["fields"].keys()):
                     field_name = server.get_field_name(field_id)
-                    issue_dict["fields"][field_name] = issue_dict["fields"].pop(field_id)
+                    issue_dict["fields"][field_name] = issue_dict["fields"].pop(
+                        field_id)
 
             search_dict['issues'].append(issue_dict)
 

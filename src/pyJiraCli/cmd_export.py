@@ -5,7 +5,7 @@
 """
 # BSD 3-Clause License
 #
-# Copyright (c) 2024 - 2025, NewTec GmbH
+# Copyright (c) 2024 - 2026, NewTec GmbH
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -146,11 +146,11 @@ def execute(args) -> Ret.CODE:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
     server = Server()
-    ret_status = server.login(  args.profile,
-                                args.server,
-                                args.token,
-                                args.user,
-                                args.password)
+    ret_status = server.login(args.profile,
+                              args.server,
+                              args.token,
+                              args.user,
+                              args.password)
 
     if Ret.CODE.RET_OK != ret_status:
         LOG.error("Connection to server is not established. Please login first.")
@@ -179,11 +179,13 @@ def _cmd_export(args, server: Server) -> Ret.CODE:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
 
-    ret_status, file_path = FileHelper.process_file_argument(args.issue, args.file)
+    ret_status, file_path = FileHelper.process_file_argument(
+        args.issue, args.file)
     if ret_status == Ret.CODE.RET_OK:
         try:
             with FileHelper.open_file(file_path, 'w') as export_file:
-                ret_status = server.search(f"key = {args.issue}", max_results=1, fields=[])
+                ret_status = server.search(
+                    f"key = {args.issue}", max_results=1, fields=[])
                 if ret_status == Ret.CODE.RET_OK:
                     issue = server.get_search_result().pop().raw
                     export_file.write(json.dumps(issue, indent=4))
