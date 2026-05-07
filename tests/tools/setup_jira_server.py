@@ -148,42 +148,43 @@ def _create_issue_type(jira: JIRA, name: str) -> str:
 
 
 def _add_issue_type_to_project_scheme(jira: JIRA, issue_type_id: str) -> None:
-    """Add an issue type to the project's issue type scheme via the Jira Server admin UI API.
+    """Add an issue type to the project's issue type scheme.
 
-    The public REST API has no endpoint for modifying scheme membership in Jira Server 8.x.
-    The admin UI uses /rest/projectconfig/1/issuetypescheme which does support it.
+    Jira Server 8.x has no public REST endpoint for this. We use the secure/admin
+    action endpoint that the Jira UI itself calls when editing a project's issue type scheme.
     """
     # pylint: disable=protected-access, missing-timeout
 
-    # Find which scheme the project is using.
-    scheme_resp = requests.get(
-        f"{CI_JIRA_URL}/rest/projectconfig/1/issuetypescheme/{CI_JIRA_TEST_PROJECT}",
+    # Step 1: find the scheme id assigned to the project via the admin REST API.
+    project_resp = requests.get(
+        f"{CI_JIRA_URL}/rest/api/2/project/{CI_JIRA_TEST_PROJECT}",
         auth=(CI_JIRA_ADMIN, CI_JIRA_ADMIN_PASSWORD),
     )
-    print(f"projectconfig scheme {scheme_resp.status_code}: {scheme_resp.text[:300]}")
+    project_id = project_resp.json()["id"]
 
-    if scheme_resp.status_code != 200:
-        print("Could not retrieve project issue type scheme.")
-        return
-
-    scheme_id = scheme_resp.json().get("id") or scheme_resp.json().get("schemeId")
-    if not scheme_id:
-        print(f"Unexpected scheme response shape: {scheme_resp.text[:300]}")
-        return
-
-    # Get the current issue type ids in the scheme.
-    current_ids = [t["id"] for t in scheme_resp.json().get("issueTypes", [])]
-    if issue_type_id in current_ids:
-        print(f"Issue type {issue_type_id} already in project scheme.")
-        return
-
-    updated_ids = current_ids + [issue_type_id]
-    update_resp = requests.put(
-        f"{CI_JIRA_URL}/rest/projectconfig/1/issuetypescheme/{CI_JIRA_TEST_PROJECT}",
+    # Step 2: get the issue type scheme for the project using the issueTypeScheme endpoint.
+    # On Jira Server 8.x this is exposed under /rest/api/2/project/{id}/issueTypes (read-only).
+    issue_types_resp = requests.get(
+        f"{CI_JIRA_URL}/rest/api/2/project/{CI_JIRA_TEST_PROJECT}/statuses",
         auth=(CI_JIRA_ADMIN, CI_JIRA_ADMIN_PASSWORD),
-        json={"issueTypeIds": updated_ids},
     )
-    print(f"projectconfig scheme PUT {update_resp.status_code}: {update_resp.text[:300]}")
+    print(f"project statuses {issue_types_resp.status_code}: {issue_types_resp.text[:200]}")
+
+    # Step 3: use the Jira Server secure/admin action to add the issue type to the scheme.
+    # The scheme id for a newly created software project is typically project_id + 10000.
+    scheme_id = str(int(project_id) + 10000)
+    action_resp = requests.post(
+        f"{CI_JIRA_URL}/secure/admin/EditIssueTypeScheme.jspa",
+        auth=(CI_JIRA_ADMIN, CI_JIRA_ADMIN_PASSWORD),
+        data={
+            "schemeId": scheme_id,
+            "issueTypeIds": issue_type_id,
+            "action": "addIssueType",
+            "atl_token": "",
+        },
+        headers={"X-Atlassian-Token": "no-check"},
+    )
+    print(f"EditIssueTypeScheme {action_resp.status_code}: {action_resp.text[:200]}")
 
 
 def _add_labels_to_screen(jira: JIRA) -> None:
