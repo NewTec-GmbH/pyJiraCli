@@ -6,7 +6,7 @@
     {
       "externalId":"1",
       "issuetype":{
-        "name":"Bug"
+        "name":"Task"
       },
       "summary":"Fix tool documentation.",
       "labels" : ["label1", "label2"]

@@ -120,72 +120,6 @@ def _add_user_to_jira(jira: JIRA) -> str:
     return created_user_key
 
 
-def _create_issue_type(jira: JIRA, name: str) -> str:
-    """Create an issue type in Jira Server and return its id."""
-    # pylint: disable=protected-access
-    response = jira._session.post(
-        jira._get_url("issuetype"),
-        json={
-            "name": name,
-            "description": name,
-            "type": "standard",
-        }
-    )
-    if response.status_code == 201:
-        issue_type_id = response.json()["id"]
-        print(f"Issue type '{name}' created with id {issue_type_id}.")
-        return issue_type_id
-
-    # Already exists — look up its id.
-    all_types = jira._session.get(jira._get_url("issuetype")).json()
-    for issue_type in all_types:
-        if issue_type["name"] == name:
-            print(f"Issue type '{name}' already exists with id {issue_type['id']}.")
-            return issue_type["id"]
-
-    print(f"Failed to create issue type '{name}':", response.status_code, response.text)
-    return ""
-
-
-def _add_issue_type_to_project_scheme(jira: JIRA, issue_type_id: str) -> None:
-    """Add an issue type to the project's issue type scheme.
-
-    Jira Server 8.x has no public REST endpoint for this. We use the secure/admin
-    action endpoint that the Jira UI itself calls when editing a project's issue type scheme.
-    """
-    # pylint: disable=protected-access, missing-timeout
-
-    # Step 1: find the scheme id assigned to the project via the admin REST API.
-    project_resp = requests.get(
-        f"{CI_JIRA_URL}/rest/api/2/project/{CI_JIRA_TEST_PROJECT}",
-        auth=(CI_JIRA_ADMIN, CI_JIRA_ADMIN_PASSWORD),
-    )
-    project_id = project_resp.json()["id"]
-
-    # Step 2: get the issue type scheme for the project using the issueTypeScheme endpoint.
-    # On Jira Server 8.x this is exposed under /rest/api/2/project/{id}/issueTypes (read-only).
-    issue_types_resp = requests.get(
-        f"{CI_JIRA_URL}/rest/api/2/project/{CI_JIRA_TEST_PROJECT}/statuses",
-        auth=(CI_JIRA_ADMIN, CI_JIRA_ADMIN_PASSWORD),
-    )
-    print(f"project statuses {issue_types_resp.status_code}: {issue_types_resp.text[:200]}")
-
-    # Step 3: use the Jira Server secure/admin action to add the issue type to the scheme.
-    # The scheme id for a newly created software project is typically project_id + 10000.
-    scheme_id = str(int(project_id) + 10000)
-    action_resp = requests.post(
-        f"{CI_JIRA_URL}/secure/admin/EditIssueTypeScheme.jspa",
-        auth=(CI_JIRA_ADMIN, CI_JIRA_ADMIN_PASSWORD),
-        data={
-            "schemeId": scheme_id,
-            "issueTypeIds": issue_type_id,
-            "action": "addIssueType",
-            "atl_token": "",
-        },
-        headers={"X-Atlassian-Token": "no-check"},
-    )
-    print(f"EditIssueTypeScheme {action_resp.status_code}: {action_resp.text[:200]}")
-
 
 def _add_labels_to_screen(jira: JIRA) -> None:
     """Add the 'labels' field to the default Jira screen so it can be set on issues."""
@@ -309,10 +243,7 @@ def _setup_server(connect_timeout: float = 300.0, connect_retry_interval: float 
             time.sleep(connect_retry_interval)
 
     created_user_key = _add_user_to_jira(jira)
-    bug_type_id = _create_issue_type(jira, "Bug")
     _create_project(jira)
-    if bug_type_id:
-        _add_issue_type_to_project_scheme(jira, bug_type_id)
     _add_labels_to_screen(jira)
     _create_cert()
     _create_sprint(jira, created_user_key)
