@@ -124,16 +124,7 @@ def _create_project(jira: JIRA) -> None:
     """Create a project in Jira Server for CI testing purposes."""
 
     try:
-        response = jira._session.post(
-            jira._get_url("project"),
-            json={
-                "key": CI_JIRA_TEST_PROJECT,
-                "name": CI_JIRA_TEST_PROJECT,
-                "projectTypeKey": "software",
-                "lead": CI_JIRA_USER,
-            }
-        )
-        project = response.status_code == 201
+        project = jira.create_project(CI_JIRA_TEST_PROJECT)
 
         if project is False:
             print("Failed to create project.")
