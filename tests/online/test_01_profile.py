@@ -56,9 +56,8 @@ CERT_NAME = "cert.pem"
 
 def test_profile_operation(helpers: Helpers):
     """ Test profile add/remove/update. """
-    # Remove any existing profile.
+    # Remove any existing profile (ignore errors as it may not exist).
     ret = helpers.remove_profile()
-    assert Ret.CODE.RET_OK == ret.returncode
 
     # Create a new profile.
     ret = helpers.create_profile()
