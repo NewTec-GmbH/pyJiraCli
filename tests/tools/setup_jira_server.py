@@ -147,38 +147,11 @@ def _create_issue_type(jira: JIRA, name: str) -> str:
     return ""
 
 
-def _add_issue_type_to_project_scheme(jira: JIRA, issue_type_id: str) -> None:
-    """Add an issue type to the issue type scheme used by the given project."""
+def _get_all_issue_type_ids(jira: JIRA) -> list:
+    """Return ids of all globally defined issue types."""
     # pylint: disable=protected-access
-
-    # Jira Server 8.x exposes issue type scheme assignment via the admin REST API.
-    # GET /rest/api/2/issuetypescheme returns all schemes; the default scheme (id=10000)
-    # applies to all projects that don't have a custom scheme.
-    schemes = jira._session.get(jira._get_url("issuetypescheme")).json()
-    scheme_id = None
-    for scheme in schemes if isinstance(schemes, list) else schemes.get("values", []):
-        if scheme.get("defaultScheme", False) or scheme.get("name", "") == "Default Issue Type Scheme":
-            scheme_id = scheme["id"]
-            break
-
-    if scheme_id is None and isinstance(schemes, list) and schemes:
-        scheme_id = schemes[0]["id"]
-
-    if scheme_id is None:
-        print("Could not find issue type scheme.")
-        return
-
-    response = jira._session.post(
-        jira._get_url(f"issuetypescheme/{scheme_id}/issuetype"),
-        json={"issueTypeIds": [issue_type_id]}
-    )
-    if response.status_code in (200, 201, 204):
-        print(f"Issue type {issue_type_id} added to scheme {scheme_id}.")
-    elif "already" in response.text.lower():
-        print(f"Issue type {issue_type_id} already in scheme {scheme_id}.")
-    else:
-        print(f"Failed to add issue type to scheme {scheme_id}:",
-              response.status_code, response.text)
+    issue_types = jira._session.get(jira._get_url("issuetype")).json()
+    return [t["id"] for t in issue_types if isinstance(issue_types, list)]
 
 
 def _add_labels_to_screen(jira: JIRA) -> None:
@@ -209,6 +182,7 @@ def _create_project(jira: JIRA) -> None:
     """Create a project in Jira Server for CI testing purposes."""
 
     try:
+        issue_type_ids = _get_all_issue_type_ids(jira)
         response = jira._session.post(  # pylint: disable=protected-access
             jira._get_url("project"),  # pylint: disable=protected-access
             json={
@@ -216,6 +190,7 @@ def _create_project(jira: JIRA) -> None:
                 "name": CI_JIRA_TEST_PROJECT,
                 "projectTypeKey": "software",
                 "lead": CI_JIRA_USER,
+                "issueTypeIds": issue_type_ids,
             }
         )
         project = response.status_code == 201
@@ -303,10 +278,8 @@ def _setup_server(connect_timeout: float = 300.0, connect_retry_interval: float 
             time.sleep(connect_retry_interval)
 
     created_user_key = _add_user_to_jira(jira)
-    bug_type_id = _create_issue_type(jira, "Bug")
+    _create_issue_type(jira, "Bug")
     _create_project(jira)
-    if bug_type_id:
-        _add_issue_type_to_project_scheme(jira, bug_type_id)
     _add_labels_to_screen(jira)
     _create_cert()
     _create_sprint(jira, created_user_key)
