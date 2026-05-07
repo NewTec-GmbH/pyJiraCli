@@ -147,11 +147,25 @@ def _create_issue_type(jira: JIRA, name: str) -> str:
     return ""
 
 
-def _get_all_issue_type_ids(jira: JIRA) -> list:
-    """Return ids of all globally defined issue types."""
-    # pylint: disable=protected-access
-    issue_types = jira._session.get(jira._get_url("issuetype")).json()
-    return [t["id"] for t in issue_types if isinstance(issue_types, list)]
+def _add_issue_type_to_default_scheme(jira: JIRA, issue_type_id: str) -> None:
+    """Add an issue type to the Default Issue Type Scheme before project creation.
+
+    On a fresh Jira Server 8.x instance the Default Issue Type Scheme always has
+    id 10000. Adding the type here ensures any subsequently created project inherits it.
+    """
+    # pylint: disable=protected-access, missing-timeout
+    response = requests.post(
+        f"{CI_JIRA_URL}/rest/api/2/issuetypescheme/10000/issuetype",
+        auth=(CI_JIRA_ADMIN, CI_JIRA_ADMIN_PASSWORD),
+        json={"issueTypeIds": [issue_type_id]},
+    )
+    if response.status_code in (200, 201, 204):
+        print(f"Issue type {issue_type_id} added to default scheme.")
+    elif "already" in response.text.lower():
+        print(f"Issue type {issue_type_id} already in default scheme.")
+    else:
+        print(f"Failed to add issue type to default scheme:",
+              response.status_code, response.text)
 
 
 def _add_labels_to_screen(jira: JIRA) -> None:
@@ -182,7 +196,6 @@ def _create_project(jira: JIRA) -> None:
     """Create a project in Jira Server for CI testing purposes."""
 
     try:
-        issue_type_ids = _get_all_issue_type_ids(jira)
         response = jira._session.post(  # pylint: disable=protected-access
             jira._get_url("project"),  # pylint: disable=protected-access
             json={
@@ -190,7 +203,6 @@ def _create_project(jira: JIRA) -> None:
                 "name": CI_JIRA_TEST_PROJECT,
                 "projectTypeKey": "software",
                 "lead": CI_JIRA_USER,
-                "issueTypeIds": issue_type_ids,
             }
         )
         project = response.status_code == 201
@@ -278,7 +290,9 @@ def _setup_server(connect_timeout: float = 300.0, connect_retry_interval: float 
             time.sleep(connect_retry_interval)
 
     created_user_key = _add_user_to_jira(jira)
-    _create_issue_type(jira, "Bug")
+    bug_type_id = _create_issue_type(jira, "Bug")
+    if bug_type_id:
+        _add_issue_type_to_default_scheme(jira, bug_type_id)
     _create_project(jira)
     _add_labels_to_screen(jira)
     _create_cert()
