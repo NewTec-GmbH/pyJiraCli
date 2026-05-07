@@ -147,27 +147,43 @@ def _create_issue_type(jira: JIRA, name: str) -> str:
     return ""
 
 
-def _add_issue_type_to_default_scheme(jira: JIRA, issue_type_id: str) -> None:
-    """Add an issue type to the Default Issue Type Scheme before project creation.
+def _add_issue_type_to_project_scheme(jira: JIRA, issue_type_id: str) -> None:
+    """Add an issue type to the project's issue type scheme via the Jira Server admin UI API.
 
-    On a fresh Jira Server 8.x instance the Default Issue Type Scheme always has
-    id 10000. Adding the type here ensures any subsequently created project inherits it.
+    The public REST API has no endpoint for modifying scheme membership in Jira Server 8.x.
+    The admin UI uses /rest/projectconfig/1/issuetypescheme which does support it.
     """
     # pylint: disable=protected-access, missing-timeout
 
-    # First, list all schemes to find the correct id (do not assume 10000).
-    list_resp = requests.get(
-        f"{CI_JIRA_URL}/rest/api/2/issuetypescheme",
+    # Find which scheme the project is using.
+    scheme_resp = requests.get(
+        f"{CI_JIRA_URL}/rest/projectconfig/1/issuetypescheme/{CI_JIRA_TEST_PROJECT}",
         auth=(CI_JIRA_ADMIN, CI_JIRA_ADMIN_PASSWORD),
     )
-    print(f"issuetypescheme list {list_resp.status_code}: {list_resp.text[:500]}")
+    print(f"projectconfig scheme {scheme_resp.status_code}: {scheme_resp.text[:300]}")
 
-    response = requests.post(
-        f"{CI_JIRA_URL}/rest/api/2/issuetypescheme/10000/issuetype",
+    if scheme_resp.status_code != 200:
+        print("Could not retrieve project issue type scheme.")
+        return
+
+    scheme_id = scheme_resp.json().get("id") or scheme_resp.json().get("schemeId")
+    if not scheme_id:
+        print(f"Unexpected scheme response shape: {scheme_resp.text[:300]}")
+        return
+
+    # Get the current issue type ids in the scheme.
+    current_ids = [t["id"] for t in scheme_resp.json().get("issueTypes", [])]
+    if issue_type_id in current_ids:
+        print(f"Issue type {issue_type_id} already in project scheme.")
+        return
+
+    updated_ids = current_ids + [issue_type_id]
+    update_resp = requests.put(
+        f"{CI_JIRA_URL}/rest/projectconfig/1/issuetypescheme/{CI_JIRA_TEST_PROJECT}",
         auth=(CI_JIRA_ADMIN, CI_JIRA_ADMIN_PASSWORD),
-        json={"issueTypeIds": [issue_type_id]},
+        json={"issueTypeIds": updated_ids},
     )
-    print(f"issuetypescheme/10000/issuetype POST {response.status_code}: {response.text[:300]}")
+    print(f"projectconfig scheme PUT {update_resp.status_code}: {update_resp.text[:300]}")
 
 
 def _add_labels_to_screen(jira: JIRA) -> None:
@@ -293,9 +309,9 @@ def _setup_server(connect_timeout: float = 300.0, connect_retry_interval: float 
 
     created_user_key = _add_user_to_jira(jira)
     bug_type_id = _create_issue_type(jira, "Bug")
-    if bug_type_id:
-        _add_issue_type_to_default_scheme(jira, bug_type_id)
     _create_project(jira)
+    if bug_type_id:
+        _add_issue_type_to_project_scheme(jira, bug_type_id)
     _add_labels_to_screen(jira)
     _create_cert()
     _create_sprint(jira, created_user_key)
