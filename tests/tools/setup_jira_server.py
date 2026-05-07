@@ -138,6 +138,28 @@ def _create_issue_type(jira: JIRA, name: str) -> None:
         print(f"Failed to create issue type '{name}':", response.status_code, response.text)
 
 
+def _add_labels_to_screen(jira: JIRA) -> None:
+    """Add the 'labels' field to the default Jira screen so it can be set on issues."""
+    # pylint: disable=protected-access
+    screens = jira._session.get(jira._get_url("screens")).json()
+    for screen in screens.get("values", screens if isinstance(screens, list) else []):
+        screen_id = screen["id"]
+        tabs = jira._session.get(jira._get_url(f"screens/{screen_id}/tabs")).json()
+        for tab in tabs:
+            tab_id = tab["id"]
+            response = jira._session.post(
+                jira._get_url(f"screens/{screen_id}/tabs/{tab_id}/fields"),
+                json={"fieldId": "labels"}
+            )
+            if response.status_code == 200:
+                print(f"Added 'labels' to screen {screen_id} tab {tab_id}.")
+            elif "already" in response.text.lower():
+                print(f"'labels' already on screen {screen_id} tab {tab_id}.")
+            else:
+                print(f"Failed to add 'labels' to screen {screen_id} tab {tab_id}:",
+                      response.status_code, response.text)
+
+
 def _create_project(jira: JIRA) -> None:
     """Create a project in Jira Server for CI testing purposes."""
 
@@ -237,6 +259,7 @@ def _setup_server(connect_timeout: float = 300.0, connect_retry_interval: float 
 
     created_user_key = _add_user_to_jira(jira)
     _create_issue_type(jira, "Bug")
+    _add_labels_to_screen(jira)
     _create_project(jira)
     _create_cert()
     _create_sprint(jira, created_user_key)
