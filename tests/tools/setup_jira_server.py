@@ -149,17 +149,17 @@ def _add_labels_to_screen(jira: JIRA) -> None:
         tabs = jira._session.get(jira._get_url(f"screens/{screen_id}/tabs")).json()
         for tab in tabs:
             tab_id = tab["id"]
-            response = jira._session.post(
-                jira._get_url(f"screens/{screen_id}/tabs/{tab_id}/fields"),
-                json={"fieldId": "labels"}
-            )
-            if response.status_code == 200:
+            try:
+                jira._session.post(
+                    jira._get_url(f"screens/{screen_id}/tabs/{tab_id}/fields"),
+                    json={"fieldId": "labels"}
+                )
                 print(f"Added 'labels' to screen {screen_id} tab {tab_id}.")
-            elif "already" in response.text.lower():
-                print(f"'labels' already on screen {screen_id} tab {tab_id}.")
-            else:
-                print(f"Failed to add 'labels' to screen {screen_id} tab {tab_id}:",
-                      response.status_code, response.text)
+            except JIRAError as e:
+                if "already exists" in str(e):
+                    print(f"'labels' already on screen {screen_id} tab {tab_id}.")
+                else:
+                    print(f"Failed to add 'labels' to screen {screen_id} tab {tab_id}: {e}")
 
 
 def _create_project(jira: JIRA) -> None:
