@@ -4,14 +4,14 @@ name: Jira Online Tests
 on:
   pull_request:
     # A pull request to the main branch or a release branch.
-    branches: [release/**]
+    branches: [ release/** ]
   release:
     # A release, pre-release, or draft of a release is published.
-    types: [published]
+    types: [ published ]
   # Allows you to run this workflow manually from the Actions tab.
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel.
+    # A workflow run is made up of one or more jobs that can run sequentially or in parallel.
 jobs:
   # The introduction just shows some useful information.
   intro:
@@ -19,8 +19,10 @@ jobs:
     runs-on: ubuntu-latest
     # Steps represent a sequence of tasks that will be executed as part of the job.
     steps:
-      - run: echo "The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo "The name of the branch is ${{ github.ref }} and the repository is ${{ github.repository }}."
+      - run: echo "The job was automatically triggered by a ${{ github.event_name }}
+          event."
+      - run: echo "The name of the branch is ${{ github.ref }} and the repository is ${{
+          github.repository }}."
 
   test:
     # The type of runner that the job will run on.
@@ -28,15 +30,16 @@ jobs:
     needs: intro
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        python-version: [ "3.10", "3.11", "3.12", "3.13" ]
 
     # Steps represent a sequence of tasks that will be executed as part of the job.
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
+
       - name: Start Jira docker instance
-        run: docker run -dit -p 2990:2990 --name jira-python-${{ matrix.python-version }} addono/jira-software-standalone --version 8.20.30
+        run: docker run -dit -p 2990:2990 --name jira-python-${{ matrix.python-version
+          }} addono/jira-software-standalone --version 8.20.30
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
@@ -58,7 +61,7 @@ jobs:
         run: |
           echo ${{ env.CI_JIRA_USER_TOKEN }}
           pytest tests/online -v --cov=./src/pyJiraCli --cov-report=html:coverage_report
-  
+
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
