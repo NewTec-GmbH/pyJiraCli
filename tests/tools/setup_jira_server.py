@@ -261,8 +261,8 @@ def _setup_server(connect_timeout: float = 300.0, connect_retry_interval: float 
 
     created_user_key = _add_user_to_jira(jira)
     _create_issue_type(jira, "Bug")
-    _add_labels_to_screen(jira)
     _create_project(jira)
+    _add_labels_to_screen(jira)
     _create_cert()
     _create_sprint(jira, created_user_key)
 
