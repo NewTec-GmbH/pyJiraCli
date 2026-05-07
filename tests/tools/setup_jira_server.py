@@ -40,7 +40,7 @@ https://github.com/pycontribs/jira/blob/eb0ec90e08ae24823e266b0128b852022d212982
 import os
 import time
 import requests
-from jira import JIRA
+from jira import JIRA, JIRAError
 
 ################################################################################
 # Variables
@@ -52,7 +52,7 @@ CI_JIRA_ADMIN_PASSWORD = "admin"
 CI_JIRA_USER = "jira_user"
 CI_JIRA_USER_FULL_NAME = "Newly Created CI User"
 CI_JIRA_USER_PASSWORD = "jira"
-CI_JIRA_TEST_PROJECT = "TESTPROJ"
+CI_JIRA_TEST_PROJECT = "K10111P32"
 CI_FILTER_NAME = "CI_FILTER"
 CI_FILTER_DESCRIPTION = "CI_FILTER_DESCRIPTION"
 CI_FILTER_JQL = "type = Bug and resolution is empty"
@@ -188,13 +188,25 @@ def _create_sprint(jira: JIRA, created_user_key: str) -> None:
         print("Filter shares created.")
 
 
-def _setup_server() -> None:
+def _setup_server(connect_timeout: float = 300.0, connect_retry_interval: float = 10.0) -> None:
     """Setup Jira Server for CI testing purposes."""
 
-    jira = JIRA(
-        CI_JIRA_URL,
-        basic_auth=(CI_JIRA_ADMIN, CI_JIRA_ADMIN_PASSWORD),
-    )
+    deadline = time.time() + connect_timeout
+    while True:
+        try:
+            jira = JIRA(
+                CI_JIRA_URL,
+                basic_auth=(CI_JIRA_ADMIN, CI_JIRA_ADMIN_PASSWORD),
+            )
+            break
+        except JIRAError as e:
+            if time.time() >= deadline:
+                raise TimeoutError(
+                    f"Jira server not fully up within {connect_timeout}s"
+                ) from e
+            print(
+                f"Jira not ready yet ({e}), retrying in {connect_retry_interval}s...")
+            time.sleep(connect_retry_interval)
 
     created_user_key = _add_user_to_jira(jira)
     _create_project(jira)
