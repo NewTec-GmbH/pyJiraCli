@@ -151,14 +151,7 @@ def _add_issue_type_to_project_scheme(jira: JIRA, project_key: str, issue_type_i
     """Add an issue type to the issue type scheme used by the given project."""
     # pylint: disable=protected-access
 
-    # Find the issue type scheme for the project.
-    schemes = jira._session.get(
-        jira._get_url(f"issuetypescheme/project?projectId={project_key}")
-    ).json()
-
-    # The project key won't work — we need the numeric project id.
-    project_info = jira._session.get(jira._get_url(f"project/{project_key}")).json()
-    project_id = project_info["id"]
+    project_id = jira._session.get(jira._get_url(f"project/{project_key}")).json()["id"]
 
     schemes = jira._session.get(
         jira._get_url(f"issuetypescheme/project?projectId={project_id}")
@@ -173,12 +166,14 @@ def _add_issue_type_to_project_scheme(jira: JIRA, project_key: str, issue_type_i
         print("Could not find issue type scheme for project.")
         return
 
-    response = jira._session.put(
-        jira._get_url(f"issuetypescheme/{scheme_id}"),
+    response = jira._session.post(
+        jira._get_url(f"issuetypescheme/{scheme_id}/issuetype"),
         json={"issueTypeIds": [issue_type_id]}
     )
-    if response.status_code in (200, 204):
+    if response.status_code in (200, 201, 204):
         print(f"Issue type {issue_type_id} added to scheme {scheme_id}.")
+    elif "already" in response.text.lower():
+        print(f"Issue type {issue_type_id} already in scheme {scheme_id}.")
     else:
         print(f"Failed to add issue type to scheme {scheme_id}:",
               response.status_code, response.text)
