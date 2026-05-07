@@ -52,7 +52,7 @@ CI_JIRA_ADMIN_PASSWORD = "admin"
 CI_JIRA_USER = "jira_user"
 CI_JIRA_USER_FULL_NAME = "Newly Created CI User"
 CI_JIRA_USER_PASSWORD = "jira"
-CI_JIRA_TEST_PROJECT = "K10111P32"
+CI_JIRA_TEST_PROJECT = "TESTPROJ"
 CI_FILTER_NAME = "CI_FILTER"
 CI_FILTER_DESCRIPTION = "CI_FILTER_DESCRIPTION"
 CI_FILTER_JQL = "type = Bug and resolution is empty"
@@ -124,7 +124,16 @@ def _create_project(jira: JIRA) -> None:
     """Create a project in Jira Server for CI testing purposes."""
 
     try:
-        project = jira.create_project(CI_JIRA_TEST_PROJECT)
+        response = jira._session.post(  # pylint: disable=protected-access
+            jira._get_url("project"),  # pylint: disable=protected-access
+            json={
+                "key": CI_JIRA_TEST_PROJECT,
+                "name": CI_JIRA_TEST_PROJECT,
+                "projectTypeKey": "software",
+                "lead": CI_JIRA_USER,
+            }
+        )
+        project = response.status_code == 201
 
         if project is False:
             print("Failed to create project.")
