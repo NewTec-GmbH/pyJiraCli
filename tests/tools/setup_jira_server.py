@@ -147,23 +147,25 @@ def _create_issue_type(jira: JIRA, name: str) -> str:
     return ""
 
 
-def _add_issue_type_to_project_scheme(jira: JIRA, project_key: str, issue_type_id: str) -> None:
+def _add_issue_type_to_project_scheme(jira: JIRA, issue_type_id: str) -> None:
     """Add an issue type to the issue type scheme used by the given project."""
     # pylint: disable=protected-access
 
-    project_id = jira._session.get(jira._get_url(f"project/{project_key}")).json()["id"]
-
-    schemes = jira._session.get(
-        jira._get_url(f"issuetypescheme/project?projectId={project_id}")
-    ).json()
-
+    # Jira Server 8.x exposes issue type scheme assignment via the admin REST API.
+    # GET /rest/api/2/issuetypescheme returns all schemes; the default scheme (id=10000)
+    # applies to all projects that don't have a custom scheme.
+    schemes = jira._session.get(jira._get_url("issuetypescheme")).json()
     scheme_id = None
-    for mapping in schemes.get("values", []):
-        scheme_id = mapping["issueTypeScheme"]["id"]
-        break
+    for scheme in schemes if isinstance(schemes, list) else schemes.get("values", []):
+        if scheme.get("defaultScheme", False) or scheme.get("name", "") == "Default Issue Type Scheme":
+            scheme_id = scheme["id"]
+            break
+
+    if scheme_id is None and isinstance(schemes, list) and schemes:
+        scheme_id = schemes[0]["id"]
 
     if scheme_id is None:
-        print("Could not find issue type scheme for project.")
+        print("Could not find issue type scheme.")
         return
 
     response = jira._session.post(
@@ -304,7 +306,7 @@ def _setup_server(connect_timeout: float = 300.0, connect_retry_interval: float 
     bug_type_id = _create_issue_type(jira, "Bug")
     _create_project(jira)
     if bug_type_id:
-        _add_issue_type_to_project_scheme(jira, CI_JIRA_TEST_PROJECT, bug_type_id)
+        _add_issue_type_to_project_scheme(jira, bug_type_id)
     _add_labels_to_screen(jira)
     _create_cert()
     _create_sprint(jira, created_user_key)
