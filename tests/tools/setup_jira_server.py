@@ -142,7 +142,9 @@ def _add_labels_to_screen(jira: JIRA) -> None:
     """Add the 'labels' field to the default Jira screen so it can be set on issues."""
     # pylint: disable=protected-access
     screens = jira._session.get(jira._get_url("screens")).json()
-    for screen in screens.get("values", screens if isinstance(screens, list) else []):
+    if isinstance(screens, dict):
+        screens = screens.get("values", [])
+    for screen in screens:
         screen_id = screen["id"]
         tabs = jira._session.get(jira._get_url(f"screens/{screen_id}/tabs")).json()
         for tab in tabs:
