@@ -3,7 +3,7 @@
     onto the console."""
 # BSD 3-Clause License
 #
-# Copyright (c) 2024 - 2025, NewTec GmbH
+# Copyright (c) 2024 - 2026, NewTec GmbH
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -121,18 +121,18 @@ def execute(args) -> Ret.CODE:
     """ This function servers as entry point for the command 'print'.
         It will be stored as callback for this modules subparser command.
 
-    Args: 
+    Args:
         args (obj): The command line arguments.
 
     Returns:
         Ret:   Returns Ret.CODE.RET_OK if successful or else the corresponding error code.
     """
     server = Server()
-    ret_status = server.login(  args.profile,
-                                args.server,
-                                args.token,
-                                args.user,
-                                args.password)
+    ret_status = server.login(args.profile,
+                              args.server,
+                              args.token,
+                              args.user,
+                              args.password)
 
     if Ret.CODE.RET_OK != ret_status:
         ret_status = Ret.CODE.RET_ERROR_JIRA_LOGIN
@@ -143,7 +143,7 @@ def execute(args) -> Ret.CODE:
 
 
 def _cmd_print(issue_key: str, server: Server) -> Ret.CODE:
-    """ Load the data of the provided issue key and 
+    """ Load the data of the provided issue key and
         and print it to the command line.
 
     Args:

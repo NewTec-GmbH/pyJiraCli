@@ -2,7 +2,7 @@
 
 # BSD 3-Clause License
 #
-# Copyright (c) 2024 - 2025, NewTec GmbH
+# Copyright (c) 2024 - 2026, NewTec GmbH
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -70,7 +70,7 @@ _CMD_MODULES = [
 
 PROG_NAME = "pyJiraCli"
 PROG_DESC = "A CLI tool to import and export Jira issues between server and JSON files."
-PROG_COPYRIGHT = "Copyright (c) 2024 NewTec GmbH - " + __license__
+PROG_COPYRIGHT = "Copyright (c) 2024 - 2026 NewTec GmbH - " + __license__
 PROG_GITHUB = "Find the project on GitHub: " + __repository__
 PROG_EPILOG = PROG_COPYRIGHT + " - " + PROG_GITHUB
 
@@ -139,7 +139,8 @@ def main() -> Ret.CODE:
     else:
         # In verbose mode print all program arguments
         if args.verbose:
-            logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+            logging.basicConfig(level=logging.INFO,
+                                format="%(levelname)s: %(message)s")
             LOG.info("Program arguments: ")
 
             for arg in vars(args):
