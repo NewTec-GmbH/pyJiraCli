@@ -55,7 +55,7 @@ CI_JIRA_USER_PASSWORD = "jira"
 CI_JIRA_TEST_PROJECT = "TESTPROJ"
 CI_FILTER_NAME = "CI_FILTER"
 CI_FILTER_DESCRIPTION = "CI_FILTER_DESCRIPTION"
-CI_FILTER_JQL = "issuetype = Task and resolution is empty"
+CI_FILTER_JQL = "issuetype = Bug and resolution is empty"
 CI_BOARD_NAME = "CI_BOARD"
 CI_SPRINT_NAME = "CI_SPRINT"
 
@@ -118,6 +118,24 @@ def _add_user_to_jira(jira: JIRA) -> str:
             pass
 
     return created_user_key
+
+
+def _create_issue_type(jira: JIRA, name: str) -> None:
+    """Create an issue type in Jira Server for CI testing purposes."""
+    response = jira._session.post(  # pylint: disable=protected-access
+        jira._get_url("issuetype"),  # pylint: disable=protected-access
+        json={
+            "name": name,
+            "description": name,
+            "type": "standard",
+        }
+    )
+    if response.status_code == 201:
+        print(f"Issue type '{name}' created.")
+    elif "already exists" in response.text:
+        print(f"Issue type '{name}' already exists.")
+    else:
+        print(f"Failed to create issue type '{name}':", response.status_code, response.text)
 
 
 def _create_project(jira: JIRA) -> None:
@@ -218,6 +236,7 @@ def _setup_server(connect_timeout: float = 300.0, connect_retry_interval: float 
             time.sleep(connect_retry_interval)
 
     created_user_key = _add_user_to_jira(jira)
+    _create_issue_type(jira, "Bug")
     _create_project(jira)
     _create_cert()
     _create_sprint(jira, created_user_key)
