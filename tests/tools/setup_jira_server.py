@@ -124,8 +124,7 @@ def _create_project(jira: JIRA) -> None:
     """Create a project in Jira Server for CI testing purposes."""
 
     try:
-        project = jira.create_project(
-            CI_JIRA_TEST_PROJECT, issueSecurityScheme=None)
+        project = jira.create_project(CI_JIRA_TEST_PROJECT)
 
         if project is False:
             print("Failed to create project.")
