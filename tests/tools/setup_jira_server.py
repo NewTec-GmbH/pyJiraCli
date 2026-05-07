@@ -154,18 +154,20 @@ def _add_issue_type_to_default_scheme(jira: JIRA, issue_type_id: str) -> None:
     id 10000. Adding the type here ensures any subsequently created project inherits it.
     """
     # pylint: disable=protected-access, missing-timeout
+
+    # First, list all schemes to find the correct id (do not assume 10000).
+    list_resp = requests.get(
+        f"{CI_JIRA_URL}/rest/api/2/issuetypescheme",
+        auth=(CI_JIRA_ADMIN, CI_JIRA_ADMIN_PASSWORD),
+    )
+    print(f"issuetypescheme list {list_resp.status_code}: {list_resp.text[:500]}")
+
     response = requests.post(
         f"{CI_JIRA_URL}/rest/api/2/issuetypescheme/10000/issuetype",
         auth=(CI_JIRA_ADMIN, CI_JIRA_ADMIN_PASSWORD),
         json={"issueTypeIds": [issue_type_id]},
     )
-    if response.status_code in (200, 201, 204):
-        print(f"Issue type {issue_type_id} added to default scheme.")
-    elif "already" in response.text.lower():
-        print(f"Issue type {issue_type_id} already in default scheme.")
-    else:
-        print(f"Failed to add issue type to default scheme:",
-              response.status_code, response.text)
+    print(f"issuetypescheme/10000/issuetype POST {response.status_code}: {response.text[:300]}")
 
 
 def _add_labels_to_screen(jira: JIRA) -> None:
