@@ -3,12 +3,14 @@ name: CI
 # Controls when the action will run.
 on:
   push:
-    branches: [ "**" ]
+    branches: ["**"]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   release:
     # A release, pre-release, or draft of a release is published.
-    types: [ published ]
+    types: [published]
+  # Allows you to run this workflow manually from the Actions tab.
+  workflow_dispatch:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel.
 jobs:
@@ -18,9 +20,11 @@ jobs:
     runs-on: ubuntu-latest
     # Steps represent a sequence of tasks that will be executed as part of the job.
     steps:
-      - run: echo "The job was automatically triggered by a ${{ github.event_name }}
+      - run:
+          echo "The job was automatically triggered by a ${{ github.event_name }}
           event."
-      - run: echo "The name of the branch is ${{ github.ref }} and the repository is ${{
+      - run:
+          echo "The name of the branch is ${{ github.ref }} and the repository is ${{
           github.repository }}."
 
   lint:
@@ -29,7 +33,7 @@ jobs:
     needs: intro
     strategy:
       matrix:
-        python-version: [ "3.9", "3.10", "3.11", "3.12", "3.13" ]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
 
     # Steps represent a sequence of tasks that will be executed as part of the job.
     steps:
@@ -57,7 +61,7 @@ jobs:
     needs: intro
     strategy:
       matrix:
-        python-version: [ "3.9", "3.10", "3.11", "3.12", "3.13" ]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
 
     # Steps represent a sequence of tasks that will be executed as part of the job.
     steps:
@@ -85,7 +89,7 @@ jobs:
     needs: intro
     strategy:
       matrix:
-        python-version: [ "3.9", "3.10", "3.11", "3.12", "3.13" ]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
 
     # Steps represent a sequence of tasks that will be executed as part of the job.
     steps:
