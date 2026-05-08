@@ -27,7 +27,8 @@ classifiers = [
 ]
 
 dependencies = [
-    "jira @ git+https://github.com/pycontribs/jira.git@99a175792ffb6938404f4c519fa7035d7d14d44e",
+    "jira @ git+https://github.com/pycontribs/jira.git@99a175792ffb6938404f4c519fa7035d7d14d44e ; python_version >= '3.10'",
+    "jira==3.8.0 ; python_version < '3.10'",
     "toml>=0.10.2",
     "pyProfileMgr @ git+https://github.com/NewTec-GmbH/pyProfileMgr.git@v1.2.0",
 ]
