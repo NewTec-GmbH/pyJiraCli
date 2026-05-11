@@ -20,8 +20,12 @@ jobs:
     runs-on: ubuntu-latest
     # Steps represent a sequence of tasks that will be executed as part of the job.
     steps:
-      - run: echo "The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo "The name of the branch is ${{ github.ref }} and the repository is ${{ github.repository }}."
+      - run:
+          echo "The job was automatically triggered by a ${{ github.event_name }}
+          event."
+      - run:
+          echo "The name of the branch is ${{ github.ref }} and the repository is ${{
+          github.repository }}."
 
   lint:
     # The type of runner that the job will run on.

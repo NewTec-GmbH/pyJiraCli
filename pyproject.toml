@@ -27,7 +27,12 @@ classifiers = [
 ]
 
 dependencies = [
-    "jira>=3.8.0",
+    # The latest jira release on PyPI is outdated; this commit contains fixes needed
+    # for the online tests that are not yet in a published release.
+    # jira >= 3.10.0 also requires Python >= 3.10, so fall back to the last PyPI
+    # release compatible with Python 3.9 (3.8.0) for that version.
+    "jira @ git+https://github.com/pycontribs/jira.git@99a175792ffb6938404f4c519fa7035d7d14d44e ; python_version >= '3.10'",
+    "jira==3.8.0 ; python_version < '3.10'",
     "toml>=0.10.2",
     "pyProfileMgr @ git+https://github.com/NewTec-GmbH/pyProfileMgr.git@v1.2.0",
 ]

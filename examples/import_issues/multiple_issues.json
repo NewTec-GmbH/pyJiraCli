@@ -6,7 +6,7 @@
     {
       "externalId":"1",
       "issuetype":{
-        "name":"Bug"
+        "name":"Task"
       },
       "summary":"Fix tool documentation.",
       "labels" : ["label1", "label2"]
@@ -14,7 +14,7 @@
     {
       "externalId":"2",
       "issuetype":{
-        "name": "New Feature"
+        "name": "Task"
       },
       "summary":"Perform initial project actions"
     },

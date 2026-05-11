@@ -40,7 +40,7 @@ https://github.com/pycontribs/jira/blob/eb0ec90e08ae24823e266b0128b852022d212982
 import os
 import time
 import requests
-from jira import JIRA
+from jira import JIRA, JIRAError
 
 ################################################################################
 # Variables
@@ -55,7 +55,7 @@ CI_JIRA_USER_PASSWORD = "jira"
 CI_JIRA_TEST_PROJECT = "TESTPROJ"
 CI_FILTER_NAME = "CI_FILTER"
 CI_FILTER_DESCRIPTION = "CI_FILTER_DESCRIPTION"
-CI_FILTER_JQL = "type = Bug and resolution is empty"
+CI_FILTER_JQL = "issuetype = Task and resolution is empty"
 CI_BOARD_NAME = "CI_BOARD"
 CI_SPRINT_NAME = "CI_SPRINT"
 
@@ -120,11 +120,45 @@ def _add_user_to_jira(jira: JIRA) -> str:
     return created_user_key
 
 
+
+def _add_labels_to_screen(jira: JIRA) -> None:
+    """Add the 'labels' field to the default Jira screen so it can be set on issues."""
+    # pylint: disable=protected-access
+    screens = jira._session.get(jira._get_url("screens")).json()
+    if isinstance(screens, dict):
+        screens = screens.get("values", [])
+    for screen in screens:
+        screen_id = screen["id"]
+        tabs = jira._session.get(jira._get_url(f"screens/{screen_id}/tabs")).json()
+        for tab in tabs:
+            tab_id = tab["id"]
+            try:
+                jira._session.post(
+                    jira._get_url(f"screens/{screen_id}/tabs/{tab_id}/fields"),
+                    json={"fieldId": "labels"}
+                )
+                print(f"Added 'labels' to screen {screen_id} tab {tab_id}.")
+            except JIRAError as e:
+                if "already exists" in str(e):
+                    print(f"'labels' already on screen {screen_id} tab {tab_id}.")
+                else:
+                    print(f"Failed to add 'labels' to screen {screen_id} tab {tab_id}: {e}")
+
+
 def _create_project(jira: JIRA) -> None:
     """Create a project in Jira Server for CI testing purposes."""
 
     try:
-        project = jira.create_project(CI_JIRA_TEST_PROJECT)
+        response = jira._session.post(  # pylint: disable=protected-access
+            jira._get_url("project"),  # pylint: disable=protected-access
+            json={
+                "key": CI_JIRA_TEST_PROJECT,
+                "name": CI_JIRA_TEST_PROJECT,
+                "projectTypeKey": "software",
+                "lead": CI_JIRA_USER,
+            }
+        )
+        project = response.status_code == 201
 
         if project is False:
             print("Failed to create project.")
@@ -188,16 +222,29 @@ def _create_sprint(jira: JIRA, created_user_key: str) -> None:
         print("Filter shares created.")
 
 
-def _setup_server() -> None:
+def _setup_server(connect_timeout: float = 300.0, connect_retry_interval: float = 10.0) -> None:
     """Setup Jira Server for CI testing purposes."""
 
-    jira = JIRA(
-        CI_JIRA_URL,
-        basic_auth=(CI_JIRA_ADMIN, CI_JIRA_ADMIN_PASSWORD),
-    )
+    deadline = time.time() + connect_timeout
+    while True:
+        try:
+            jira = JIRA(
+                CI_JIRA_URL,
+                basic_auth=(CI_JIRA_ADMIN, CI_JIRA_ADMIN_PASSWORD),
+            )
+            break
+        except JIRAError as e:
+            if time.time() >= deadline:
+                raise TimeoutError(
+                    f"Jira server not fully up within {connect_timeout}s"
+                ) from e
+            print(
+                f"Jira not ready yet ({e}), retrying in {connect_retry_interval}s...")
+            time.sleep(connect_retry_interval)
 
     created_user_key = _add_user_to_jira(jira)
     _create_project(jira)
+    _add_labels_to_screen(jira)
     _create_cert()
     _create_sprint(jira, created_user_key)
 
