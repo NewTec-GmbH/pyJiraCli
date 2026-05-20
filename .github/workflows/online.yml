@@ -1,4 +1,4 @@
-name: Jira Online Tests
+﻿name: Jira Online Tests
 
 # Controls when the action will run.
 on:
@@ -40,14 +40,14 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job.
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Start Jira docker instance
         # Jira Software 8.20.30 (LTS)
         run: docker run -dit -p 2990:2990 --name jira-python-${{ matrix.python-version }} addono/jira-software-standalone --version 8.20.30
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
@@ -68,7 +68,7 @@ jobs:
           pytest tests/online -v --cov=./src/pyJiraCli --cov-report=html:coverage_report
 
       - name: Upload coverage report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: coverage-report-${{ matrix.python-version }}
           path: coverage_report/
